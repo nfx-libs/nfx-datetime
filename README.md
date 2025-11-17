@@ -45,7 +45,7 @@ nfx-datetime is a modern C++20 library providing high-precision temporal operati
 
 ### ⚡ Performance Optimized
 
-- Sub-nanosecond arithmetic operations
+- High-precision arithmetic operations (100-nanosecond resolution)
 - Highly optimized parsing
 - Efficient string formatting
 - Zero-cost abstractions with constexpr support
