@@ -16,20 +16,6 @@ project(nfx-datetime
 )
 
 #----------------------------------------------
-# Installation prefix configuration
-#----------------------------------------------
-
-# Set default installation path to nfx
-if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-	if(WIN32)
-		set(CMAKE_INSTALL_PREFIX "C:/Program Files/nfx" CACHE PATH "Installation directory" FORCE)
-	else()
-		set(CMAKE_INSTALL_PREFIX "/usr/local/nfx" CACHE PATH "Installation directory" FORCE)
-	endif()
-	message(STATUS "Setting install prefix to '${CMAKE_INSTALL_PREFIX}'")
-endif()
-
-#----------------------------------------------
 # Version configuration
 #----------------------------------------------
 
@@ -37,13 +23,6 @@ set(NFX_DATETIME_VERSION_MAJOR ${PROJECT_VERSION_MAJOR} CACHE INTERNAL "nfx-date
 set(NFX_DATETIME_VERSION_MINOR ${PROJECT_VERSION_MINOR} CACHE INTERNAL "nfx-datetime minor version")
 set(NFX_DATETIME_VERSION_PATCH ${PROJECT_VERSION_PATCH} CACHE INTERNAL "nfx-datetime patch version")
 set(NFX_DATETIME_VERSION       ${PROJECT_VERSION}       CACHE INTERNAL "nfx-datetime version")
-
-#----------------------------------------------
-# Project metadata
-#----------------------------------------------
-
-set(NFX_DATETIME_LICENSE "MIT")
-set(NFX_DATETIME_LICENSE_FILE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.txt")
 
 #----------------------------------------------
 # Testing setup
@@ -86,7 +65,6 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 #----------------------------------------------
 
 include(nfxDateTimeBuildConfig)
-include(nfxDateTimeDependencies)
 include(nfxDateTimeSources)
 include(nfxDateTimeTargets)
 
