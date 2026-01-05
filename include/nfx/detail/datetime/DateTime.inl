@@ -299,7 +299,7 @@ namespace std
 
 		auto format( const nfx::time::DateTime& dt, std::format_context& ctx ) const
 		{
-			return format_to( ctx.out(), "{}", dt.toString() );
+			return format_to( ctx.out(), "{}", dt.toString( nfx::time::DateTime::Format::Iso8601 ) );
 		}
 	};
 } // namespace std

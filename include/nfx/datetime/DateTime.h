@@ -65,8 +65,8 @@
  * │  2024-01-15T12:30:45Z          │  Jan 15, 2024, 12:30:45 UTC       │
  * │  2024-06-20T00:00:00Z          │  Jun 20, 2024, midnight UTC       │
  * │  2024-12-31T23:59:59Z          │  Dec 31, 2024, 23:59:59 UTC       │
- * │  2024-01-15T12:30:45.123Z      │  With milliseconds (123 ms)       │
- * │  2024-01-15T12:30:45.123456Z   │  With microseconds (123.456 ms)   │
+ * │  2024-01-15T12:30:45.1230000Z  │  With 7-digit fractions (123 ms)  │
+ * │  2024-01-15T12:30:45.1234560Z  │  With microseconds (123.456 ms)   │
  * │  2024-01-15T12:30:45.1234567Z  │  Full precision (100 ns ticks)    │
  * │  1970-01-01T00:00:00Z          │  Unix epoch (start of Unix time)  │
  * │  0001-01-01T00:00:00Z          │  Minimum DateTime value           │
@@ -178,8 +178,8 @@
  * │  DateTime fromEpoch{ DateTime::fromEpochSeconds(epochSecs) };        │
  * │                                                                      │
  * │  // Format output                                                    │
- * │  std::string basic{ dt.toString() };             // Basic ISO 8601   │
- * │  std::string precise{ dt.toIso8601Extended() };  // With fractions   │
+ * │  std::string iso{ dt.toString(Format::Iso8601) };                    │
+ * │  std::string precise{ dt.toString(Format::Iso8601Precise) };         │
  * └──────────────────────────────────────────────────────────────────────┘
  * @endcode
  *
@@ -233,25 +233,28 @@ namespace nfx::time
 		 */
 		enum class Format : std::uint8_t
 		{
-			/** @brief ISO 8601 basic format: "2024-01-01T12:00:00Z" */
-			Iso8601Basic,
+			/** @brief ISO 8601 with seconds precision: "2024-01-01T12:00:00Z" */
+			Iso8601,
 
-			/** @brief ISO 8601 extended format with fractional seconds: "2024-01-01T12:00:00.1234567Z" */
-			Iso8601Extended,
+			/** @brief ISO 8601 with full tick precision (7 decimal digits): "2024-01-01T12:00:00.1234567Z" */
+			Iso8601Precise,
 
-			/** @brief Date and time with timezone: "2024-01-01T12:00:00+02:00" */
+			/** @brief ISO 8601 with numeric offset (always +00:00 for DateTime): "2024-01-01T12:00:00+00:00" */
 			Iso8601WithOffset,
 
-			/** @brief Date only format: "2024-01-01" */
-			DateOnly,
+			/** @brief ISO 8601 compact form without separators: "20240101T120000Z" */
+			Iso8601Compact,
 
-			/** @brief Time only: "12:00:00" */
-			TimeOnly,
+			/** @brief ISO 8601 date only: "2024-01-01" */
+			Iso8601Date,
 
-			/** @brief Epoch timestamp format: "1704110400" (seconds since epoch) */
+			/** @brief ISO 8601 time only: "12:00:00" */
+			Iso8601Time,
+
+			/** @brief Unix epoch seconds (integer): "1704110400" */
 			UnixSeconds,
 
-			/** @brief Epoch timestamp with milliseconds: "1704110400123" */
+			/** @brief Unix epoch milliseconds (integer): "1704110400000" */
 			UnixMilliseconds,
 		};
 
@@ -633,26 +636,12 @@ namespace nfx::time
 		//----------------------------------------------
 
 		/**
-		 * @brief Convert to ISO 8601 string (basic format)
-		 * @return String representation in ISO 8601 basic format (e.g., "2024-01-01T12:00:00Z")
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] std::string toString() const;
-
-		/**
 		 * @brief Convert to string using specified format
 		 * @param format The format to use for string conversion
 		 * @return String representation using the specified format
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] std::string toString( Format format ) const;
-
-		/**
-		 * @brief Convert to ISO 8601 extended format with full precision
-		 * @return String representation in ISO 8601 extended format with fractional seconds (e.g., "2024-01-01T12:00:00.1234567Z")
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] std::string toIso8601Extended() const;
+		[[nodiscard]] std::string toString( Format format = Format::Iso8601 ) const;
 
 		//----------------------------------------------
 		// std::chrono interoperability

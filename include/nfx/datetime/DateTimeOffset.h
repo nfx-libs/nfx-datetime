@@ -57,24 +57,23 @@
  *
  * @par Format Examples:
  * @code
- * ┌────────────────────────────────┬─────────────────────────────────┐
- * │          Input String          │             Meaning             │
- * ├────────────────────────────────┼─────────────────────────────────┤
- * │  2024-01-15T12:30:45Z          │  UTC time (Z = zero offset)     │
- * │  2024-01-15T12:30:45+02:00     │  Local: 12:30, UTC+2 (East)     │
- * │  2024-01-15T12:30:45-05:00     │  Local: 12:30, UTC-5 (West)     │
- * │  2024-01-15T12:30:45.123+01:00 │  With milliseconds, UTC+1       │
- * │  2024-06-20T08:15:00+05:30     │  India Standard Time (UTC+5:30) │
- * │  2024-12-25T00:00:00-08:00     │  Pacific Standard Time (UTC-8)  │
- * └────────────────────────────────┴─────────────────────────────────┘
+ * ┌──────────────────────────────────────┬─────────────────────────────────┐
+ * │            Input String              │             Meaning             │
+ * ├──────────────────────────────────────┼─────────────────────────────────┤
+ * │  2024-01-15T12:30:45+00:00           │  UTC time (explicit offset)     │
+ * │  2024-01-15T12:30:45+02:00           │  Local: 12:30, UTC+2 (East)     │
+ * │  2024-01-15T12:30:45-05:00           │  Local: 12:30, UTC-5 (West)     │
+ * │  2024-01-15T12:30:45.1230000+01:00   │  With 7-digit fractions, UTC+1  │
+ * │  2024-06-20T08:15:00+05:30           │  India Standard Time (UTC+5:30) │
+ * │  2024-12-25T00:00:00-08:00           │  Pacific Standard Time (UTC-8)  │
+ * └──────────────────────────────────────┴─────────────────────────────────┘
  * @endcode
  *
  * @par Timezone Offset Rules:
  * - Valid range: **±14:00:00** (±840 minutes, ±50,400 seconds)
  * - Positive offset: East of UTC (e.g., +09:00 for Japan)
  * - Negative offset: West of UTC (e.g., -05:00 for US Eastern)
- * - **Z** notation: Represents UTC (zero offset), equivalent to +00:00
- * - Offset format: Always ±HH:MM in string representation
+ * - Offset format: Always **±HH:MM** in string representation (explicit, no 'Z' notation)
  *
  * @par Internal Composition:
  * @code
@@ -627,26 +626,12 @@ namespace nfx::time
 		//----------------------------------------------
 
 		/**
-		 * @brief Convert to ISO 8601 string with offset
-		 * @return String representation in ISO 8601 format with timezone offset (e.g., "2024-01-01T12:00:00+02:00")
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] std::string toString() const;
-
-		/**
 		 * @brief Convert to string using specified format
 		 * @param format The format to use for string conversion
 		 * @return String representation using the specified format
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] std::string toString( DateTime::Format format ) const;
-
-		/**
-		 * @brief Convert to ISO 8601 extended format with full precision and offset
-		 * @return String representation in ISO 8601 extended format with fractional seconds and offset (e.g., "2024-01-01T12:00:00.1234567+02:00")
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] std::string toIso8601Extended() const;
+		[[nodiscard]] std::string toString( DateTime::Format format = DateTime::Format::Iso8601 ) const;
 
 		//----------------------------------------------
 		// Comparison methods

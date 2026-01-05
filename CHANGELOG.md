@@ -13,7 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- NIL
+- **BREAKING**: DateTime::Format enum renamed (`Iso8601Basic` → `Iso8601`, `Iso8601Extended` → `Iso8601Precise`, `DateOnly` → `Iso8601Date`, `TimeOnly` → `Iso8601Time`)
+- **BREAKING**: Fractional seconds always display exactly 7 digits (tick precision) in `Iso8601Precise` format
+- **BREAKING**: DateTimeOffset offset always explicit (`±HH:MM`), removed `Z` notation for UTC
+- **BREAKING**: toString() consolidated to single method with default parameter
 
 ### Deprecated
 
@@ -21,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
-- NIL
+- **BREAKING**: Standalone `toIso8601Extended()` method (use `toString(Format::Iso8601Precise)`)
 
 ### Fixed
 
@@ -30,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 
 - NIL
+
 
 ## [0.1.1] - 2025-11-27
 

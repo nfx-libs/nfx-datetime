@@ -373,11 +373,6 @@ namespace nfx::time
 	// String formatting
 	//----------------------------------------------
 
-	std::string DateTime::toString() const
-	{
-		return toString( Format::Iso8601Basic );
-	}
-
 	std::string DateTime::toString( Format format ) const
 	{
 		std::int32_t y, mon, d, h, min, s, ms;
@@ -388,84 +383,59 @@ namespace nfx::time
 
 		switch ( format )
 		{
-			case Format::Iso8601Basic:
+			case Format::Iso8601:
 			{
 				oss << std::setfill( '0' ) << std::setw( 4 ) << y << "-" << std::setw( 2 ) << mon << "-" << std::setw( 2 ) << d << "T" << std::setw( 2 ) << h << ":"
 					<< std::setw( 2 ) << min << ":" << std::setw( 2 ) << s << "Z";
-
 				break;
 			}
-			case Format::Iso8601Extended:
+			case Format::Iso8601Precise:
 			{
 				std::int32_t fractionalTicks{ static_cast<std::int32_t>( m_ticks % constants::TICKS_PER_SECOND ) };
-
-				// Format fractional seconds and strip trailing zeros
-				std::ostringstream fractionOss;
-				fractionOss << std::setfill( '0' ) << std::setw( 7 ) << fractionalTicks;
-				std::string fractionStr = fractionOss.str();
-
-				// Strip trailing zeros (but keep at least one digit if all zeros)
-				auto lastNonZero = fractionStr.find_last_not_of( '0' );
-				if ( lastNonZero != std::string::npos )
-				{
-					fractionStr = fractionStr.substr( 0, lastNonZero + 1 );
-				}
-				else
-				{
-					fractionStr = "0";
-				}
-
 				oss << std::setfill( '0' ) << std::setw( 4 ) << y << "-" << std::setw( 2 ) << mon << "-" << std::setw( 2 ) << d << "T" << std::setw( 2 ) << h
-					<< ":" << std::setw( 2 ) << min << ":" << std::setw( 2 ) << s << "." << fractionStr << "Z";
-
+					<< ":" << std::setw( 2 ) << min << ":" << std::setw( 2 ) << s << "." << std::setw( 7 ) << fractionalTicks << "Z";
 				break;
 			}
 			case Format::Iso8601WithOffset:
 			{
-				// UTC DateTime always has +00:00 offset
 				oss << std::setfill( '0' ) << std::setw( 4 ) << y << "-" << std::setw( 2 ) << mon << "-" << std::setw( 2 ) << d << "T" << std::setw( 2 ) << h
 					<< ":" << std::setw( 2 ) << min << ":" << std::setw( 2 ) << s << "+00:00";
-
 				break;
 			}
-			case Format::DateOnly:
+			case Format::Iso8601Compact:
+			{
+				oss << std::setfill( '0' ) << std::setw( 4 ) << y << std::setw( 2 ) << mon << std::setw( 2 ) << d << "T" << std::setw( 2 ) << h
+					<< std::setw( 2 ) << min << std::setw( 2 ) << s << "Z";
+				break;
+			}
+			case Format::Iso8601Date:
 			{
 				oss << std::setfill( '0' ) << std::setw( 4 ) << y << "-" << std::setw( 2 ) << mon << "-" << std::setw( 2 ) << d;
-
 				break;
 			}
-			case Format::TimeOnly:
+			case Format::Iso8601Time:
 			{
 				oss << std::setfill( '0' ) << std::setw( 2 ) << h << ":" << std::setw( 2 ) << min << ":" << std::setw( 2 ) << s;
-
 				break;
 			}
 			case Format::UnixSeconds:
 			{
 				oss << toEpochSeconds();
-
 				break;
 			}
 			case Format::UnixMilliseconds:
 			{
 				oss << toEpochMilliseconds();
-
 				break;
 			}
 			default:
 			{
-				oss << toString( Format::Iso8601Basic );
-
+				oss << toString( Format::Iso8601 );
 				break;
 			}
 		}
 
 		return oss.str();
-	}
-
-	std::string DateTime::toIso8601Extended() const
-	{
-		return toString( Format::Iso8601Extended );
 	}
 
 	//----------------------------------------------
@@ -742,7 +712,7 @@ namespace nfx::time
 
 	std::ostream& operator<<( std::ostream& os, const DateTime& dateTime )
 	{
-		os << dateTime.toString();
+		os << dateTime.toString( nfx::time::DateTime::Format::Iso8601 );
 
 		return os;
 	}

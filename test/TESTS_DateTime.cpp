@@ -352,50 +352,17 @@ namespace nfx::time::test
 	TEST( DateTimeStringFormatting, toIso8601Extended )
 	{
 		DateTime dt{ 2024, 3, 10, 9, 15, 22, 123 };
-		std::string str{ dt.toIso8601Extended() };
+		std::string str{ dt.toString( DateTime::Format::Iso8601Precise ) };
 
 		// Should include fractional seconds
 		EXPECT_NE( str.find( "22." ), std::string::npos );
 		EXPECT_NE( str.find( "Z" ), std::string::npos );
 	}
 
-	TEST( DateTimeStringFormatting, Iso8601ExtendedStripsTrailingZeros )
-	{
-		// Test various fractional second cases to ensure trailing zeros are stripped
-
-		// 1 tick (0.0000001 seconds) -> should output ".0000001"
-		DateTime dt1{ DateTime::epoch().ticks() + 1 };
-		EXPECT_EQ( dt1.toIso8601Extended(), "1970-01-01T00:00:00.0000001Z" );
-
-		// 10 ticks (0.000001 seconds = 1 microsecond) -> should output ".000001"
-		DateTime dt2{ DateTime::epoch().ticks() + 10 };
-		EXPECT_EQ( dt2.toIso8601Extended(), "1970-01-01T00:00:00.000001Z" );
-
-		// 1000000 ticks (0.1 seconds) -> should output ".1"
-		DateTime dt3{ DateTime::epoch().ticks() + 1000000 };
-		EXPECT_EQ( dt3.toIso8601Extended(), "1970-01-01T00:00:00.1Z" );
-
-		// 1230000 ticks (0.123 seconds) -> should output ".123"
-		DateTime dt4{ DateTime::epoch().ticks() + 1230000 };
-		EXPECT_EQ( dt4.toIso8601Extended(), "1970-01-01T00:00:00.123Z" );
-
-		// Full second (0 fractional ticks) -> should output ".0"
-		DateTime dt5{ DateTime::epoch() };
-		EXPECT_EQ( dt5.toIso8601Extended(), "1970-01-01T00:00:00.0Z" );
-
-		// 1234567 ticks (full precision, no trailing zeros) -> should output ".1234567"
-		DateTime dt6{ DateTime::epoch().ticks() + 1234567 };
-		EXPECT_EQ( dt6.toIso8601Extended(), "1970-01-01T00:00:00.1234567Z" );
-
-		// 1234560 ticks (trailing zero) -> should output ".123456"
-		DateTime dt7{ DateTime::epoch().ticks() + 1234560 };
-		EXPECT_EQ( dt7.toIso8601Extended(), "1970-01-01T00:00:00.123456Z" );
-	}
-
 	TEST( DateTimeStringFormatting, ToStringDateOnly )
 	{
 		DateTime dt{ 2024, 6, 20, 18, 45, 30 };
-		std::string str{ dt.toString( DateTime::Format::DateOnly ) };
+		std::string str{ dt.toString( DateTime::Format::Iso8601Date ) };
 
 		EXPECT_NE( str.find( "2024-06-20" ), std::string::npos );
 		EXPECT_EQ( str.find( "T" ), std::string::npos ); // No time component
@@ -404,7 +371,7 @@ namespace nfx::time::test
 	TEST( DateTimeStringFormatting, ToStringTimeOnly )
 	{
 		DateTime dt{ 2024, 6, 20, 18, 45, 30 };
-		std::string str{ dt.toString( DateTime::Format::TimeOnly ) };
+		std::string str{ dt.toString( DateTime::Format::Iso8601Time ) };
 
 		EXPECT_NE( str.find( "18:45:30" ), std::string::npos );
 		EXPECT_EQ( str.find( "2024" ), std::string::npos ); // No date component
@@ -736,7 +703,7 @@ namespace nfx::time::test
 		DateTime original{ 2024, 3, 15, 14, 30, 45, 123 };
 
 		// Convert to extended string and back
-		std::string serialized{ original.toIso8601Extended() };
+		std::string serialized{ original.toString( DateTime::Format::Iso8601Precise ) };
 		DateTime deserialized{ DateTime{ serialized } };
 
 		// Should match exactly including milliseconds

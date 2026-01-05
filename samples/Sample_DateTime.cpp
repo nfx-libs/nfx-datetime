@@ -98,7 +98,7 @@ int main()
 		std::cout << "----------------------------------\n";
 
 		DateTime dt{ 2024, 6, 15, 14, 30, 45, 123 };
-		std::cout << "DateTime: " << dt.toIso8601Extended() << "\n";
+		std::cout << "DateTime: " << dt.toString( DateTime::Format::Iso8601Precise ) << "\n";
 		std::cout << "  Year:         " << dt.year() << "\n";
 		std::cout << "  Month:        " << dt.month() << "\n";
 		std::cout << "  Day:          " << dt.day() << "\n";

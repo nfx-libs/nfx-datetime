@@ -460,7 +460,7 @@ namespace nfx::time::test
 	TEST( DateTimeOffsetStringFormatting, toIso8601Extended )
 	{
 		DateTimeOffset dto{ 2024, 3, 10, 9, 15, 22, 123, TimeSpan::fromHours( 1.0 ) };
-		std::string str{ dto.toIso8601Extended() };
+		std::string str{ dto.toString( DateTime::Format::Iso8601Precise ) };
 
 		// Should include fractional seconds
 		EXPECT_NE( str.find( "22.123" ), std::string::npos );

@@ -73,19 +73,12 @@ namespace nfx::time
 		/** @brief Append timezone offset to output stream */
 		static void appendOffset( std::ostringstream& oss, std::int32_t offsetMinutes )
 		{
-			if ( offsetMinutes == 0 )
-			{
-				oss << 'Z';
-			}
-			else
-			{
-				const auto absMinutes{ std::abs( offsetMinutes ) };
-				const auto offsetHours{ absMinutes / constants::MINUTES_PER_HOUR };
-				const auto offsetMins{ absMinutes % constants::MINUTES_PER_HOUR };
-				oss << ( offsetMinutes >= 0 ? '+' : '-' )
-					<< std::setw( 2 ) << offsetHours << ':'
-					<< std::setw( 2 ) << offsetMins;
-			}
+			const auto absMinutes{ std::abs( offsetMinutes ) };
+			const auto offsetHours{ absMinutes / constants::MINUTES_PER_HOUR };
+			const auto offsetMins{ absMinutes % constants::MINUTES_PER_HOUR };
+			oss << ( offsetMinutes >= 0 ? '+' : '-' )
+				<< std::setw( 2 ) << offsetHours << ':'
+				<< std::setw( 2 ) << offsetMins;
 		}
 
 		/** @brief Format ISO 8601 datetime with offset */
@@ -105,23 +98,10 @@ namespace nfx::time
 				<< std::setw( 2 ) << dto.second();
 
 			// Add fractional seconds for extended format
-			if ( format == DateTime::Format::Iso8601Extended )
+			if ( format == DateTime::Format::Iso8601Precise )
 			{
-				const auto ms{ dto.millisecond() };
-				const auto us{ dto.microsecond() };
-				const auto ns{ dto.nanosecond() };
-				if ( ms > 0 || us > 0 || ns > 0 )
-				{
-					oss << '.' << std::setw( 3 ) << ms;
-					if ( us > 0 || ns > 0 )
-					{
-						oss << std::setw( 3 ) << us;
-						if ( ns > 0 )
-						{
-							oss << std::setw( 1 ) << ( ns / 100 );
-						}
-					}
-				}
+				const std::int64_t fractionalTicks = dto.dateTime().ticks() % constants::TICKS_PER_SECOND;
+				oss << '.' << std::setw( 7 ) << fractionalTicks;
 			}
 
 			// Offset part
@@ -295,26 +275,21 @@ namespace nfx::time
 	// String formatting
 	//----------------------------------------------
 
-	std::string DateTimeOffset::toString() const
-	{
-		return toString( DateTime::Format::Iso8601Basic );
-	}
-
 	std::string DateTimeOffset::toString( DateTime::Format format ) const
 	{
 		switch ( format )
 		{
-			case DateTime::Format::Iso8601Basic:
-			case DateTime::Format::Iso8601Extended:
+			case DateTime::Format::Iso8601:
+			case DateTime::Format::Iso8601Precise:
 			case DateTime::Format::Iso8601WithOffset:
 			{
 				return internal::formatIso8601( *this, format );
 			}
-			case DateTime::Format::DateOnly:
+			case DateTime::Format::Iso8601Date:
 			{
 				return internal::formatDateOnly( *this );
 			}
-			case DateTime::Format::TimeOnly:
+			case DateTime::Format::Iso8601Time:
 			{
 				return internal::formatTimeOnly( *this );
 			}
@@ -328,14 +303,9 @@ namespace nfx::time
 			}
 			default:
 			{
-				return toString( DateTime::Format::Iso8601Basic );
+				return toString( DateTime::Format::Iso8601 );
 			}
 		}
-	}
-
-	std::string DateTimeOffset::toIso8601Extended() const
-	{
-		return toString( DateTime::Format::Iso8601Extended );
 	}
 
 	//----------------------------------------------

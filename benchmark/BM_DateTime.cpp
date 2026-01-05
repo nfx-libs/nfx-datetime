@@ -118,13 +118,13 @@ namespace nfx::time::benchmark
 		}
 	}
 
-	static void BM_DateTime_toIso8601Extended( ::benchmark::State& state )
+	static void BM_DateTime_toIso8601Precise( ::benchmark::State& state )
 	{
 		auto dt{ DateTime::utcNow() };
 
 		for ( auto _ : state )
 		{
-			auto str{ dt.toIso8601Extended() };
+			auto str{ dt.toString( DateTime::Format::Iso8601Precise ) };
 			::benchmark::DoNotOptimize( str );
 		}
 	}
@@ -261,7 +261,7 @@ namespace nfx::time::benchmark
 	//----------------------------------------------
 
 	BENCHMARK( BM_DateTime_ToString_ISO8601 );
-	BENCHMARK( BM_DateTime_toIso8601Extended );
+	BENCHMARK( BM_DateTime_toIso8601Precise );
 
 	//----------------------------------------------
 	// Arithmetic

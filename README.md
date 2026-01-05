@@ -221,7 +221,8 @@ TimeSpan oneHour = TimeSpan::fromHours(1);
 DateTime later = dt1 + oneHour;
 
 // Formatting
-std::string iso = dt1.toIso8601Extended();  // "2025-01-24T05:42:00.0000000Z"
+std::string iso = dt1.toString(DateTime::Format::Iso8601);             // "2025-01-24T05:42:00Z"
+std::string precise = dt1.toString(DateTime::Format::Iso8601Precise);  // "2025-01-24T05:42:00.0000000Z"
 
 // Epoch timestamp conversions
 std::int64_t epochSeconds = dt1.toEpochSeconds();
@@ -279,8 +280,8 @@ std::int64_t epochMillis = dto1.toEpochMilliseconds();
 DateTimeOffset fromEpoch = DateTimeOffset::fromEpochSeconds(epochSeconds);
 
 // Formatting
-std::string iso = dto1.toString();  // "2025-01-24T05:42:00+02:00"
-std::string extended = dto1.toIso8601Extended();  // "2025-01-24T05:42:00.0000000+02:00"
+std::string iso = dto1.toString();                                      // "2025-01-24T05:42:00+02:00"
+std::string precise = dto1.toString(DateTime::Format::Iso8601Precise);  // "2025-01-24T05:42:00.0000000+02:00"
 ```
 
 ### TimeSpan - Duration Calculations
@@ -355,12 +356,12 @@ int main()
 
     // Get current UTC time
     DateTime now = DateTime::utcNow();
-    std::cout << "Current UTC time: " << now.toIso8601Extended() << std::endl;
+    std::cout << "Current UTC time: " << now.toString(DateTime::Format::Iso8601Precise) << std::endl;
 
     // Calculate future date using TimeSpan
     TimeSpan oneWeek = TimeSpan::fromDays(7);
     DateTime nextWeek = now + oneWeek;
-    std::cout << "One week from now: " << nextWeek.toIso8601Extended() << std::endl;
+    std::cout << "One week from now: " << nextWeek.toString(DateTime::Format::Iso8601Precise) << std::endl;
 
     // Work with timezones
     DateTimeOffset localNow = DateTimeOffset::now();
@@ -510,4 +511,4 @@ All dependencies are automatically fetched via CMake FetchContent when building 
 
 ---
 
-_Updated on November 17, 2025_
+_Updated on January 05, 2026_
