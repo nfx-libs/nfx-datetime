@@ -33,239 +33,239 @@
 
 namespace nfx::time::benchmark
 {
-	//=====================================================================
-	// TimeSpan benchmark suite
-	//=====================================================================
+    //=====================================================================
+    // TimeSpan benchmark suite
+    //=====================================================================
 
-	//----------------------------------------------
-	// Construction
-	//----------------------------------------------
+    //----------------------------------------------
+    // Construction
+    //----------------------------------------------
 
-	static void BM_TimeSpan_FromHours( ::benchmark::State& state )
-	{
-		for ( auto _ : state )
-		{
-			auto ts{ TimeSpan::fromHours( 24.5 ) };
-			::benchmark::DoNotOptimize( ts );
-		}
-	}
+    static void BM_TimeSpan_FromHours( ::benchmark::State& state )
+    {
+        for ( auto _ : state )
+        {
+            auto ts{ TimeSpan::fromHours( 24.5 ) };
+            ::benchmark::DoNotOptimize( ts );
+        }
+    }
 
-	static void BM_TimeSpan_FromMinutes( ::benchmark::State& state )
-	{
-		for ( auto _ : state )
-		{
-			auto ts{ TimeSpan::fromMinutes( 90 ) };
-			::benchmark::DoNotOptimize( ts );
-		}
-	}
+    static void BM_TimeSpan_FromMinutes( ::benchmark::State& state )
+    {
+        for ( auto _ : state )
+        {
+            auto ts{ TimeSpan::fromMinutes( 90 ) };
+            ::benchmark::DoNotOptimize( ts );
+        }
+    }
 
-	static void BM_TimeSpan_FromSeconds( ::benchmark::State& state )
-	{
-		for ( auto _ : state )
-		{
-			auto ts{ TimeSpan::fromSeconds( 3661.5 ) };
-			::benchmark::DoNotOptimize( ts );
-		}
-	}
+    static void BM_TimeSpan_FromSeconds( ::benchmark::State& state )
+    {
+        for ( auto _ : state )
+        {
+            auto ts{ TimeSpan::fromSeconds( 3661.5 ) };
+            ::benchmark::DoNotOptimize( ts );
+        }
+    }
 
-	static void BM_TimeSpan_FromMilliseconds( ::benchmark::State& state )
-	{
-		for ( auto _ : state )
-		{
-			auto ts{ TimeSpan::fromMilliseconds( 123456.789 ) };
-			::benchmark::DoNotOptimize( ts );
-		}
-	}
+    static void BM_TimeSpan_FromMilliseconds( ::benchmark::State& state )
+    {
+        for ( auto _ : state )
+        {
+            auto ts{ TimeSpan::fromMilliseconds( 123456.789 ) };
+            ::benchmark::DoNotOptimize( ts );
+        }
+    }
 
-	//----------------------------------------------
-	// Parsing
-	//----------------------------------------------
+    //----------------------------------------------
+    // Parsing
+    //----------------------------------------------
 
-	static void BM_TimeSpan_ParseISO( ::benchmark::State& state )
-	{
-		const std::string duration{ "PT1H30M45S" };
+    static void BM_TimeSpan_ParseISO( ::benchmark::State& state )
+    {
+        const std::string duration{ "PT1H30M45S" };
 
-		for ( auto _ : state )
-		{
-			auto ts{ TimeSpan{ duration } };
-			::benchmark::DoNotOptimize( ts );
-		}
-	}
+        for ( auto _ : state )
+        {
+            auto ts{ TimeSpan{ duration } };
+            ::benchmark::DoNotOptimize( ts );
+        }
+    }
 
-	static void BM_TimeSpan_ParseISOComplex( ::benchmark::State& state )
-	{
-		const std::string duration{ "P5DT12H30M" };
+    static void BM_TimeSpan_ParseISOComplex( ::benchmark::State& state )
+    {
+        const std::string duration{ "P5DT12H30M" };
 
-		for ( auto _ : state )
-		{
-			auto ts{ TimeSpan{ duration } };
-			::benchmark::DoNotOptimize( ts );
-		}
-	}
+        for ( auto _ : state )
+        {
+            auto ts{ TimeSpan{ duration } };
+            ::benchmark::DoNotOptimize( ts );
+        }
+    }
 
-	static void BM_TimeSpan_Parse( ::benchmark::State& state )
-	{
-		const std::string duration{ "3600.5" };
+    static void BM_TimeSpan_Parse( ::benchmark::State& state )
+    {
+        const std::string duration{ "3600.5" };
 
-		for ( auto _ : state )
-		{
-			auto ts{ TimeSpan{ duration } };
-			::benchmark::DoNotOptimize( ts );
-		}
-	}
+        for ( auto _ : state )
+        {
+            auto ts{ TimeSpan{ duration } };
+            ::benchmark::DoNotOptimize( ts );
+        }
+    }
 
-	//----------------------------------------------
-	// Formatting
-	//----------------------------------------------
+    //----------------------------------------------
+    // Formatting
+    //----------------------------------------------
 
-	static void BM_TimeSpan_ToString_ISO8601( ::benchmark::State& state )
-	{
-		auto ts{ TimeSpan::fromHours( 25.5 ) };
+    static void BM_TimeSpan_ToString_ISO8601( ::benchmark::State& state )
+    {
+        auto ts{ TimeSpan::fromHours( 25.5 ) };
 
-		for ( auto _ : state )
-		{
-			auto str{ ts.toString() };
-			::benchmark::DoNotOptimize( str );
-		}
-	}
+        for ( auto _ : state )
+        {
+            auto str{ ts.toString() };
+            ::benchmark::DoNotOptimize( str );
+        }
+    }
 
-	//----------------------------------------------
-	// Arithmetic
-	//----------------------------------------------
+    //----------------------------------------------
+    // Arithmetic
+    //----------------------------------------------
 
-	static void BM_TimeSpan_Add( ::benchmark::State& state )
-	{
-		auto ts1{ TimeSpan::fromHours( 1 ) };
-		auto ts2{ TimeSpan::fromMinutes( 30 ) };
-		for ( auto _ : state )
-		{
-			auto result{ ts1 + ts2 };
-			::benchmark::DoNotOptimize( result );
-		}
-	}
+    static void BM_TimeSpan_Add( ::benchmark::State& state )
+    {
+        auto ts1{ TimeSpan::fromHours( 1 ) };
+        auto ts2{ TimeSpan::fromMinutes( 30 ) };
+        for ( auto _ : state )
+        {
+            auto result{ ts1 + ts2 };
+            ::benchmark::DoNotOptimize( result );
+        }
+    }
 
-	static void BM_TimeSpan_Subtract( ::benchmark::State& state )
-	{
-		auto ts1{ TimeSpan::fromHours( 5 ) };
-		auto ts2{ TimeSpan::fromMinutes( 30 ) };
-		for ( auto _ : state )
-		{
-			auto result{ ts1 - ts2 };
-			::benchmark::DoNotOptimize( result );
-		}
-	}
+    static void BM_TimeSpan_Subtract( ::benchmark::State& state )
+    {
+        auto ts1{ TimeSpan::fromHours( 5 ) };
+        auto ts2{ TimeSpan::fromMinutes( 30 ) };
+        for ( auto _ : state )
+        {
+            auto result{ ts1 - ts2 };
+            ::benchmark::DoNotOptimize( result );
+        }
+    }
 
-	static void BM_TimeSpan_Negate( ::benchmark::State& state )
-	{
-		auto ts{ TimeSpan::fromHours( 5 ) };
+    static void BM_TimeSpan_Negate( ::benchmark::State& state )
+    {
+        auto ts{ TimeSpan::fromHours( 5 ) };
 
-		for ( auto _ : state )
-		{
-			auto result{ -ts };
-			::benchmark::DoNotOptimize( result );
-		}
-	}
+        for ( auto _ : state )
+        {
+            auto result{ -ts };
+            ::benchmark::DoNotOptimize( result );
+        }
+    }
 
-	//----------------------------------------------
-	// Conversion
-	//----------------------------------------------
+    //----------------------------------------------
+    // Conversion
+    //----------------------------------------------
 
-	static void BM_TimeSpan_TotalHours( ::benchmark::State& state )
-	{
-		auto ts{ TimeSpan::fromMinutes( 150 ) };
+    static void BM_TimeSpan_TotalHours( ::benchmark::State& state )
+    {
+        auto ts{ TimeSpan::fromMinutes( 150 ) };
 
-		for ( auto _ : state )
-		{
-			auto hours{ ts.hours() };
-			::benchmark::DoNotOptimize( hours );
-		}
-	}
+        for ( auto _ : state )
+        {
+            auto hours{ ts.hours() };
+            ::benchmark::DoNotOptimize( hours );
+        }
+    }
 
-	static void BM_TimeSpan_TotalSeconds( ::benchmark::State& state )
-	{
-		auto ts{ TimeSpan::fromHours( 2.5 ) };
+    static void BM_TimeSpan_TotalSeconds( ::benchmark::State& state )
+    {
+        auto ts{ TimeSpan::fromHours( 2.5 ) };
 
-		for ( auto _ : state )
-		{
-			auto seconds{ ts.seconds() };
-			::benchmark::DoNotOptimize( seconds );
-		}
-	}
+        for ( auto _ : state )
+        {
+            auto seconds{ ts.seconds() };
+            ::benchmark::DoNotOptimize( seconds );
+        }
+    }
 
-	static void BM_TimeSpan_TotalMilliseconds( ::benchmark::State& state )
-	{
-		auto ts{ TimeSpan::fromSeconds( 1.5 ) };
+    static void BM_TimeSpan_TotalMilliseconds( ::benchmark::State& state )
+    {
+        auto ts{ TimeSpan::fromSeconds( 1.5 ) };
 
-		for ( auto _ : state )
-		{
-			auto ms{ ts.milliseconds() };
-			::benchmark::DoNotOptimize( ms );
-		}
-	}
+        for ( auto _ : state )
+        {
+            auto ms{ ts.milliseconds() };
+            ::benchmark::DoNotOptimize( ms );
+        }
+    }
 
-	//----------------------------------------------
-	// Comparison
-	//----------------------------------------------
+    //----------------------------------------------
+    // Comparison
+    //----------------------------------------------
 
-	static void BM_TimeSpan_Comparison( ::benchmark::State& state )
-	{
-		auto ts1{ TimeSpan::fromHours( 2 ) };
-		auto ts2{ TimeSpan::fromMinutes( 90 ) };
-		for ( auto _ : state )
-		{
-			bool result{ ts1 > ts2 };
-			::benchmark::DoNotOptimize( result );
-		}
-	}
+    static void BM_TimeSpan_Comparison( ::benchmark::State& state )
+    {
+        auto ts1{ TimeSpan::fromHours( 2 ) };
+        auto ts2{ TimeSpan::fromMinutes( 90 ) };
+        for ( auto _ : state )
+        {
+            bool result{ ts1 > ts2 };
+            ::benchmark::DoNotOptimize( result );
+        }
+    }
 
-	//=====================================================================
-	// Benchmarks registration
-	//=====================================================================
+    //=====================================================================
+    // Benchmarks registration
+    //=====================================================================
 
-	//----------------------------------------------
-	// Construction
-	//----------------------------------------------
+    //----------------------------------------------
+    // Construction
+    //----------------------------------------------
 
-	BENCHMARK( BM_TimeSpan_FromHours );
-	BENCHMARK( BM_TimeSpan_FromMinutes );
-	BENCHMARK( BM_TimeSpan_FromSeconds );
-	BENCHMARK( BM_TimeSpan_FromMilliseconds );
+    BENCHMARK( BM_TimeSpan_FromHours );
+    BENCHMARK( BM_TimeSpan_FromMinutes );
+    BENCHMARK( BM_TimeSpan_FromSeconds );
+    BENCHMARK( BM_TimeSpan_FromMilliseconds );
 
-	//----------------------------------------------
-	// Parsing
-	//----------------------------------------------
+    //----------------------------------------------
+    // Parsing
+    //----------------------------------------------
 
-	BENCHMARK( BM_TimeSpan_ParseISO );
-	BENCHMARK( BM_TimeSpan_ParseISOComplex );
-	BENCHMARK( BM_TimeSpan_Parse );
+    BENCHMARK( BM_TimeSpan_ParseISO );
+    BENCHMARK( BM_TimeSpan_ParseISOComplex );
+    BENCHMARK( BM_TimeSpan_Parse );
 
-	//----------------------------------------------
-	// Formatting
-	//----------------------------------------------
+    //----------------------------------------------
+    // Formatting
+    //----------------------------------------------
 
-	BENCHMARK( BM_TimeSpan_ToString_ISO8601 );
+    BENCHMARK( BM_TimeSpan_ToString_ISO8601 );
 
-	//----------------------------------------------
-	// Arithmetic
-	//----------------------------------------------
+    //----------------------------------------------
+    // Arithmetic
+    //----------------------------------------------
 
-	BENCHMARK( BM_TimeSpan_Add );
-	BENCHMARK( BM_TimeSpan_Subtract );
-	BENCHMARK( BM_TimeSpan_Negate );
+    BENCHMARK( BM_TimeSpan_Add );
+    BENCHMARK( BM_TimeSpan_Subtract );
+    BENCHMARK( BM_TimeSpan_Negate );
 
-	//----------------------------------------------
-	// Conversion
-	//----------------------------------------------
+    //----------------------------------------------
+    // Conversion
+    //----------------------------------------------
 
-	BENCHMARK( BM_TimeSpan_TotalHours );
-	BENCHMARK( BM_TimeSpan_TotalSeconds );
-	BENCHMARK( BM_TimeSpan_TotalMilliseconds );
+    BENCHMARK( BM_TimeSpan_TotalHours );
+    BENCHMARK( BM_TimeSpan_TotalSeconds );
+    BENCHMARK( BM_TimeSpan_TotalMilliseconds );
 
-	//----------------------------------------------
-	// Comparison
-	//----------------------------------------------
+    //----------------------------------------------
+    // Comparison
+    //----------------------------------------------
 
-	BENCHMARK( BM_TimeSpan_Comparison );
+    BENCHMARK( BM_TimeSpan_Comparison );
 } // namespace nfx::time::benchmark
 
 BENCHMARK_MAIN();

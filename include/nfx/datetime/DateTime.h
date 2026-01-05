@@ -207,471 +207,471 @@
 
 namespace nfx::time
 {
-	/**
-	 * @brief Cross-platform DateTime type with 100-nanosecond precision
-	 * @details Implements datetime operations with:
-	 *          - 100-nanosecond tick precision (10 million ticks per second)
-	 *          - Range: January 1, 0001 to December 31, 9999
-	 *          - ISO 8601 string parsing and formatting
-	 *          - System clock interoperability
-	 *          - Arithmetic operations with time intervals
-	 *          - Support for both UTC and local time representations
-	 *
-	 *          Note: DateTime doesn't store timezone information. For explicit timezone
-	 *          offset tracking, use DateTimeOffset instead.
-	 */
-	class DateTime final
-	{
-	public:
-		//----------------------------------------------
-		// Enumerations
-		//----------------------------------------------
-
-		/**
-		 * @brief DateTime string format options
-		 * @details Provides type-safe format selection with self-documenting format names
-		 */
-		enum class Format : std::uint8_t
-		{
-			/** @brief ISO 8601 with seconds precision: "2024-01-01T12:00:00Z" */
-			Iso8601,
-
-			/** @brief ISO 8601 with full tick precision (7 decimal digits): "2024-01-01T12:00:00.1234567Z" */
-			Iso8601Precise,
-
-			/** @brief ISO 8601 with numeric offset (always +00:00 for DateTime): "2024-01-01T12:00:00+00:00" */
-			Iso8601WithOffset,
-
-			/** @brief ISO 8601 compact form without separators: "20240101T120000Z" */
-			Iso8601Compact,
-
-			/** @brief ISO 8601 date only: "2024-01-01" */
-			Iso8601Date,
-
-			/** @brief ISO 8601 time only: "12:00:00" */
-			Iso8601Time,
-
-			/** @brief Unix epoch seconds (integer): "1704110400" */
-			UnixSeconds,
-
-			/** @brief Unix epoch milliseconds (integer): "1704110400000" */
-			UnixMilliseconds,
-		};
-
-		//----------------------------------------------
-		// Construction
-		//----------------------------------------------
-
-		/** @brief Default constructor (minimum DateTime value) */
-		constexpr DateTime() noexcept;
-
-		/**
-		 * @brief Construct from tick count (100-nanosecond units since year 1)
-		 * @param ticks Number of 100-nanosecond intervals since January 1, 0001 UTC
-		 */
-		explicit constexpr inline DateTime( std::int64_t ticks ) noexcept;
-
-		/**
-		 * @brief Construct from system clock time point
-		 * @param timePoint System clock time point to convert from
-		 */
-		explicit inline DateTime( std::chrono::system_clock::time_point timePoint ) noexcept;
-
-		/**
-		 * @brief Construct from date components
-		 * @param year Year component (1-9999)
-		 * @param month Month component (1-12)
-		 * @param day Day component (1-31)
-		 */
-		DateTime( std::int32_t year, std::int32_t month, std::int32_t day ) noexcept;
-
-		/**
-		 * @brief Construct from date and time components
-		 * @param year Year component (1-9999)
-		 * @param month Month component (1-12)
-		 * @param day Day component (1-31)
-		 * @param hour Hour component (0-23)
-		 * @param minute Minute component (0-59)
-		 * @param second Second component (0-59)
-		 */
-		DateTime( std::int32_t year, std::int32_t month, std::int32_t day,
-			std::int32_t hour, std::int32_t minute, std::int32_t second ) noexcept;
-
-		/**
-		 * @brief Construct from date and time components with milliseconds
-		 * @param year Year component (1-9999)
-		 * @param month Month component (1-12)
-		 * @param day Day component (1-31)
-		 * @param hour Hour component (0-23)
-		 * @param minute Minute component (0-59)
-		 * @param second Second component (0-59)
-		 * @param millisecond Millisecond component (0-999)
-		 */
-		DateTime( std::int32_t year, std::int32_t month, std::int32_t day,
-			std::int32_t hour, std::int32_t minute, std::int32_t second,
-			std::int32_t millisecond ) noexcept;
-
-		/**
-		 * @brief Parse from ISO 8601 string
-		 * @param iso8601String ISO 8601 formatted string to parse
-		 */
-		explicit inline DateTime( std::string_view iso8601String );
-
-		/** @brief Copy constructor */
-		DateTime( const DateTime& ) = default;
-
-		/** @brief Move constructor */
-		DateTime( DateTime&& ) noexcept = default;
-
-		//----------------------------------------------
-		// Destruction
-		//----------------------------------------------
-
-		/** @brief Destructor */
-		~DateTime() = default;
-
-		//----------------------------------------------
-		// Assignment
-		//----------------------------------------------
-
-		/**
-		 * @brief Copy assignment operator
-		 * @return Reference to this DateTime after assignment
-		 */
-		DateTime& operator=( const DateTime& ) = default;
-
-		/**
-		 * @brief Move assignment operator
-		 * @return Reference to this DateTime after assignment
-		 */
-		DateTime& operator=( DateTime&& ) noexcept = default;
-
-		//----------------------------------------------
-		// Comparison operators
-		//----------------------------------------------
-
-		/**
-		 * @brief Three-way comparison operator
-		 * @param other The DateTime to compare with
-		 * @return std::strong_ordering indicating the relative order of the two DateTimes
-		 */
-		inline constexpr std::strong_ordering operator<=>( const DateTime& other ) const noexcept;
-
-		/**
-		 * @brief Equality comparison
-		 * @param other The DateTime to compare with
-		 * @return true if both DateTimes represent the same instant, false otherwise
-		 */
-		inline constexpr bool operator==( const DateTime& other ) const noexcept;
-
-		//----------------------------------------------
-		// Arithmetic operators
-		//----------------------------------------------
-
-		/**
-		 * @brief Add time duration
-		 * @param duration The TimeSpan to add to this DateTime
-		 * @return New DateTime representing this DateTime plus the duration
-		 */
-		inline constexpr DateTime operator+( const TimeSpan& duration ) const noexcept;
-
-		/**
-		 * @brief Subtract time duration
-		 * @param duration The TimeSpan to subtract from this DateTime
-		 * @return New DateTime representing this DateTime minus the duration
-		 */
-		inline constexpr DateTime operator-( const TimeSpan& duration ) const noexcept;
-
-		/**
-		 * @brief Get time difference between DateTimes
-		 * @param other The DateTime to subtract from this DateTime
-		 * @return TimeSpan representing the difference (this - other)
-		 */
-		inline constexpr TimeSpan operator-( const DateTime& other ) const noexcept;
-
-		/**
-		 * @brief Add time duration (in-place)
-		 * @param duration The TimeSpan to add to this DateTime
-		 * @return Reference to this DateTime after adding the duration
-		 */
-		inline constexpr DateTime& operator+=( const TimeSpan& duration ) noexcept;
-
-		/**
-		 * @brief Subtract time duration (in-place)
-		 * @param duration The TimeSpan to subtract from this DateTime
-		 * @return Reference to this DateTime after subtracting the duration
-		 */
-		inline constexpr DateTime& operator-=( const TimeSpan& duration ) noexcept;
-
-		//----------------------------------------------
-		// Property accessors
-		//----------------------------------------------
-
-		/**
-		 * @brief Get year component (1-9999)
-		 * @return The year component of this DateTime (1-9999)
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] std::int32_t year() const noexcept;
-
-		/**
-		 * @brief Get month component (1-12)
-		 * @return The month component of this DateTime (1-12)
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] std::int32_t month() const noexcept;
-
-		/**
-		 * @brief Get day component (1-31)
-		 * @return The day component of this DateTime (1-31)
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] std::int32_t day() const noexcept;
-
-		/**
-		 * @brief Get hour component (0-23)
-		 * @return The hour component of this DateTime (0-23)
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] std::int32_t hour() const noexcept;
-
-		/**
-		 * @brief Get minute component (0-59)
-		 * @return The minute component of this DateTime (0-59)
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] std::int32_t minute() const noexcept;
-
-		/**
-		 * @brief Get second component (0-59)
-		 * @return The second component of this DateTime (0-59)
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] std::int32_t second() const noexcept;
-
-		/**
-		 * @brief Get millisecond component (0-999)
-		 * @return The millisecond component of this DateTime (0-999)
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] std::int32_t millisecond() const noexcept;
-
-		/**
-		 * @brief Get microsecond component (0-999)
-		 * @return The microsecond component of this DateTime (0-999)
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] std::int32_t microsecond() const noexcept;
-
-		/**
-		 * @brief Get nanosecond component (0-900, in 100ns increments)
-		 * @return The nanosecond component of this DateTime (0, 100, 200, ..., 900)
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 * @note Due to 100-nanosecond tick precision, only values 0-900 in 100ns increments are possible
-		 */
-		[[nodiscard]] std::int32_t nanosecond() const noexcept;
-
-		/**
-		 * @brief Get tick count (100-nanosecond units since year 1)
-		 * @return The number of 100-nanosecond intervals since January 1, 0001 UTC
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] constexpr std::int64_t ticks() const noexcept;
-
-		/**
-		 * @brief Get day of week (0=Sunday, 6=Saturday)
-		 * @return The day of week as an integer (0=Sunday, 1=Monday, ..., 6=Saturday)
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] std::int32_t dayOfWeek() const noexcept;
-
-		/**
-		 * @brief Get day of year (1-366)
-		 * @return The day of year as an integer (1-366, where 366 occurs in leap years)
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] std::int32_t dayOfYear() const noexcept;
-
-		//----------------------------------------------
-		// Conversion methods
-		//----------------------------------------------
-
-		/**
-		 * @brief Convert to Epoch timestamp (seconds since epoch)
-		 * @return Number of seconds since Unix epoch (January 1, 1970 00:00:00 UTC)
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] inline constexpr std::int64_t toEpochSeconds() const noexcept;
-
-		/**
-		 * @brief Convert to Epoch timestamp (milliseconds since epoch)
-		 * @return Number of milliseconds since Unix epoch (January 1, 1970 00:00:00 UTC)
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] inline constexpr std::int64_t toEpochMilliseconds() const noexcept;
-
-		/**
-		 * @brief Get date component (time set to 00:00:00)
-		 * @return New DateTime with the same date but time set to 00:00:00
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] DateTime date() const noexcept;
-
-		/**
-		 * @brief Get time of day as duration since midnight
-		 * @return TimeSpan representing the elapsed time since midnight (00:00:00)
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] TimeSpan timeOfDay() const noexcept;
-
-		//----------------------------------------------
-		// Validation methods
-		//----------------------------------------------
-
-		/**
-		 * @brief Check if this DateTime is valid
-		 * @return true if this DateTime represents a valid date and time, false otherwise
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] bool isValid() const noexcept;
-
-		/**
-		 * @brief Check if given year is a leap year
-		 * @param year The year to check for leap year status
-		 * @return true if the year is a leap year, false otherwise
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] inline static constexpr bool isLeapYear( std::int32_t year ) noexcept;
-
-		/**
-		 * @brief Get days in month for given year and month
-		 * @param year The year to check (1-9999)
-		 * @param month The month to check (1-12)
-		 * @return Number of days in the specified month (28-31)
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] inline static constexpr std::int32_t daysInMonth( std::int32_t year, std::int32_t month ) noexcept;
-
-		//----------------------------------------------
-		// Static factory methods
-		//----------------------------------------------
-
-		/**
-		 * @brief Get current local time
-		 * @return DateTime representing the current local date and time (system timezone)
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] static DateTime now() noexcept;
-
-		/**
-		 * @brief Get current UTC time
-		 * @return DateTime representing the current UTC date and time
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] static DateTime utcNow() noexcept;
-
-		/**
-		 * @brief Get current local date (time set to 00:00:00)
-		 * @return DateTime representing the current local date with time set to 00:00:00
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] static DateTime today() noexcept;
-
-		/**
-		 * @brief Get minimum DateTime value
-		 * @return DateTime representing the minimum representable date (January 1, 0001 00:00:00.0000000 UTC)
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] inline static constexpr DateTime min() noexcept;
-
-		/**
-		 * @brief Get maximum DateTime value
-		 * @return DateTime representing the maximum representable date (December 31, 9999 23:59:59.9999999 UTC)
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] inline static constexpr DateTime max() noexcept;
-
-		/**
-		 * @brief Get Unix epoch DateTime (January 1, 1970 00:00:00 UTC)
-		 * @return DateTime representing the Unix epoch (January 1, 1970 00:00:00 UTC)
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] inline static constexpr DateTime epoch() noexcept;
-
-		/**
-		 * @brief Parse ISO 8601 string safely without throwing exceptions
-		 * @param iso8601String The ISO 8601 formatted string to parse
-		 * @param result Reference to store the parsed DateTime if successful
-		 * @return true if parsing succeeded, false otherwise
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] static bool fromString( std::string_view iso8601String, DateTime& result ) noexcept;
-
-		/**
-		 * @brief Parse ISO 8601 string and return optional DateTime
-		 * @param iso8601String The ISO 8601 formatted string to parse
-		 * @return std::optional<DateTime> containing the parsed value if successful, std::nullopt otherwise
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] static std::optional<DateTime> fromString( std::string_view iso8601String ) noexcept;
-
-		/**
-		 * @brief Create from Epoch timestamp (seconds since epoch)
-		 * @param seconds The number of seconds since Unix epoch (January 1, 1970 00:00:00 UTC)
-		 * @return DateTime representing the specified Epoch timestamp
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] inline static constexpr DateTime fromEpochSeconds( std::int64_t seconds ) noexcept;
-
-		/**
-		 * @brief Create from Epoch timestamp (milliseconds since epoch)
-		 * @param milliseconds The number of milliseconds since Unix epoch (January 1, 1970 00:00:00 UTC)
-		 * @return DateTime representing the specified Epoch timestamp in milliseconds
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] inline static constexpr DateTime fromEpochMilliseconds( std::int64_t milliseconds ) noexcept;
-
-		//----------------------------------------------
-		// String formatting
-		//----------------------------------------------
-
-		/**
-		 * @brief Convert to string using specified format
-		 * @param format The format to use for string conversion
-		 * @return String representation using the specified format
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] std::string toString( Format format = Format::Iso8601 ) const;
-
-		//----------------------------------------------
-		// std::chrono interoperability
-		//----------------------------------------------
-
-		/**
-		 * @brief Convert to std::chrono::system_clock::time_point
-		 * @details Values outside the representable range of std::chrono::system_clock
-		 *          (approximately years 1677-2262 on 64-bit Linux systems) will be
-		 *          clamped to the nearest representable value. This means extreme dates
-		 *          (near year 1 or year 9999) cannot round-trip through chrono.
-		 * @return A system_clock::time_point representing this DateTime
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] std::chrono::system_clock::time_point toChrono() const noexcept;
-
-		/**
-		 * @brief Create DateTime from std::chrono::system_clock::time_point
-		 * @details Values outside the representable range of DateTime
-		 *          will be clamped to the nearest valid DateTime value.
-		 * @param timePoint The system_clock time point to convert
-		 * @return A DateTime representing the same instant in time
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] static DateTime fromChrono( const std::chrono::system_clock::time_point& timePoint ) noexcept;
-
-	private:
-		/** @brief 100-nanosecond ticks since January 1, 0001 UTC */
-		std::int64_t m_ticks;
-	};
+    /**
+     * @brief Cross-platform DateTime type with 100-nanosecond precision
+     * @details Implements datetime operations with:
+     *          - 100-nanosecond tick precision (10 million ticks per second)
+     *          - Range: January 1, 0001 to December 31, 9999
+     *          - ISO 8601 string parsing and formatting
+     *          - System clock interoperability
+     *          - Arithmetic operations with time intervals
+     *          - Support for both UTC and local time representations
+     *
+     *          Note: DateTime doesn't store timezone information. For explicit timezone
+     *          offset tracking, use DateTimeOffset instead.
+     */
+    class DateTime final
+    {
+    public:
+        //----------------------------------------------
+        // Enumerations
+        //----------------------------------------------
+
+        /**
+         * @brief DateTime string format options
+         * @details Provides type-safe format selection with self-documenting format names
+         */
+        enum class Format : std::uint8_t
+        {
+            /** @brief ISO 8601 with seconds precision: "2024-01-01T12:00:00Z" */
+            Iso8601,
+
+            /** @brief ISO 8601 with full tick precision (7 decimal digits): "2024-01-01T12:00:00.1234567Z" */
+            Iso8601Precise,
+
+            /** @brief ISO 8601 with numeric offset (always +00:00 for DateTime): "2024-01-01T12:00:00+00:00" */
+            Iso8601WithOffset,
+
+            /** @brief ISO 8601 compact form without separators: "20240101T120000Z" */
+            Iso8601Compact,
+
+            /** @brief ISO 8601 date only: "2024-01-01" */
+            Iso8601Date,
+
+            /** @brief ISO 8601 time only: "12:00:00" */
+            Iso8601Time,
+
+            /** @brief Unix epoch seconds (integer): "1704110400" */
+            UnixSeconds,
+
+            /** @brief Unix epoch milliseconds (integer): "1704110400000" */
+            UnixMilliseconds,
+        };
+
+        //----------------------------------------------
+        // Construction
+        //----------------------------------------------
+
+        /** @brief Default constructor (minimum DateTime value) */
+        constexpr DateTime() noexcept;
+
+        /**
+         * @brief Construct from tick count (100-nanosecond units since year 1)
+         * @param ticks Number of 100-nanosecond intervals since January 1, 0001 UTC
+         */
+        explicit constexpr inline DateTime( std::int64_t ticks ) noexcept;
+
+        /**
+         * @brief Construct from system clock time point
+         * @param timePoint System clock time point to convert from
+         */
+        explicit inline DateTime( std::chrono::system_clock::time_point timePoint ) noexcept;
+
+        /**
+         * @brief Construct from date components
+         * @param year Year component (1-9999)
+         * @param month Month component (1-12)
+         * @param day Day component (1-31)
+         */
+        DateTime( std::int32_t year, std::int32_t month, std::int32_t day ) noexcept;
+
+        /**
+         * @brief Construct from date and time components
+         * @param year Year component (1-9999)
+         * @param month Month component (1-12)
+         * @param day Day component (1-31)
+         * @param hour Hour component (0-23)
+         * @param minute Minute component (0-59)
+         * @param second Second component (0-59)
+         */
+        DateTime( std::int32_t year, std::int32_t month, std::int32_t day,
+            std::int32_t hour, std::int32_t minute, std::int32_t second ) noexcept;
+
+        /**
+         * @brief Construct from date and time components with milliseconds
+         * @param year Year component (1-9999)
+         * @param month Month component (1-12)
+         * @param day Day component (1-31)
+         * @param hour Hour component (0-23)
+         * @param minute Minute component (0-59)
+         * @param second Second component (0-59)
+         * @param millisecond Millisecond component (0-999)
+         */
+        DateTime( std::int32_t year, std::int32_t month, std::int32_t day,
+            std::int32_t hour, std::int32_t minute, std::int32_t second,
+            std::int32_t millisecond ) noexcept;
+
+        /**
+         * @brief Parse from ISO 8601 string
+         * @param iso8601String ISO 8601 formatted string to parse
+         */
+        explicit inline DateTime( std::string_view iso8601String );
+
+        /** @brief Copy constructor */
+        DateTime( const DateTime& ) = default;
+
+        /** @brief Move constructor */
+        DateTime( DateTime&& ) noexcept = default;
+
+        //----------------------------------------------
+        // Destruction
+        //----------------------------------------------
+
+        /** @brief Destructor */
+        ~DateTime() = default;
+
+        //----------------------------------------------
+        // Assignment
+        //----------------------------------------------
+
+        /**
+         * @brief Copy assignment operator
+         * @return Reference to this DateTime after assignment
+         */
+        DateTime& operator=( const DateTime& ) = default;
+
+        /**
+         * @brief Move assignment operator
+         * @return Reference to this DateTime after assignment
+         */
+        DateTime& operator=( DateTime&& ) noexcept = default;
+
+        //----------------------------------------------
+        // Comparison operators
+        //----------------------------------------------
+
+        /**
+         * @brief Three-way comparison operator
+         * @param other The DateTime to compare with
+         * @return std::strong_ordering indicating the relative order of the two DateTimes
+         */
+        inline constexpr std::strong_ordering operator<=>( const DateTime& other ) const noexcept;
+
+        /**
+         * @brief Equality comparison
+         * @param other The DateTime to compare with
+         * @return true if both DateTimes represent the same instant, false otherwise
+         */
+        inline constexpr bool operator==( const DateTime& other ) const noexcept;
+
+        //----------------------------------------------
+        // Arithmetic operators
+        //----------------------------------------------
+
+        /**
+         * @brief Add time duration
+         * @param duration The TimeSpan to add to this DateTime
+         * @return New DateTime representing this DateTime plus the duration
+         */
+        inline constexpr DateTime operator+( const TimeSpan& duration ) const noexcept;
+
+        /**
+         * @brief Subtract time duration
+         * @param duration The TimeSpan to subtract from this DateTime
+         * @return New DateTime representing this DateTime minus the duration
+         */
+        inline constexpr DateTime operator-( const TimeSpan& duration ) const noexcept;
+
+        /**
+         * @brief Get time difference between DateTimes
+         * @param other The DateTime to subtract from this DateTime
+         * @return TimeSpan representing the difference (this - other)
+         */
+        inline constexpr TimeSpan operator-( const DateTime& other ) const noexcept;
+
+        /**
+         * @brief Add time duration (in-place)
+         * @param duration The TimeSpan to add to this DateTime
+         * @return Reference to this DateTime after adding the duration
+         */
+        inline constexpr DateTime& operator+=( const TimeSpan& duration ) noexcept;
+
+        /**
+         * @brief Subtract time duration (in-place)
+         * @param duration The TimeSpan to subtract from this DateTime
+         * @return Reference to this DateTime after subtracting the duration
+         */
+        inline constexpr DateTime& operator-=( const TimeSpan& duration ) noexcept;
+
+        //----------------------------------------------
+        // Property accessors
+        //----------------------------------------------
+
+        /**
+         * @brief Get year component (1-9999)
+         * @return The year component of this DateTime (1-9999)
+         * @note This function is marked [[nodiscard]] - the return value should not be ignored
+         */
+        [[nodiscard]] std::int32_t year() const noexcept;
+
+        /**
+         * @brief Get month component (1-12)
+         * @return The month component of this DateTime (1-12)
+         * @note This function is marked [[nodiscard]] - the return value should not be ignored
+         */
+        [[nodiscard]] std::int32_t month() const noexcept;
+
+        /**
+         * @brief Get day component (1-31)
+         * @return The day component of this DateTime (1-31)
+         * @note This function is marked [[nodiscard]] - the return value should not be ignored
+         */
+        [[nodiscard]] std::int32_t day() const noexcept;
+
+        /**
+         * @brief Get hour component (0-23)
+         * @return The hour component of this DateTime (0-23)
+         * @note This function is marked [[nodiscard]] - the return value should not be ignored
+         */
+        [[nodiscard]] std::int32_t hour() const noexcept;
+
+        /**
+         * @brief Get minute component (0-59)
+         * @return The minute component of this DateTime (0-59)
+         * @note This function is marked [[nodiscard]] - the return value should not be ignored
+         */
+        [[nodiscard]] std::int32_t minute() const noexcept;
+
+        /**
+         * @brief Get second component (0-59)
+         * @return The second component of this DateTime (0-59)
+         * @note This function is marked [[nodiscard]] - the return value should not be ignored
+         */
+        [[nodiscard]] std::int32_t second() const noexcept;
+
+        /**
+         * @brief Get millisecond component (0-999)
+         * @return The millisecond component of this DateTime (0-999)
+         * @note This function is marked [[nodiscard]] - the return value should not be ignored
+         */
+        [[nodiscard]] std::int32_t millisecond() const noexcept;
+
+        /**
+         * @brief Get microsecond component (0-999)
+         * @return The microsecond component of this DateTime (0-999)
+         * @note This function is marked [[nodiscard]] - the return value should not be ignored
+         */
+        [[nodiscard]] std::int32_t microsecond() const noexcept;
+
+        /**
+         * @brief Get nanosecond component (0-900, in 100ns increments)
+         * @return The nanosecond component of this DateTime (0, 100, 200, ..., 900)
+         * @note This function is marked [[nodiscard]] - the return value should not be ignored
+         * @note Due to 100-nanosecond tick precision, only values 0-900 in 100ns increments are possible
+         */
+        [[nodiscard]] std::int32_t nanosecond() const noexcept;
+
+        /**
+         * @brief Get tick count (100-nanosecond units since year 1)
+         * @return The number of 100-nanosecond intervals since January 1, 0001 UTC
+         * @note This function is marked [[nodiscard]] - the return value should not be ignored
+         */
+        [[nodiscard]] constexpr std::int64_t ticks() const noexcept;
+
+        /**
+         * @brief Get day of week (0=Sunday, 6=Saturday)
+         * @return The day of week as an integer (0=Sunday, 1=Monday, ..., 6=Saturday)
+         * @note This function is marked [[nodiscard]] - the return value should not be ignored
+         */
+        [[nodiscard]] std::int32_t dayOfWeek() const noexcept;
+
+        /**
+         * @brief Get day of year (1-366)
+         * @return The day of year as an integer (1-366, where 366 occurs in leap years)
+         * @note This function is marked [[nodiscard]] - the return value should not be ignored
+         */
+        [[nodiscard]] std::int32_t dayOfYear() const noexcept;
+
+        //----------------------------------------------
+        // Conversion methods
+        //----------------------------------------------
+
+        /**
+         * @brief Convert to Epoch timestamp (seconds since epoch)
+         * @return Number of seconds since Unix epoch (January 1, 1970 00:00:00 UTC)
+         * @note This function is marked [[nodiscard]] - the return value should not be ignored
+         */
+        [[nodiscard]] inline constexpr std::int64_t toEpochSeconds() const noexcept;
+
+        /**
+         * @brief Convert to Epoch timestamp (milliseconds since epoch)
+         * @return Number of milliseconds since Unix epoch (January 1, 1970 00:00:00 UTC)
+         * @note This function is marked [[nodiscard]] - the return value should not be ignored
+         */
+        [[nodiscard]] inline constexpr std::int64_t toEpochMilliseconds() const noexcept;
+
+        /**
+         * @brief Get date component (time set to 00:00:00)
+         * @return New DateTime with the same date but time set to 00:00:00
+         * @note This function is marked [[nodiscard]] - the return value should not be ignored
+         */
+        [[nodiscard]] DateTime date() const noexcept;
+
+        /**
+         * @brief Get time of day as duration since midnight
+         * @return TimeSpan representing the elapsed time since midnight (00:00:00)
+         * @note This function is marked [[nodiscard]] - the return value should not be ignored
+         */
+        [[nodiscard]] TimeSpan timeOfDay() const noexcept;
+
+        //----------------------------------------------
+        // Validation methods
+        //----------------------------------------------
+
+        /**
+         * @brief Check if this DateTime is valid
+         * @return true if this DateTime represents a valid date and time, false otherwise
+         * @note This function is marked [[nodiscard]] - the return value should not be ignored
+         */
+        [[nodiscard]] bool isValid() const noexcept;
+
+        /**
+         * @brief Check if given year is a leap year
+         * @param year The year to check for leap year status
+         * @return true if the year is a leap year, false otherwise
+         * @note This function is marked [[nodiscard]] - the return value should not be ignored
+         */
+        [[nodiscard]] inline static constexpr bool isLeapYear( std::int32_t year ) noexcept;
+
+        /**
+         * @brief Get days in month for given year and month
+         * @param year The year to check (1-9999)
+         * @param month The month to check (1-12)
+         * @return Number of days in the specified month (28-31)
+         * @note This function is marked [[nodiscard]] - the return value should not be ignored
+         */
+        [[nodiscard]] inline static constexpr std::int32_t daysInMonth( std::int32_t year, std::int32_t month ) noexcept;
+
+        //----------------------------------------------
+        // Static factory methods
+        //----------------------------------------------
+
+        /**
+         * @brief Get current local time
+         * @return DateTime representing the current local date and time (system timezone)
+         * @note This function is marked [[nodiscard]] - the return value should not be ignored
+         */
+        [[nodiscard]] static DateTime now() noexcept;
+
+        /**
+         * @brief Get current UTC time
+         * @return DateTime representing the current UTC date and time
+         * @note This function is marked [[nodiscard]] - the return value should not be ignored
+         */
+        [[nodiscard]] static DateTime utcNow() noexcept;
+
+        /**
+         * @brief Get current local date (time set to 00:00:00)
+         * @return DateTime representing the current local date with time set to 00:00:00
+         * @note This function is marked [[nodiscard]] - the return value should not be ignored
+         */
+        [[nodiscard]] static DateTime today() noexcept;
+
+        /**
+         * @brief Get minimum DateTime value
+         * @return DateTime representing the minimum representable date (January 1, 0001 00:00:00.0000000 UTC)
+         * @note This function is marked [[nodiscard]] - the return value should not be ignored
+         */
+        [[nodiscard]] inline static constexpr DateTime min() noexcept;
+
+        /**
+         * @brief Get maximum DateTime value
+         * @return DateTime representing the maximum representable date (December 31, 9999 23:59:59.9999999 UTC)
+         * @note This function is marked [[nodiscard]] - the return value should not be ignored
+         */
+        [[nodiscard]] inline static constexpr DateTime max() noexcept;
+
+        /**
+         * @brief Get Unix epoch DateTime (January 1, 1970 00:00:00 UTC)
+         * @return DateTime representing the Unix epoch (January 1, 1970 00:00:00 UTC)
+         * @note This function is marked [[nodiscard]] - the return value should not be ignored
+         */
+        [[nodiscard]] inline static constexpr DateTime epoch() noexcept;
+
+        /**
+         * @brief Parse ISO 8601 string safely without throwing exceptions
+         * @param iso8601String The ISO 8601 formatted string to parse
+         * @param result Reference to store the parsed DateTime if successful
+         * @return true if parsing succeeded, false otherwise
+         * @note This function is marked [[nodiscard]] - the return value should not be ignored
+         */
+        [[nodiscard]] static bool fromString( std::string_view iso8601String, DateTime& result ) noexcept;
+
+        /**
+         * @brief Parse ISO 8601 string and return optional DateTime
+         * @param iso8601String The ISO 8601 formatted string to parse
+         * @return std::optional<DateTime> containing the parsed value if successful, std::nullopt otherwise
+         * @note This function is marked [[nodiscard]] - the return value should not be ignored
+         */
+        [[nodiscard]] static std::optional<DateTime> fromString( std::string_view iso8601String ) noexcept;
+
+        /**
+         * @brief Create from Epoch timestamp (seconds since epoch)
+         * @param seconds The number of seconds since Unix epoch (January 1, 1970 00:00:00 UTC)
+         * @return DateTime representing the specified Epoch timestamp
+         * @note This function is marked [[nodiscard]] - the return value should not be ignored
+         */
+        [[nodiscard]] inline static constexpr DateTime fromEpochSeconds( std::int64_t seconds ) noexcept;
+
+        /**
+         * @brief Create from Epoch timestamp (milliseconds since epoch)
+         * @param milliseconds The number of milliseconds since Unix epoch (January 1, 1970 00:00:00 UTC)
+         * @return DateTime representing the specified Epoch timestamp in milliseconds
+         * @note This function is marked [[nodiscard]] - the return value should not be ignored
+         */
+        [[nodiscard]] inline static constexpr DateTime fromEpochMilliseconds( std::int64_t milliseconds ) noexcept;
+
+        //----------------------------------------------
+        // String formatting
+        //----------------------------------------------
+
+        /**
+         * @brief Convert to string using specified format
+         * @param format The format to use for string conversion
+         * @return String representation using the specified format
+         * @note This function is marked [[nodiscard]] - the return value should not be ignored
+         */
+        [[nodiscard]] std::string toString( Format format = Format::Iso8601 ) const;
+
+        //----------------------------------------------
+        // std::chrono interoperability
+        //----------------------------------------------
+
+        /**
+         * @brief Convert to std::chrono::system_clock::time_point
+         * @details Values outside the representable range of std::chrono::system_clock
+         *          (approximately years 1677-2262 on 64-bit Linux systems) will be
+         *          clamped to the nearest representable value. This means extreme dates
+         *          (near year 1 or year 9999) cannot round-trip through chrono.
+         * @return A system_clock::time_point representing this DateTime
+         * @note This function is marked [[nodiscard]] - the return value should not be ignored
+         */
+        [[nodiscard]] std::chrono::system_clock::time_point toChrono() const noexcept;
+
+        /**
+         * @brief Create DateTime from std::chrono::system_clock::time_point
+         * @details Values outside the representable range of DateTime
+         *          will be clamped to the nearest valid DateTime value.
+         * @param timePoint The system_clock time point to convert
+         * @return A DateTime representing the same instant in time
+         * @note This function is marked [[nodiscard]] - the return value should not be ignored
+         */
+        [[nodiscard]] static DateTime fromChrono( const std::chrono::system_clock::time_point& timePoint ) noexcept;
+
+    private:
+        /** @brief 100-nanosecond ticks since January 1, 0001 UTC */
+        std::int64_t m_ticks;
+    };
 } // namespace nfx::time
 
 #include "nfx/detail/datetime/DateTime.inl"

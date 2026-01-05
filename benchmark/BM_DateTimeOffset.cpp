@@ -33,201 +33,201 @@
 
 namespace nfx::time::benchmark
 {
-	//=====================================================================
-	// DateTimeOffset benchmark suite
-	//=====================================================================
+    //=====================================================================
+    // DateTimeOffset benchmark suite
+    //=====================================================================
 
-	//----------------------------------------------
-	// Construction
-	//----------------------------------------------
+    //----------------------------------------------
+    // Construction
+    //----------------------------------------------
 
-	static void BM_DateTimeOffset_Construct( ::benchmark::State& state )
-	{
-		auto offset{ TimeSpan::fromHours( 5.5 ) };
+    static void BM_DateTimeOffset_Construct( ::benchmark::State& state )
+    {
+        auto offset{ TimeSpan::fromHours( 5.5 ) };
 
-		for ( auto _ : state )
-		{
-			auto dto{ DateTimeOffset{ 2024, 10, 23, 15, 30, 45, offset } };
-			::benchmark::DoNotOptimize( dto );
-		}
-	}
+        for ( auto _ : state )
+        {
+            auto dto{ DateTimeOffset{ 2024, 10, 23, 15, 30, 45, offset } };
+            ::benchmark::DoNotOptimize( dto );
+        }
+    }
 
-	static void BM_DateTimeOffset_Now( ::benchmark::State& state )
-	{
-		for ( auto _ : state )
-		{
-			auto dto{ DateTimeOffset::now() };
-			::benchmark::DoNotOptimize( dto );
-		}
-	}
+    static void BM_DateTimeOffset_Now( ::benchmark::State& state )
+    {
+        for ( auto _ : state )
+        {
+            auto dto{ DateTimeOffset::now() };
+            ::benchmark::DoNotOptimize( dto );
+        }
+    }
 
-	//----------------------------------------------
-	// Parsing
-	//----------------------------------------------
+    //----------------------------------------------
+    // Parsing
+    //----------------------------------------------
 
-	static void BM_DateTimeOffset_Parse( ::benchmark::State& state )
-	{
-		const std::string iso{ "2024-10-23T15:30:45+05:30" };
+    static void BM_DateTimeOffset_Parse( ::benchmark::State& state )
+    {
+        const std::string iso{ "2024-10-23T15:30:45+05:30" };
 
-		for ( auto _ : state )
-		{
-			auto dto{ DateTimeOffset{ iso } };
-			::benchmark::DoNotOptimize( dto );
-		}
-	}
+        for ( auto _ : state )
+        {
+            auto dto{ DateTimeOffset{ iso } };
+            ::benchmark::DoNotOptimize( dto );
+        }
+    }
 
-	static void BM_DateTimeOffset_ParseZ( ::benchmark::State& state )
-	{
-		const std::string iso{ "2024-10-23T15:30:45Z" };
+    static void BM_DateTimeOffset_ParseZ( ::benchmark::State& state )
+    {
+        const std::string iso{ "2024-10-23T15:30:45Z" };
 
-		for ( auto _ : state )
-		{
-			auto dto{ DateTimeOffset{ iso } };
-			::benchmark::DoNotOptimize( dto );
-		}
-	}
+        for ( auto _ : state )
+        {
+            auto dto{ DateTimeOffset{ iso } };
+            ::benchmark::DoNotOptimize( dto );
+        }
+    }
 
-	//----------------------------------------------
-	// Conversion
-	//----------------------------------------------
+    //----------------------------------------------
+    // Conversion
+    //----------------------------------------------
 
-	static void BM_DateTimeOffset_ToUniversalTime( ::benchmark::State& state )
-	{
-		auto dto{ DateTimeOffset::now() };
+    static void BM_DateTimeOffset_ToUniversalTime( ::benchmark::State& state )
+    {
+        auto dto{ DateTimeOffset::now() };
 
-		for ( auto _ : state )
-		{
-			auto utc{ dto.toUniversalTime() };
-			::benchmark::DoNotOptimize( utc );
-		}
-	}
+        for ( auto _ : state )
+        {
+            auto utc{ dto.toUniversalTime() };
+            ::benchmark::DoNotOptimize( utc );
+        }
+    }
 
-	static void BM_DateTimeOffset_ToOffset( ::benchmark::State& state )
-	{
-		auto dto{ DateTimeOffset::now() };
-		auto newOffset{ TimeSpan::fromHours( -8 ) };
+    static void BM_DateTimeOffset_ToOffset( ::benchmark::State& state )
+    {
+        auto dto{ DateTimeOffset::now() };
+        auto newOffset{ TimeSpan::fromHours( -8 ) };
 
-		for ( auto _ : state )
-		{
-			auto result{ dto.toOffset( newOffset ) };
-			::benchmark::DoNotOptimize( result );
-		}
-	}
+        for ( auto _ : state )
+        {
+            auto result{ dto.toOffset( newOffset ) };
+            ::benchmark::DoNotOptimize( result );
+        }
+    }
 
-	static void BM_DateTimeOffset_UtcDateTime( ::benchmark::State& state )
-	{
-		auto dto{ DateTimeOffset::now() };
+    static void BM_DateTimeOffset_UtcDateTime( ::benchmark::State& state )
+    {
+        auto dto{ DateTimeOffset::now() };
 
-		for ( auto _ : state )
-		{
-			auto utcDt{ dto.utcDateTime() };
-			::benchmark::DoNotOptimize( utcDt );
-		}
-	}
+        for ( auto _ : state )
+        {
+            auto utcDt{ dto.utcDateTime() };
+            ::benchmark::DoNotOptimize( utcDt );
+        }
+    }
 
-	//----------------------------------------------
-	// Formatting
-	//----------------------------------------------
+    //----------------------------------------------
+    // Formatting
+    //----------------------------------------------
 
-	static void BM_DateTimeOffset_ToString( ::benchmark::State& state )
-	{
-		auto dto{ DateTimeOffset::now() };
+    static void BM_DateTimeOffset_ToString( ::benchmark::State& state )
+    {
+        auto dto{ DateTimeOffset::now() };
 
-		for ( auto _ : state )
-		{
-			auto str{ dto.toString() };
-			::benchmark::DoNotOptimize( str );
-		}
-	}
+        for ( auto _ : state )
+        {
+            auto str{ dto.toString() };
+            ::benchmark::DoNotOptimize( str );
+        }
+    }
 
-	//----------------------------------------------
-	// Arithmetic
-	//----------------------------------------------
+    //----------------------------------------------
+    // Arithmetic
+    //----------------------------------------------
 
-	static void BM_DateTimeOffset_Add( ::benchmark::State& state )
-	{
-		auto dto{ DateTimeOffset::now() };
-		auto ts{ TimeSpan::fromHours( 24 ) };
+    static void BM_DateTimeOffset_Add( ::benchmark::State& state )
+    {
+        auto dto{ DateTimeOffset::now() };
+        auto ts{ TimeSpan::fromHours( 24 ) };
 
-		for ( auto _ : state )
-		{
-			auto result{ dto + ts };
-			::benchmark::DoNotOptimize( result );
-		}
-	}
+        for ( auto _ : state )
+        {
+            auto result{ dto + ts };
+            ::benchmark::DoNotOptimize( result );
+        }
+    }
 
-	static void BM_DateTimeOffset_Subtract( ::benchmark::State& state )
-	{
-		auto dto1{ DateTimeOffset::now() };
-		auto dto2{ DateTimeOffset{ 2024, 1, 1, TimeSpan::fromHours( 0 ) } };
+    static void BM_DateTimeOffset_Subtract( ::benchmark::State& state )
+    {
+        auto dto1{ DateTimeOffset::now() };
+        auto dto2{ DateTimeOffset{ 2024, 1, 1, TimeSpan::fromHours( 0 ) } };
 
-		for ( auto _ : state )
-		{
-			auto result{ dto1 - dto2 };
-			::benchmark::DoNotOptimize( result );
-		}
-	}
+        for ( auto _ : state )
+        {
+            auto result{ dto1 - dto2 };
+            ::benchmark::DoNotOptimize( result );
+        }
+    }
 
-	//----------------------------------------------
-	// Comparison
-	//----------------------------------------------
+    //----------------------------------------------
+    // Comparison
+    //----------------------------------------------
 
-	static void BM_DateTimeOffset_Comparison( ::benchmark::State& state )
-	{
-		auto dto1{ DateTimeOffset{ 2024, 10, 23, 15, 0, 0, TimeSpan::fromHours( 5 ) } };
-		auto dto2{ DateTimeOffset{ 2024, 10, 23, 10, 0, 0, TimeSpan::fromHours( 0 ) } };
+    static void BM_DateTimeOffset_Comparison( ::benchmark::State& state )
+    {
+        auto dto1{ DateTimeOffset{ 2024, 10, 23, 15, 0, 0, TimeSpan::fromHours( 5 ) } };
+        auto dto2{ DateTimeOffset{ 2024, 10, 23, 10, 0, 0, TimeSpan::fromHours( 0 ) } };
 
-		for ( auto _ : state )
-		{
-			bool result{ dto1 == dto2 }; // Should be true - same UTC time
-			::benchmark::DoNotOptimize( result );
-		}
-	}
+        for ( auto _ : state )
+        {
+            bool result{ dto1 == dto2 }; // Should be true - same UTC time
+            ::benchmark::DoNotOptimize( result );
+        }
+    }
 
-	//=====================================================================
-	// Benchmarks registration
-	//=====================================================================
+    //=====================================================================
+    // Benchmarks registration
+    //=====================================================================
 
-	//----------------------------------------------
-	// Construction
-	//----------------------------------------------
+    //----------------------------------------------
+    // Construction
+    //----------------------------------------------
 
-	BENCHMARK( BM_DateTimeOffset_Construct );
-	BENCHMARK( BM_DateTimeOffset_Now );
+    BENCHMARK( BM_DateTimeOffset_Construct );
+    BENCHMARK( BM_DateTimeOffset_Now );
 
-	//----------------------------------------------
-	// Parsing
-	//----------------------------------------------
+    //----------------------------------------------
+    // Parsing
+    //----------------------------------------------
 
-	BENCHMARK( BM_DateTimeOffset_Parse );
-	BENCHMARK( BM_DateTimeOffset_ParseZ );
+    BENCHMARK( BM_DateTimeOffset_Parse );
+    BENCHMARK( BM_DateTimeOffset_ParseZ );
 
-	//----------------------------------------------
-	// Conversion
-	//----------------------------------------------
+    //----------------------------------------------
+    // Conversion
+    //----------------------------------------------
 
-	BENCHMARK( BM_DateTimeOffset_ToUniversalTime );
-	BENCHMARK( BM_DateTimeOffset_ToOffset );
-	BENCHMARK( BM_DateTimeOffset_UtcDateTime );
+    BENCHMARK( BM_DateTimeOffset_ToUniversalTime );
+    BENCHMARK( BM_DateTimeOffset_ToOffset );
+    BENCHMARK( BM_DateTimeOffset_UtcDateTime );
 
-	//----------------------------------------------
-	// Formatting
-	//----------------------------------------------
+    //----------------------------------------------
+    // Formatting
+    //----------------------------------------------
 
-	BENCHMARK( BM_DateTimeOffset_ToString );
+    BENCHMARK( BM_DateTimeOffset_ToString );
 
-	//----------------------------------------------
-	// Arithmetic
-	//----------------------------------------------
+    //----------------------------------------------
+    // Arithmetic
+    //----------------------------------------------
 
-	BENCHMARK( BM_DateTimeOffset_Add );
-	BENCHMARK( BM_DateTimeOffset_Subtract );
+    BENCHMARK( BM_DateTimeOffset_Add );
+    BENCHMARK( BM_DateTimeOffset_Subtract );
 
-	//----------------------------------------------
-	// Comparison
-	//----------------------------------------------
+    //----------------------------------------------
+    // Comparison
+    //----------------------------------------------
 
-	BENCHMARK( BM_DateTimeOffset_Comparison );
+    BENCHMARK( BM_DateTimeOffset_Comparison );
 } // namespace nfx::time::benchmark
 
 BENCHMARK_MAIN();

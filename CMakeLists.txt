@@ -9,10 +9,10 @@
 cmake_minimum_required(VERSION 3.20)
 
 project(nfx-datetime
-	VERSION 0.1.1
-	DESCRIPTION "Cross-platform C++ DateTime library with 100-nanosecond precision and ISO 8601 support"
-	HOMEPAGE_URL "https://github.com/nfx-libs/nfx-datetime"
-	LANGUAGES CXX
+    VERSION 0.1.1
+    DESCRIPTION "Cross-platform C++ DateTime library with 100-nanosecond precision and ISO 8601 support"
+    HOMEPAGE_URL "https://github.com/nfx-libs/nfx-datetime"
+    LANGUAGES CXX
 )
 
 #----------------------------------------------
@@ -35,24 +35,24 @@ enable_testing()
 #----------------------------------------------
 
 # --- Library build types ---
-option(NFX_DATETIME_BUILD_STATIC         "Build static library"                OFF )
-option(NFX_DATETIME_BUILD_SHARED         "Build shared library"                OFF )
+option(NFX_DATETIME_BUILD_STATIC        "Build static library"               ON)
+option(NFX_DATETIME_BUILD_SHARED        "Build shared library"               OFF)
 
 # --- Build components ---
-option(NFX_DATETIME_BUILD_TESTS          "Build tests"                         OFF )
-option(NFX_DATETIME_BUILD_SAMPLES        "Build samples"                       OFF )
-option(NFX_DATETIME_BUILD_BENCHMARKS     "Build benchmarks"                    OFF )
-option(NFX_DATETIME_BUILD_DOCUMENTATION  "Build Doxygen documentation"         OFF )
+option(NFX_DATETIME_BUILD_TESTS         "Build tests"                        OFF)
+option(NFX_DATETIME_BUILD_SAMPLES       "Build samples"                      OFF)
+option(NFX_DATETIME_BUILD_BENCHMARKS    "Build benchmarks"                   OFF)
+option(NFX_DATETIME_BUILD_DOCUMENTATION "Build Doxygen documentation"        OFF)
 
 # --- Installation ---
-option(NFX_DATETIME_INSTALL_PROJECT      "Install project"                     OFF )
+option(NFX_DATETIME_INSTALL_PROJECT     "Install project"                    OFF)
 
 # --- Packaging ---
-option(NFX_DATETIME_PACKAGE_SOURCE       "Enable source package generation"    OFF )
-option(NFX_DATETIME_PACKAGE_ARCHIVE      "Enable TGZ/ZIP package generation"   OFF )
-option(NFX_DATETIME_PACKAGE_DEB          "Enable DEB package generation"       OFF )
-option(NFX_DATETIME_PACKAGE_RPM          "Enable RPM package generation"       OFF )
-option(NFX_DATETIME_PACKAGE_WIX          "Enable WiX Windows installer (MSI)"  OFF )
+option(NFX_DATETIME_PACKAGE_SOURCE      "Enable source package generation"   OFF)
+option(NFX_DATETIME_PACKAGE_ARCHIVE     "Enable TGZ/ZIP package generation"  OFF)
+option(NFX_DATETIME_PACKAGE_DEB         "Enable DEB package generation"      OFF)
+option(NFX_DATETIME_PACKAGE_RPM         "Enable RPM package generation"      OFF)
+option(NFX_DATETIME_PACKAGE_WIX         "Enable WiX Windows installer (MSI)" OFF)
 
 #----------------------------------------------
 # CMake modules configuration
