@@ -81,6 +81,31 @@ namespace nfx::time
                 << std::setw( 2 ) << offsetMins;
         }
 
+        /** @brief Format ISO 8601 basic (compact) format with offset */
+        static std::string formatIso8601Basic( const DateTimeOffset& dto )
+        {
+            std::ostringstream oss;
+            oss << std::setfill( '0' );
+
+            // Compact format without separators
+            oss << std::setw( 4 ) << dto.year()
+                << std::setw( 2 ) << dto.month()
+                << std::setw( 2 ) << dto.day() << 'T'
+                << std::setw( 2 ) << dto.hour()
+                << std::setw( 2 ) << dto.minute()
+                << std::setw( 2 ) << dto.second();
+
+            // Offset in compact format (±HHMM)
+            const auto absMinutes{ std::abs( dto.totalOffsetMinutes() ) };
+            const auto offsetHours{ absMinutes / constants::MINUTES_PER_HOUR };
+            const auto offsetMins{ absMinutes % constants::MINUTES_PER_HOUR };
+            oss << ( dto.totalOffsetMinutes() >= 0 ? '+' : '-' )
+                << std::setw( 2 ) << offsetHours
+                << std::setw( 2 ) << offsetMins;
+
+            return oss.str();
+        }
+
         /** @brief Format ISO 8601 datetime with offset */
         static std::string formatIso8601( const DateTimeOffset& dto, DateTime::Format format )
         {
@@ -307,9 +332,13 @@ namespace nfx::time
             case DateTime::Format::Iso8601:
             case DateTime::Format::Iso8601Precise:
             case DateTime::Format::Iso8601PreciseTrimmed:
-            case DateTime::Format::Iso8601WithOffset:
+            case DateTime::Format::Iso8601Extended:
             {
                 return internal::formatIso8601( *this, format );
+            }
+            case DateTime::Format::Iso8601Basic:
+            {
+                return internal::formatIso8601Basic( *this );
             }
             case DateTime::Format::Iso8601Date:
             {

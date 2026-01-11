@@ -66,7 +66,9 @@
  * │  2024-06-20T00:00:00Z          │  Jun 20, 2024, midnight UTC       │
  * │  2024-12-31T23:59:59Z          │  Dec 31, 2024, 23:59:59 UTC       │
  * │  2024-01-15T12:30:45.1230000Z  │  With 7-digit fractions (123 ms)  │
+ * │  2024-01-15T12:30:45.123Z      │  Trimmed fractions (123 ms)       │
  * │  2024-01-15T12:30:45.1234560Z  │  With microseconds (123.456 ms)   │
+ * │  2024-01-15T12:30:45.123456Z   │  Trimmed microseconds (123.456 ms)│
  * │  2024-01-15T12:30:45.1234567Z  │  Full precision (100 ns ticks)    │
  * │  1970-01-01T00:00:00Z          │  Unix epoch (start of Unix time)  │
  * │  0001-01-01T00:00:00Z          │  Minimum DateTime value           │
@@ -243,10 +245,10 @@ namespace nfx::time
             Iso8601PreciseTrimmed,
 
             /** @brief ISO 8601 with numeric offset (always +00:00 for DateTime): "2024-01-01T12:00:00+00:00" */
-            Iso8601WithOffset,
+            Iso8601Extended,
 
             /** @brief ISO 8601 compact form without separators: "20240101T120000Z" */
-            Iso8601Compact,
+            Iso8601Basic,
 
             /** @brief ISO 8601 date only: "2024-01-01" */
             Iso8601Date,

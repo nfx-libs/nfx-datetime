@@ -6,11 +6,11 @@
 
 - C-string constructors for `DateTime` and `DateTimeOffset` for convenient initialization from string literals
 - `std::initializer_list<const char*>` constructors for `DateTime` and `DateTimeOffset` for single-string initialization syntax
-- `DateTime::Format::Iso8601PreciseTrimmed` format option that removes trailing zeros from fractional seconds while maintaining ISO 8601 compliance
+- `DateTime::Format::Iso8601PreciseTrimmed` format option that removes trailing zeros from fractional seconds (e.g., `.1230000Z` → `.123Z`, `.1000000Z` → `.1Z`) while maintaining full ISO 8601:2019 §5.3.4.2 compliance
 
 ### Changed
 
-- NIL
+- **BREAKING**: DateTime::Format enum values renamed (`Iso8601WithOffset` → `Iso8601Extended`, `Iso8601Compact` → `Iso8601Basic`) to align with ISO 8601 terminology
 
 ### Deprecated
 

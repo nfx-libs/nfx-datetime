@@ -425,13 +425,13 @@ namespace nfx::time
                 oss << "Z";
                 break;
             }
-            case Format::Iso8601WithOffset:
+            case Format::Iso8601Extended:
             {
                 oss << std::setfill( '0' ) << std::setw( 4 ) << y << "-" << std::setw( 2 ) << mon << "-" << std::setw( 2 ) << d << "T" << std::setw( 2 ) << h
                     << ":" << std::setw( 2 ) << min << ":" << std::setw( 2 ) << s << "+00:00";
                 break;
             }
-            case Format::Iso8601Compact:
+            case Format::Iso8601Basic:
             {
                 oss << std::setfill( '0' ) << std::setw( 4 ) << y << std::setw( 2 ) << mon << std::setw( 2 ) << d << "T" << std::setw( 2 ) << h
                     << std::setw( 2 ) << min << std::setw( 2 ) << s << "Z";

@@ -502,6 +502,29 @@ namespace nfx::time::test
         EXPECT_EQ( str4, "2024-06-20T08:15:00.456+05:30" );
     }
 
+    TEST( DateTimeOffsetStringFormatting, ToStringIso8601Basic )
+    {
+        // Test compact format without separators
+        DateTimeOffset dto1{ 2024, 1, 15, 10, 30, 12, TimeSpan::fromHours( 2.0 ) };
+        std::string str1{ dto1.toString( DateTime::Format::Iso8601Basic ) };
+        EXPECT_EQ( str1, "20240115T103012+0200" );
+
+        // Test with negative offset
+        DateTimeOffset dto2{ 2024, 6, 20, 14, 45, 30, TimeSpan::fromHours( -5.0 ) };
+        std::string str2{ dto2.toString( DateTime::Format::Iso8601Basic ) };
+        EXPECT_EQ( str2, "20240620T144530-0500" );
+
+        // Test with UTC
+        DateTimeOffset dto3{ 2024, 12, 25, 0, 0, 0, TimeSpan::fromHours( 0.0 ) };
+        std::string str3{ dto3.toString( DateTime::Format::Iso8601Basic ) };
+        EXPECT_EQ( str3, "20241225T000000+0000" );
+
+        // Test with half-hour offset
+        DateTimeOffset dto4{ 2024, 3, 10, 9, 15, 45, TimeSpan::fromHours( 5.5 ) };
+        std::string str4{ dto4.toString( DateTime::Format::Iso8601Basic ) };
+        EXPECT_EQ( str4, "20240310T091545+0530" );
+    }
+
     //----------------------------------------------
     // Comparison methods
     //----------------------------------------------
