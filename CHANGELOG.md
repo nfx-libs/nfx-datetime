@@ -4,15 +4,11 @@
 
 ### Added
 
-- C-string constructors for `DateTime` and `DateTimeOffset` for convenient initialization from string literals
-- `std::initializer_list<const char*>` constructors for `DateTime` and `DateTimeOffset` for single-string initialization syntax
-- `DateTime::Format::Iso8601PreciseTrimmed` format option that removes trailing zeros from fractional seconds (e.g., `.1230000Z` → `.123Z`, `.1000000Z` → `.1Z`) while maintaining full ISO 8601:2019 §5.3.4.2 compliance
-- `DateTime::Format::Iso8601Millis` format option for fixed 3-digit millisecond precision (e.g., `.123Z`, `.000Z`)
-- `DateTime::Format::Iso8601Micros` format option for fixed 6-digit microsecond precision (e.g., `.123456Z`, `.000000Z`)
+- NIL
 
 ### Changed
 
-- **BREAKING**: DateTime::Format enum values renamed (`Iso8601WithOffset` → `Iso8601Extended`, `Iso8601Compact` → `Iso8601Basic`) to align with ISO 8601 terminology
+- NIL
 
 ### Deprecated
 
@@ -29,6 +25,23 @@
 ### Security
 
 - NIL
+
+## [0.3.0] - 2026-01-11
+
+### Added
+
+- C-string constructors for `DateTime` and `DateTimeOffset` for convenient initialization from string literals
+- `std::initializer_list<const char*>` constructors for `DateTime` and `DateTimeOffset` for single-string initialization syntax
+- `DateTime::Format::Iso8601PreciseTrimmed` format option that removes trailing zeros from fractional seconds (e.g., `.1230000Z` → `.123Z`, `.1000000Z` → `.1Z`) while maintaining full ISO 8601:2019 §5.3.4.2 compliance
+- `DateTime::Format::Iso8601Millis` format option for fixed 3-digit millisecond precision (e.g., `.123Z`, `.000Z`)
+- `DateTime::Format::Iso8601Micros` format option for fixed 6-digit microsecond precision (e.g., `.123456Z`, `.000000Z`)
+
+### Changed
+
+- **BREAKING**: DateTime::Format enum values renamed (`Iso8601WithOffset` → `Iso8601Extended`, `Iso8601Compact` → `Iso8601Basic`) to align with ISO 8601 terminology
+
+
+
 
 ## [0.2.0] - 2026-01-05
 

@@ -29,6 +29,11 @@ nfx-datetime is a modern C++20 library providing high-precision temporal operati
 - Full ISO 8601 parsing and formatting support
 - Basic format: `20250124T054200Z`
 - Extended format: `2025-01-24T05:42:00Z`
+- Precision formats:
+  - Full precision: `2025-01-24T05:42:00.1234567Z` (100-nanosecond ticks)
+  - Trimmed: `2025-01-24T05:42:00.123Z` (trailing zeros removed)
+  - Milliseconds: `2025-01-24T05:42:00.123Z` (3-digit fixed)
+  - Microseconds: `2025-01-24T05:42:00.123456Z` (6-digit fixed)
 - Timezone offsets: `2025-01-24T05:42:00+02:00`
 - Duration format: `P1DT2H30M` (1 day, 2 hours, 30 minutes)
 
@@ -221,8 +226,13 @@ TimeSpan oneHour = TimeSpan::fromHours(1);
 DateTime later = dt1 + oneHour;
 
 // Formatting
-std::string iso = dt1.toString(DateTime::Format::Iso8601);             // "2025-01-24T05:42:00Z"
-std::string precise = dt1.toString(DateTime::Format::Iso8601Precise);  // "2025-01-24T05:42:00.0000000Z"
+std::string iso = dt1.toString(DateTime::Format::Iso8601);                     // "2025-01-24T05:42:00Z"
+std::string precise = dt1.toString(DateTime::Format::Iso8601Precise);          // "2025-01-24T05:42:00.0000000Z"
+std::string trimmed = dt1.toString(DateTime::Format::Iso8601PreciseTrimmed);   // "2025-01-24T05:42:00.0Z" (trailing zeros removed)
+std::string millis = dt1.toString(DateTime::Format::Iso8601Millis);            // "2025-01-24T05:42:00.000Z" (3-digit fixed)
+std::string micros = dt1.toString(DateTime::Format::Iso8601Micros);            // "2025-01-24T05:42:00.000000Z" (6-digit fixed)
+std::string extended = dt1.toString(DateTime::Format::Iso8601Extended);        // "2025-01-24T05:42:00+00:00"
+std::string basic = dt1.toString(DateTime::Format::Iso8601Basic);              // "20250124T054200Z"
 
 // Epoch timestamp conversions
 std::int64_t epochSeconds = dt1.toEpochSeconds();
@@ -280,8 +290,13 @@ std::int64_t epochMillis = dto1.toEpochMilliseconds();
 DateTimeOffset fromEpoch = DateTimeOffset::fromEpochSeconds(epochSeconds);
 
 // Formatting
-std::string iso = dto1.toString();                                      // "2025-01-24T05:42:00+02:00"
-std::string precise = dto1.toString(DateTime::Format::Iso8601Precise);  // "2025-01-24T05:42:00.0000000+02:00"
+std::string iso = dto1.toString();                                              // "2025-01-24T05:42:00+02:00"
+std::string precise = dto1.toString(DateTime::Format::Iso8601Precise);          // "2025-01-24T05:42:00.0000000+02:00"
+std::string trimmed = dto1.toString(DateTime::Format::Iso8601PreciseTrimmed);   // "2025-01-24T05:42:00.0+02:00" (trailing zeros removed)
+std::string millis = dto1.toString(DateTime::Format::Iso8601Millis);            // "2025-01-24T05:42:00.000+02:00" (3-digit fixed)
+std::string micros = dto1.toString(DateTime::Format::Iso8601Micros);            // "2025-01-24T05:42:00.000000+02:00" (6-digit fixed)
+std::string extended = dto1.toString(DateTime::Format::Iso8601Extended);        // "2025-01-24T05:42:00+02:00" (same as default)
+std::string basic = dto1.toString(DateTime::Format::Iso8601Basic);              // "20250124T054200+0200"
 ```
 
 ### TimeSpan - Duration Calculations
@@ -511,4 +526,4 @@ All dependencies are automatically fetched via CMake FetchContent when building 
 
 ---
 
-_Updated on January 05, 2026_
+_Updated on January 11, 2026_
