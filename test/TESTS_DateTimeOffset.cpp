@@ -525,6 +525,57 @@ namespace nfx::time::test
         EXPECT_EQ( str4, "20240310T091545+0530" );
     }
 
+    TEST( DateTimeOffsetStringFormatting, ToStringIso8601Millis )
+    {
+        // Test with millisecond precision (3 decimal digits)
+        DateTimeOffset dto1{ 2024, 1, 15, 10, 30, 12, 123, TimeSpan::fromHours( 2.0 ) };
+        std::string str1{ dto1.toString( DateTime::Format::Iso8601Millis ) };
+        EXPECT_EQ( str1, "2024-01-15T10:30:12.123+02:00" );
+
+        // Test with zero milliseconds
+        DateTimeOffset dto2{ 2024, 1, 15, 10, 30, 12, 0, TimeSpan::fromHours( -5.0 ) };
+        std::string str2{ dto2.toString( DateTime::Format::Iso8601Millis ) };
+        EXPECT_EQ( str2, "2024-01-15T10:30:12.000-05:00" );
+
+        // Test with single digit milliseconds
+        DateTimeOffset dto3{ 2024, 1, 15, 10, 30, 12, 7, TimeSpan::fromHours( 0.0 ) };
+        std::string str3{ dto3.toString( DateTime::Format::Iso8601Millis ) };
+        EXPECT_EQ( str3, "2024-01-15T10:30:12.007+00:00" );
+
+        // Test with half-hour offset
+        DateTimeOffset dto4{ 2024, 6, 20, 8, 15, 0, 999, TimeSpan::fromHours( 5.5 ) };
+        std::string str4{ dto4.toString( DateTime::Format::Iso8601Millis ) };
+        EXPECT_EQ( str4, "2024-06-20T08:15:00.999+05:30" );
+    }
+
+    TEST( DateTimeOffsetStringFormatting, ToStringIso8601Micros )
+    {
+        // Test with microsecond precision (6 decimal digits)
+        // Create base DateTime and add microseconds using ticks
+        DateTime dt1{ 2024, 1, 15, 10, 30, 12, 0 };
+        dt1 = DateTime{ dt1.ticks() + 1234560 }; // Add 123.456 ms in 100ns ticks
+        DateTimeOffset dto1{ dt1, TimeSpan::fromHours( 2.0 ) };
+        std::string str1{ dto1.toString( DateTime::Format::Iso8601Micros ) };
+        EXPECT_EQ( str1, "2024-01-15T10:30:12.123456+02:00" );
+
+        // Test with zero microseconds
+        DateTimeOffset dto2{ 2024, 1, 15, 10, 30, 12, 0, TimeSpan::fromHours( -5.0 ) };
+        std::string str2{ dto2.toString( DateTime::Format::Iso8601Micros ) };
+        EXPECT_EQ( str2, "2024-01-15T10:30:12.000000-05:00" );
+
+        // Test with milliseconds only (trailing zeros in microseconds)
+        DateTimeOffset dto3{ 2024, 1, 15, 10, 30, 12, 123, TimeSpan::fromHours( 0.0 ) };
+        std::string str3{ dto3.toString( DateTime::Format::Iso8601Micros ) };
+        EXPECT_EQ( str3, "2024-01-15T10:30:12.123000+00:00" );
+
+        // Test with half-hour offset and sub-millisecond precision
+        DateTime dt4{ 2024, 6, 20, 8, 15, 0, 0 };
+        dt4 = DateTime{ dt4.ticks() + 10 }; // Add 1 microsecond (10 ticks of 100ns)
+        DateTimeOffset dto4{ dt4, TimeSpan::fromHours( 5.5 ) };
+        std::string str4{ dto4.toString( DateTime::Format::Iso8601Micros ) };
+        EXPECT_EQ( str4, "2024-06-20T08:15:00.000001+05:30" );
+    }
+
     //----------------------------------------------
     // Comparison methods
     //----------------------------------------------

@@ -393,6 +393,55 @@ namespace nfx::time::test
         EXPECT_EQ( str4, "2024-01-15T10:30:12.999Z" );
     }
 
+    TEST( DateTimeStringFormatting, ToStringIso8601Millis )
+    {
+        // Test with millisecond precision (3 decimal digits)
+        DateTime dt1{ 2024, 1, 15, 10, 30, 12, 123 };
+        std::string str1{ dt1.toString( DateTime::Format::Iso8601Millis ) };
+        EXPECT_EQ( str1, "2024-01-15T10:30:12.123Z" );
+
+        // Test with zero milliseconds
+        DateTime dt2{ 2024, 1, 15, 10, 30, 12, 0 };
+        std::string str2{ dt2.toString( DateTime::Format::Iso8601Millis ) };
+        EXPECT_EQ( str2, "2024-01-15T10:30:12.000Z" );
+
+        // Test with single digit milliseconds
+        DateTime dt3{ 2024, 1, 15, 10, 30, 12, 7 };
+        std::string str3{ dt3.toString( DateTime::Format::Iso8601Millis ) };
+        EXPECT_EQ( str3, "2024-01-15T10:30:12.007Z" );
+
+        // Test with maximum milliseconds
+        DateTime dt4{ 2024, 1, 15, 10, 30, 12, 999 };
+        std::string str4{ dt4.toString( DateTime::Format::Iso8601Millis ) };
+        EXPECT_EQ( str4, "2024-01-15T10:30:12.999Z" );
+    }
+
+    TEST( DateTimeStringFormatting, ToStringIso8601Micros )
+    {
+        // Test with microsecond precision (6 decimal digits)
+        // Create base DateTime and add microseconds using ticks
+        DateTime dt1{ 2024, 1, 15, 10, 30, 12, 0 };
+        dt1 = DateTime{ dt1.ticks() + 1234560 }; // Add 123.456 ms in 100ns ticks
+        std::string str1{ dt1.toString( DateTime::Format::Iso8601Micros ) };
+        EXPECT_EQ( str1, "2024-01-15T10:30:12.123456Z" );
+
+        // Test with zero microseconds
+        DateTime dt2{ 2024, 1, 15, 10, 30, 12, 0 };
+        std::string str2{ dt2.toString( DateTime::Format::Iso8601Micros ) };
+        EXPECT_EQ( str2, "2024-01-15T10:30:12.000000Z" );
+
+        // Test with milliseconds only (trailing zeros in microseconds)
+        DateTime dt3{ 2024, 1, 15, 10, 30, 12, 123 };
+        std::string str3{ dt3.toString( DateTime::Format::Iso8601Micros ) };
+        EXPECT_EQ( str3, "2024-01-15T10:30:12.123000Z" );
+
+        // Test with single digit microseconds
+        DateTime dt4{ 2024, 1, 15, 10, 30, 12, 0 };
+        dt4 = DateTime{ dt4.ticks() + 10 }; // Add 1 microsecond (10 ticks of 100ns)
+        std::string str4{ dt4.toString( DateTime::Format::Iso8601Micros ) };
+        EXPECT_EQ( str4, "2024-01-15T10:30:12.000001Z" );
+    }
+
     TEST( DateTimeStringFormatting, ToStringDateOnly )
     {
         DateTime dt{ 2024, 6, 20, 18, 45, 30 };

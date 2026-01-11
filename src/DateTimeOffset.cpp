@@ -153,6 +153,18 @@ namespace nfx::time
                     oss << '0';
                 }
             }
+            else if ( format == DateTime::Format::Iso8601Millis )
+            {
+                const std::int64_t fractionalTicks = dto.dateTime().ticks() % constants::TICKS_PER_SECOND;
+                const std::int32_t milliseconds = static_cast<std::int32_t>( fractionalTicks / constants::TICKS_PER_MILLISECOND );
+                oss << '.' << std::setw( 3 ) << milliseconds;
+            }
+            else if ( format == DateTime::Format::Iso8601Micros )
+            {
+                const std::int64_t fractionalTicks = dto.dateTime().ticks() % constants::TICKS_PER_SECOND;
+                const std::int32_t microseconds = static_cast<std::int32_t>( fractionalTicks / constants::TICKS_PER_MICROSECOND );
+                oss << '.' << std::setw( 6 ) << microseconds;
+            }
 
             // Offset part
             appendOffset( oss, dto.totalOffsetMinutes() );
@@ -332,6 +344,8 @@ namespace nfx::time
             case DateTime::Format::Iso8601:
             case DateTime::Format::Iso8601Precise:
             case DateTime::Format::Iso8601PreciseTrimmed:
+            case DateTime::Format::Iso8601Millis:
+            case DateTime::Format::Iso8601Micros:
             case DateTime::Format::Iso8601Extended:
             {
                 return internal::formatIso8601( *this, format );

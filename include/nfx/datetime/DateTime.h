@@ -59,21 +59,21 @@
  *
  * @par Format Examples:
  * @code
- * ┌────────────────────────────────┬───────────────────────────────────┐
- * │          Input String          │              Meaning              │
- * ├────────────────────────────────┼───────────────────────────────────┤
- * │  2024-01-15T12:30:45Z          │  Jan 15, 2024, 12:30:45 UTC       │
- * │  2024-06-20T00:00:00Z          │  Jun 20, 2024, midnight UTC       │
- * │  2024-12-31T23:59:59Z          │  Dec 31, 2024, 23:59:59 UTC       │
- * │  2024-01-15T12:30:45.1230000Z  │  With 7-digit fractions (123 ms)  │
- * │  2024-01-15T12:30:45.123Z      │  Trimmed fractions (123 ms)       │
- * │  2024-01-15T12:30:45.1234560Z  │  With microseconds (123.456 ms)   │
- * │  2024-01-15T12:30:45.123456Z   │  Trimmed microseconds (123.456 ms)│
- * │  2024-01-15T12:30:45.1234567Z  │  Full precision (100 ns ticks)    │
- * │  1970-01-01T00:00:00Z          │  Unix epoch (start of Unix time)  │
- * │  0001-01-01T00:00:00Z          │  Minimum DateTime value           │
- * │  9999-12-31T23:59:59.9999999Z  │  Maximum DateTime value           │
- * └────────────────────────────────┴───────────────────────────────────┘
+ * ┌────────────────────────────────┬──────────────────────────────────────┐
+ * │          Input String          │              Meaning                 │
+ * ├────────────────────────────────┼──────────────────────────────────────┤
+ * │  2024-01-15T12:30:45Z          │  Jan 15, 2024, 12:30:45 UTC          │
+ * │  2024-06-20T00:00:00Z          │  Jun 20, 2024, midnight UTC          │
+ * │  2024-12-31T23:59:59Z          │  Dec 31, 2024, 23:59:59 UTC          │
+ * │  2024-01-15T12:30:45.1230000Z  │  Precise: 7-digit fractions (123 ms) │
+ * │  2024-01-15T12:30:45.123Z      │  PreciseTrimmed: trimmed (123 ms)    │
+ * │  2024-01-15T12:30:45.123Z      │  Millis: 3-digit fixed (123 ms)      │
+ * │  2024-01-15T12:30:45.123456Z   │  Micros: 6-digit fixed (123.456 ms)  │
+ * │  2024-01-15T12:30:45.1234567Z  │  Full precision (100 ns ticks)       │
+ * │  1970-01-01T00:00:00Z          │  Unix epoch (start of Unix time)     │
+ * │  0001-01-01T00:00:00Z          │  Minimum DateTime value              │
+ * │  9999-12-31T23:59:59.9999999Z  │  Maximum DateTime value              │
+ * └────────────────────────────────┴──────────────────────────────────────┘
  * @endcode
  *
  * @par Date-Only Format:
@@ -243,6 +243,12 @@ namespace nfx::time
 
             /** @brief ISO 8601 with trimmed trailing zeros in fractions: "2024-01-01T12:00:00.1234Z" */
             Iso8601PreciseTrimmed,
+
+            /** @brief ISO 8601 with millisecond precision (3 decimal digits): "2024-01-01T12:00:00.123Z" */
+            Iso8601Millis,
+
+            /** @brief ISO 8601 with microsecond precision (6 decimal digits): "2024-01-01T12:00:00.123456Z" */
+            Iso8601Micros,
 
             /** @brief ISO 8601 with numeric offset (always +00:00 for DateTime): "2024-01-01T12:00:00+00:00" */
             Iso8601Extended,

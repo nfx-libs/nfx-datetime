@@ -425,6 +425,22 @@ namespace nfx::time
                 oss << "Z";
                 break;
             }
+            case Format::Iso8601Millis:
+            {
+                std::int32_t fractionalTicks{ static_cast<std::int32_t>( m_ticks % constants::TICKS_PER_SECOND ) };
+                std::int32_t milliseconds{ static_cast<std::int32_t>( fractionalTicks / constants::TICKS_PER_MILLISECOND ) };
+                oss << std::setfill( '0' ) << std::setw( 4 ) << y << "-" << std::setw( 2 ) << mon << "-" << std::setw( 2 ) << d << "T" << std::setw( 2 ) << h
+                    << ":" << std::setw( 2 ) << min << ":" << std::setw( 2 ) << s << "." << std::setw( 3 ) << milliseconds << "Z";
+                break;
+            }
+            case Format::Iso8601Micros:
+            {
+                std::int32_t fractionalTicks{ static_cast<std::int32_t>( m_ticks % constants::TICKS_PER_SECOND ) };
+                std::int32_t microseconds{ static_cast<std::int32_t>( fractionalTicks / constants::TICKS_PER_MICROSECOND ) };
+                oss << std::setfill( '0' ) << std::setw( 4 ) << y << "-" << std::setw( 2 ) << mon << "-" << std::setw( 2 ) << d << "T" << std::setw( 2 ) << h
+                    << ":" << std::setw( 2 ) << min << ":" << std::setw( 2 ) << s << "." << std::setw( 6 ) << microseconds << "Z";
+                break;
+            }
             case Format::Iso8601Extended:
             {
                 oss << std::setfill( '0' ) << std::setw( 4 ) << y << "-" << std::setw( 2 ) << mon << "-" << std::setw( 2 ) << d << "T" << std::setw( 2 ) << h
