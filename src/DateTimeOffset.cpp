@@ -103,6 +103,31 @@ namespace nfx::time
                 const std::int64_t fractionalTicks = dto.dateTime().ticks() % constants::TICKS_PER_SECOND;
                 oss << '.' << std::setw( 7 ) << fractionalTicks;
             }
+            else if ( format == DateTime::Format::Iso8601PreciseTrimmed )
+            {
+                const std::int64_t fractionalTicks = dto.dateTime().ticks() % constants::TICKS_PER_SECOND;
+                oss << '.';
+
+                if ( fractionalTicks > 0 )
+                {
+                    // Format with trimmed trailing zeros
+                    std::string fraction{ std::to_string( fractionalTicks ) };
+                    // Pad to 7 digits if needed
+                    fraction = std::string( 7 - fraction.length(), '0' ) + fraction;
+                    // Trim trailing zeros
+                    auto lastNonZero = fraction.find_last_not_of( '0' );
+                    if ( lastNonZero != std::string::npos )
+                    {
+                        fraction = fraction.substr( 0, lastNonZero + 1 );
+                    }
+                    oss << fraction;
+                }
+                else
+                {
+                    // If all zeros, output single zero
+                    oss << '0';
+                }
+            }
 
             // Offset part
             appendOffset( oss, dto.totalOffsetMinutes() );
@@ -281,6 +306,7 @@ namespace nfx::time
         {
             case DateTime::Format::Iso8601:
             case DateTime::Format::Iso8601Precise:
+            case DateTime::Format::Iso8601PreciseTrimmed:
             case DateTime::Format::Iso8601WithOffset:
             {
                 return internal::formatIso8601( *this, format );

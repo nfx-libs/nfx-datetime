@@ -370,6 +370,29 @@ namespace nfx::time::test
         EXPECT_NE( str.find( "Z" ), std::string::npos );
     }
 
+    TEST( DateTimeStringFormatting, ToStringIso8601PreciseTrimmed )
+    {
+        // Test with trailing zeros
+        DateTime dt1{ 2024, 1, 15, 10, 30, 12, 123 }; // .1230000 ticks
+        std::string str1{ dt1.toString( DateTime::Format::Iso8601PreciseTrimmed ) };
+        EXPECT_EQ( str1, "2024-01-15T10:30:12.123Z" );
+
+        // Test with no trailing zeros
+        DateTime dt2{ 2024, 1, 15, 10, 30, 12, 100 }; // .1000000 ticks
+        std::string str2{ dt2.toString( DateTime::Format::Iso8601PreciseTrimmed ) };
+        EXPECT_EQ( str2, "2024-01-15T10:30:12.1Z" );
+
+        // Test with all zeros
+        DateTime dt3{ 2024, 1, 15, 10, 30, 12, 0 };
+        std::string str3{ dt3.toString( DateTime::Format::Iso8601PreciseTrimmed ) };
+        EXPECT_EQ( str3, "2024-01-15T10:30:12.0Z" );
+
+        // Test with no trimming needed (7 significant digits)
+        DateTime dt4{ 2024, 1, 15, 10, 30, 12, 999 }; // .9990000 ticks
+        std::string str4{ dt4.toString( DateTime::Format::Iso8601PreciseTrimmed ) };
+        EXPECT_EQ( str4, "2024-01-15T10:30:12.999Z" );
+    }
+
     TEST( DateTimeStringFormatting, ToStringDateOnly )
     {
         DateTime dt{ 2024, 6, 20, 18, 45, 30 };
@@ -725,6 +748,27 @@ namespace nfx::time::test
         EXPECT_EQ( deserialized.minute(), original.minute() );
         EXPECT_EQ( deserialized.second(), original.second() );
         EXPECT_EQ( deserialized.millisecond(), original.millisecond() );
+    }
+
+    TEST( DateTimeIntegration, RoundTripTrimmedSerialization )
+    {
+        DateTime original{ 2024, 3, 15, 14, 30, 45, 123 };
+
+        // Convert to trimmed string and back
+        std::string serialized{ original.toString( DateTime::Format::Iso8601PreciseTrimmed ) };
+        DateTime deserialized{ DateTime{ serialized } };
+
+        // Should match exactly - parser handles variable-length fractions
+        EXPECT_EQ( deserialized.year(), original.year() );
+        EXPECT_EQ( deserialized.month(), original.month() );
+        EXPECT_EQ( deserialized.day(), original.day() );
+        EXPECT_EQ( deserialized.hour(), original.hour() );
+        EXPECT_EQ( deserialized.minute(), original.minute() );
+        EXPECT_EQ( deserialized.second(), original.second() );
+        EXPECT_EQ( deserialized.millisecond(), original.millisecond() );
+
+        // Verify the serialized format is actually trimmed
+        EXPECT_EQ( serialized, "2024-03-15T14:30:45.123Z" );
     }
 
     TEST( DateTimeIntegration, ArithmeticChaining )

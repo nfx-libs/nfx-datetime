@@ -6,6 +6,7 @@
 
 - C-string constructors for `DateTime` and `DateTimeOffset` for convenient initialization from string literals
 - `std::initializer_list<const char*>` constructors for `DateTime` and `DateTimeOffset` for single-string initialization syntax
+- `DateTime::Format::Iso8601PreciseTrimmed` format option that removes trailing zeros from fractional seconds while maintaining ISO 8601 compliance
 
 ### Changed
 

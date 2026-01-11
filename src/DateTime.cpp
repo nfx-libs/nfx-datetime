@@ -396,6 +396,35 @@ namespace nfx::time
                     << ":" << std::setw( 2 ) << min << ":" << std::setw( 2 ) << s << "." << std::setw( 7 ) << fractionalTicks << "Z";
                 break;
             }
+            case Format::Iso8601PreciseTrimmed:
+            {
+                std::int32_t fractionalTicks{ static_cast<std::int32_t>( m_ticks % constants::TICKS_PER_SECOND ) };
+                oss << std::setfill( '0' ) << std::setw( 4 ) << y << "-" << std::setw( 2 ) << mon << "-" << std::setw( 2 ) << d << "T" << std::setw( 2 ) << h
+                    << ":" << std::setw( 2 ) << min << ":" << std::setw( 2 ) << s << ".";
+
+                if ( fractionalTicks > 0 )
+                {
+                    // Format with trimmed trailing zeros
+                    std::string fraction{ std::to_string( fractionalTicks ) };
+                    // Pad to 7 digits if needed
+                    fraction = std::string( 7 - fraction.length(), '0' ) + fraction;
+                    // Trim trailing zeros
+                    auto lastNonZero = fraction.find_last_not_of( '0' );
+                    if ( lastNonZero != std::string::npos )
+                    {
+                        fraction = fraction.substr( 0, lastNonZero + 1 );
+                    }
+                    oss << fraction;
+                }
+                else
+                {
+                    // If all zeros, output single zero
+                    oss << "0";
+                }
+
+                oss << "Z";
+                break;
+            }
             case Format::Iso8601WithOffset:
             {
                 oss << std::setfill( '0' ) << std::setw( 4 ) << y << "-" << std::setw( 2 ) << mon << "-" << std::setw( 2 ) << d << "T" << std::setw( 2 ) << h

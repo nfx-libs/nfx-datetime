@@ -479,6 +479,29 @@ namespace nfx::time::test
         EXPECT_NE( str.find( "+01:00" ), std::string::npos );
     }
 
+    TEST( DateTimeOffsetStringFormatting, ToStringIso8601PreciseTrimmed )
+    {
+        // Test with trailing zeros
+        DateTimeOffset dto1{ 2024, 1, 15, 10, 30, 12, 123, TimeSpan::fromHours( 2.0 ) };
+        std::string str1{ dto1.toString( DateTime::Format::Iso8601PreciseTrimmed ) };
+        EXPECT_EQ( str1, "2024-01-15T10:30:12.123+02:00" );
+
+        // Test with negative offset
+        DateTimeOffset dto2{ 2024, 1, 15, 10, 30, 12, 100, TimeSpan::fromHours( -5.0 ) };
+        std::string str2{ dto2.toString( DateTime::Format::Iso8601PreciseTrimmed ) };
+        EXPECT_EQ( str2, "2024-01-15T10:30:12.1-05:00" );
+
+        // Test with all zeros
+        DateTimeOffset dto3{ 2024, 1, 15, 10, 30, 12, 0, TimeSpan::fromHours( 0.0 ) };
+        std::string str3{ dto3.toString( DateTime::Format::Iso8601PreciseTrimmed ) };
+        EXPECT_EQ( str3, "2024-01-15T10:30:12.0+00:00" );
+
+        // Test with UTC+5:30 (India)
+        DateTimeOffset dto4{ 2024, 6, 20, 8, 15, 0, 456, TimeSpan::fromHours( 5.5 ) };
+        std::string str4{ dto4.toString( DateTime::Format::Iso8601PreciseTrimmed ) };
+        EXPECT_EQ( str4, "2024-06-20T08:15:00.456+05:30" );
+    }
+
     //----------------------------------------------
     // Comparison methods
     //----------------------------------------------

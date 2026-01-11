@@ -239,6 +239,9 @@ namespace nfx::time
             /** @brief ISO 8601 with full tick precision (7 decimal digits): "2024-01-01T12:00:00.1234567Z" */
             Iso8601Precise,
 
+            /** @brief ISO 8601 with trimmed trailing zeros in fractions: "2024-01-01T12:00:00.1234Z" */
+            Iso8601PreciseTrimmed,
+
             /** @brief ISO 8601 with numeric offset (always +00:00 for DateTime): "2024-01-01T12:00:00+00:00" */
             Iso8601WithOffset,
 
