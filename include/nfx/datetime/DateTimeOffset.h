@@ -250,6 +250,18 @@ namespace nfx::time
          */
         inline explicit DateTimeOffset( std::string_view iso8601String );
 
+        /**
+         * @brief Parse from C-string (convenience for string literals)
+         * @param iso8601String ISO 8601 formatted C-string with timezone offset to parse
+         */
+        inline explicit DateTimeOffset( const char* iso8601String );
+
+        /**
+         * @brief Initialize from initializer list (convenience for single string)
+         * @param list Initializer list containing ISO 8601 string with timezone offset
+         */
+        inline explicit DateTimeOffset( std::initializer_list<const char*> list );
+
         /** @brief Copy constructor */
         DateTimeOffset( const DateTimeOffset& ) = default;
 

@@ -102,6 +102,16 @@ namespace nfx::time
         }
     }
 
+    inline DateTimeOffset::DateTimeOffset( const char* iso8601String )
+        : DateTimeOffset{ std::string_view{ iso8601String } }
+    {
+    }
+
+    inline DateTimeOffset::DateTimeOffset( std::initializer_list<const char*> list )
+        : DateTimeOffset{ list.size() > 0 ? std::string_view{ *list.begin() } : std::string_view{} }
+    {
+    }
+
     //----------------------------------------------
     // Comparison operators
     //----------------------------------------------

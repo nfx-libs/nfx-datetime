@@ -4,7 +4,8 @@
 
 ### Added
 
-- NIL
+- C-string constructors for `DateTime` and `DateTimeOffset` for convenient initialization from string literals
+- `std::initializer_list<const char*>` constructors for `DateTime` and `DateTimeOffset` for single-string initialization syntax
 
 ### Changed
 

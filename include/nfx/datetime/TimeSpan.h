@@ -143,13 +143,13 @@ namespace nfx::time
          * @brief Construct from ticks (100-nanosecond units)
          * @param ticks Number of 100-nanosecond intervals for this TimeSpan (defaults to 0)
          */
-        explicit inline constexpr TimeSpan( std::int64_t ticks = 0 ) noexcept;
+        inline explicit constexpr TimeSpan( std::int64_t ticks = 0 ) noexcept;
 
         /**
          * @brief Construct from std::chrono duration
          * @param duration System clock duration to convert from
          */
-        explicit inline constexpr TimeSpan( std::chrono::system_clock::duration duration ) noexcept;
+        inline explicit constexpr TimeSpan( std::chrono::system_clock::duration duration ) noexcept;
 
         /**
          * @brief Parse from ISO 8601 string

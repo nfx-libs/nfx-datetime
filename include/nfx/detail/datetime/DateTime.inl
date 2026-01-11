@@ -84,6 +84,16 @@ namespace nfx::time
         m_ticks = result.m_ticks;
     }
 
+    inline DateTime::DateTime( const char* iso8601String )
+        : DateTime{ std::string_view{ iso8601String } }
+    {
+    }
+
+    inline DateTime::DateTime( std::initializer_list<const char*> list )
+        : DateTime{ list.size() > 0 ? std::string_view{ *list.begin() } : std::string_view{} }
+    {
+    }
+
     //----------------------------------------------
     // Comparison operators
     //----------------------------------------------

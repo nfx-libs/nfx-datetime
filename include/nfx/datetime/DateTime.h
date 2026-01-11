@@ -275,7 +275,7 @@ namespace nfx::time
          * @brief Construct from system clock time point
          * @param timePoint System clock time point to convert from
          */
-        explicit inline DateTime( std::chrono::system_clock::time_point timePoint ) noexcept;
+        inline explicit DateTime( std::chrono::system_clock::time_point timePoint ) noexcept;
 
         /**
          * @brief Construct from date components
@@ -315,7 +315,19 @@ namespace nfx::time
          * @brief Parse from ISO 8601 string
          * @param iso8601String ISO 8601 formatted string to parse
          */
-        explicit inline DateTime( std::string_view iso8601String );
+        inline explicit DateTime( std::string_view iso8601String );
+
+        /**
+         * @brief Parse from C-string (convenience for string literals)
+         * @param iso8601String ISO 8601 formatted C-string to parse
+         */
+        inline explicit DateTime( const char* iso8601String );
+
+        /**
+         * @brief Initialize from initializer list (convenience for single string)
+         * @param list Initializer list containing ISO 8601 string
+         */
+        inline explicit DateTime( std::initializer_list<const char*> list );
 
         /** @brief Copy constructor */
         DateTime( const DateTime& ) = default;

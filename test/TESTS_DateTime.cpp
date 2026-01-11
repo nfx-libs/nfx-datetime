@@ -113,6 +113,17 @@ namespace nfx::time::test
         EXPECT_EQ( dt.second(), 45 );
     }
 
+    TEST( DateTimeConstruction, FromCString )
+    {
+        DateTime dt{ "2024-06-20T08:15:30Z" };
+        EXPECT_EQ( dt.year(), 2024 );
+        EXPECT_EQ( dt.month(), 6 );
+        EXPECT_EQ( dt.day(), 20 );
+        EXPECT_EQ( dt.hour(), 8 );
+        EXPECT_EQ( dt.minute(), 15 );
+        EXPECT_EQ( dt.second(), 30 );
+    }
+
     TEST( DateTimeConstruction, CopyConstructor )
     {
         DateTime dt1{ 2024, 5, 15, 10, 20, 30 };

@@ -131,6 +131,18 @@ namespace nfx::time::test
         EXPECT_EQ( dto.microsecond(), 456 );
     }
 
+    TEST( DateTimeOffsetConstruction, FromCString )
+    {
+        DateTimeOffset dto{ "2024-06-20T08:15:30+02:00" };
+        EXPECT_EQ( dto.year(), 2024 );
+        EXPECT_EQ( dto.month(), 6 );
+        EXPECT_EQ( dto.day(), 20 );
+        EXPECT_EQ( dto.hour(), 8 );
+        EXPECT_EQ( dto.minute(), 15 );
+        EXPECT_EQ( dto.second(), 30 );
+        EXPECT_EQ( dto.offset().hours(), 2.0 );
+    }
+
     TEST( DateTimeOffsetConstruction, CopyConstructor )
     {
         DateTimeOffset dto1{ 2024, 5, 15, 10, 20, 30, TimeSpan::fromHours( 2.0 ) };
