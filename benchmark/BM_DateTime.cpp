@@ -43,7 +43,7 @@ namespace nfx::time::benchmark
 
     static void BM_DateTime_Construct_YMD( ::benchmark::State& state )
     {
-        for ( auto _ : state )
+        for( auto _ : state )
         {
             auto dt{ DateTime{ 2024, 10, 23 } };
             ::benchmark::DoNotOptimize( dt );
@@ -52,7 +52,7 @@ namespace nfx::time::benchmark
 
     static void BM_DateTime_Construct_YMDHMS( ::benchmark::State& state )
     {
-        for ( auto _ : state )
+        for( auto _ : state )
         {
             auto dt{ DateTime{ 2024, 10, 23, 15, 30, 45 } };
             ::benchmark::DoNotOptimize( dt );
@@ -61,7 +61,7 @@ namespace nfx::time::benchmark
 
     static void BM_DateTime_Now( ::benchmark::State& state )
     {
-        for ( auto _ : state )
+        for( auto _ : state )
         {
             auto dt{ DateTime::now() };
             ::benchmark::DoNotOptimize( dt );
@@ -70,7 +70,7 @@ namespace nfx::time::benchmark
 
     static void BM_DateTime_UtcNow( ::benchmark::State& state )
     {
-        for ( auto _ : state )
+        for( auto _ : state )
         {
             auto dt{ DateTime::utcNow() };
             ::benchmark::DoNotOptimize( dt );
@@ -85,7 +85,7 @@ namespace nfx::time::benchmark
     {
         const std::string iso{ "2024-10-23T15:30:45Z" };
 
-        for ( auto _ : state )
+        for( auto _ : state )
         {
             auto dt{ DateTime{ iso } };
             ::benchmark::DoNotOptimize( dt );
@@ -96,7 +96,7 @@ namespace nfx::time::benchmark
     {
         const std::string iso{ "2024-10-23T15:30:45.1234567Z" };
 
-        for ( auto _ : state )
+        for( auto _ : state )
         {
             auto dt{ DateTime{ iso } };
             ::benchmark::DoNotOptimize( dt );
@@ -111,7 +111,7 @@ namespace nfx::time::benchmark
     {
         auto dt{ DateTime::utcNow() };
 
-        for ( auto _ : state )
+        for( auto _ : state )
         {
             auto str{ dt.toString() };
             ::benchmark::DoNotOptimize( str );
@@ -122,7 +122,7 @@ namespace nfx::time::benchmark
     {
         auto dt{ DateTime::utcNow() };
 
-        for ( auto _ : state )
+        for( auto _ : state )
         {
             auto str{ dt.toString( DateTime::Format::Iso8601Precise ) };
             ::benchmark::DoNotOptimize( str );
@@ -138,7 +138,7 @@ namespace nfx::time::benchmark
         auto dt{ DateTime::utcNow() };
         auto ts{ TimeSpan::fromHours( 24 ) };
 
-        for ( auto _ : state )
+        for( auto _ : state )
         {
             auto result{ dt + ts };
             ::benchmark::DoNotOptimize( result );
@@ -150,7 +150,7 @@ namespace nfx::time::benchmark
         auto dt{ DateTime::utcNow() };
         auto ts{ TimeSpan::fromHours( 24 ) };
 
-        for ( auto _ : state )
+        for( auto _ : state )
         {
             auto result{ dt - ts };
             ::benchmark::DoNotOptimize( result );
@@ -162,7 +162,7 @@ namespace nfx::time::benchmark
         auto dt1{ DateTime{ 2024, 10, 23, 15, 0, 0 } };
         auto dt2{ DateTime{ 2024, 1, 1 } };
 
-        for ( auto _ : state )
+        for( auto _ : state )
         {
             auto result{ dt1 - dt2 };
             ::benchmark::DoNotOptimize( result );
@@ -177,7 +177,7 @@ namespace nfx::time::benchmark
     {
         auto dt{ DateTime::utcNow() };
 
-        for ( auto _ : state )
+        for( auto _ : state )
         {
             auto epochSecs{ dt.toEpochSeconds() };
             ::benchmark::DoNotOptimize( epochSecs );
@@ -188,7 +188,7 @@ namespace nfx::time::benchmark
     {
         std::int64_t epochSecs{ 1729699845 };
 
-        for ( auto _ : state )
+        for( auto _ : state )
         {
             auto dt{ DateTime::fromEpochSeconds( epochSecs ) };
             ::benchmark::DoNotOptimize( dt );
@@ -203,7 +203,7 @@ namespace nfx::time::benchmark
     {
         auto dt{ DateTime::utcNow() };
 
-        for ( auto _ : state )
+        for( auto _ : state )
         {
             auto y{ dt.year() };
             auto m{ dt.month() };
@@ -229,7 +229,7 @@ namespace nfx::time::benchmark
         auto dt1{ DateTime{ 2024, 10, 23, 15, 0, 0 } };
         auto dt2{ DateTime{ 2024, 10, 23 } };
 
-        for ( auto _ : state )
+        for( auto _ : state )
         {
             bool result{ dt1 > dt2 };
             ::benchmark::DoNotOptimize( result );

@@ -53,14 +53,15 @@ function(configure_target target_name)
     )
 
     # --- Properties ---
-    set_target_properties(${target_name} PROPERTIES
-        CXX_STANDARD 20
-        CXX_STANDARD_REQUIRED ON
-        CXX_EXTENSIONS OFF
-        VERSION ${PROJECT_VERSION}
-        SOVERSION ${PROJECT_VERSION_MAJOR}
-        POSITION_INDEPENDENT_CODE ON
-        DEBUG_POSTFIX "-d"
+    set_target_properties(${target_name}
+        PROPERTIES
+            CXX_STANDARD 20
+            CXX_STANDARD_REQUIRED ON
+            CXX_EXTENSIONS OFF
+            DEBUG_POSTFIX "-d"
+            VERSION ${PROJECT_VERSION}
+            SOVERSION ${PROJECT_VERSION_MAJOR}
+            POSITION_INDEPENDENT_CODE ON
     )
 endfunction()
 
@@ -68,8 +69,9 @@ endfunction()
 if(NFX_DATETIME_BUILD_SHARED)
     configure_target(${PROJECT_NAME})
     if(WIN32)
-        set_target_properties(${PROJECT_NAME} PROPERTIES
-            WINDOWS_EXPORT_ALL_SYMBOLS TRUE
+        set_target_properties(${PROJECT_NAME}
+            PROPERTIES
+                WINDOWS_EXPORT_ALL_SYMBOLS TRUE
         )
 
         configure_file(
@@ -77,7 +79,9 @@ if(NFX_DATETIME_BUILD_SHARED)
             ${CMAKE_BINARY_DIR}/nfxDateTime.rc
             @ONLY
         )
-        target_sources(${PROJECT_NAME} PRIVATE ${CMAKE_BINARY_DIR}/nfxDateTime.rc)
+        target_sources(${PROJECT_NAME}
+            PRIVATE
+                ${CMAKE_BINARY_DIR}/nfxDateTime.rc)
     endif()
 endif()
 

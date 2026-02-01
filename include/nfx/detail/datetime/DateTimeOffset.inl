@@ -63,28 +63,50 @@ namespace nfx::time
     {
     }
 
-    inline DateTimeOffset::DateTimeOffset( std::int32_t year, std::int32_t month, std::int32_t day, const TimeSpan& offset ) noexcept
+    inline DateTimeOffset::DateTimeOffset(
+        std::int32_t year, std::int32_t month, std::int32_t day, const TimeSpan& offset ) noexcept
         : m_dateTime{ year, month, day },
           m_offset{ offset }
     {
     }
 
-    inline DateTimeOffset::DateTimeOffset( std::int32_t year, std::int32_t month, std::int32_t day,
-        std::int32_t hour, std::int32_t minute, std::int32_t second, const TimeSpan& offset ) noexcept
+    inline DateTimeOffset::DateTimeOffset(
+        std::int32_t year,
+        std::int32_t month,
+        std::int32_t day,
+        std::int32_t hour,
+        std::int32_t minute,
+        std::int32_t second,
+        const TimeSpan& offset ) noexcept
         : m_dateTime{ year, month, day, hour, minute, second },
           m_offset{ offset }
     {
     }
 
-    inline DateTimeOffset::DateTimeOffset( std::int32_t year, std::int32_t month, std::int32_t day, std::int32_t hour, std::int32_t minute, std::int32_t second,
-        std::int32_t millisecond, const TimeSpan& offset ) noexcept
+    inline DateTimeOffset::DateTimeOffset(
+        std::int32_t year,
+        std::int32_t month,
+        std::int32_t day,
+        std::int32_t hour,
+        std::int32_t minute,
+        std::int32_t second,
+        std::int32_t millisecond,
+        const TimeSpan& offset ) noexcept
         : m_dateTime{ year, month, day, hour, minute, second, millisecond },
           m_offset{ offset }
     {
     }
 
-    inline DateTimeOffset::DateTimeOffset( std::int32_t year, std::int32_t month, std::int32_t day, std::int32_t hour, std::int32_t minute, std::int32_t second,
-        std::int32_t millisecond, std::int32_t microsecond, const TimeSpan& offset ) noexcept
+    inline DateTimeOffset::DateTimeOffset(
+        std::int32_t year,
+        std::int32_t month,
+        std::int32_t day,
+        std::int32_t hour,
+        std::int32_t minute,
+        std::int32_t second,
+        std::int32_t millisecond,
+        std::int32_t microsecond,
+        const TimeSpan& offset ) noexcept
         : m_dateTime{ year, month, day, hour, minute, second, millisecond },
           m_offset{ offset }
     {
@@ -96,7 +118,7 @@ namespace nfx::time
         : m_dateTime{ DateTime::min() },
           m_offset{ 0 }
     {
-        if ( !fromString( iso8601String, *this ) )
+        if( !fromString( iso8601String, *this ) )
         {
             throw std::invalid_argument{ "Invalid ISO 8601 DateTimeOffset string format" };
         }
@@ -122,11 +144,11 @@ namespace nfx::time
         const auto thisUtc = utcTicks();
         const auto otherUtc = other.utcTicks();
 
-        if ( thisUtc < otherUtc )
+        if( thisUtc < otherUtc )
         {
             return std::strong_ordering::less;
         }
-        if ( thisUtc > otherUtc )
+        if( thisUtc > otherUtc )
         {
             return std::strong_ordering::greater;
         }

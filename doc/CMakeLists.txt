@@ -4,7 +4,6 @@
 
 # --- Documentation condition check ---
 if(NOT NFX_DATETIME_BUILD_DOCUMENTATION)
-    message(STATUS "Documentation disabled, skipping...")
     return()
 endif()
 

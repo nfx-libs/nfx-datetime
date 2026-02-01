@@ -2,7 +2,7 @@
 # nfx-datetime - CMake Package Configuration
 #==============================================================================
 # This file provides CMake targets for the nfx-datetime library.
-# 
+#
 # Usage:
 #   find_package(nfx-datetime REQUIRED)
 #   target_link_libraries(your_target PRIVATE nfx-datetime::nfx-datetime)  # Shared library

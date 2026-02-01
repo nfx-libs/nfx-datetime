@@ -82,7 +82,7 @@ int main()
         DateTime result;
         bool success{ DateTime::fromString( "2024-01-01T00:00:00Z", result ) };
         std::cout << "fromString success:             " << ( success ? "true" : "false" ) << "\n";
-        if ( success )
+        if( success )
         {
             std::cout << "  Parsed value:                 " << result.toString() << "\n";
         }
@@ -346,8 +346,8 @@ int main()
         DateTimeOffset utc{ tokyo.toUniversalTime() };
         std::cout << "Same moment in UTC:    " << utc.toString() << "\n";
 
-        std::cout << "\nAll represent same instant: " << std::boolalpha
-                  << ( tokyo.utcTicks() == newYork.utcTicks() ) << "\n";
+        std::cout << "\nAll represent same instant: " << std::boolalpha << ( tokyo.utcTicks() == newYork.utcTicks() )
+                  << "\n";
 
         std::cout << "\n";
     }
@@ -451,8 +451,10 @@ int main()
         DateTimeOffset meetingSydney{ meetingTokyo.toOffset( TimeSpan::fromHours( 10.0 ) ) };
 
         std::cout << "Same meeting in NY:          " << meetingNY.toString() << " (" << meetingNY.hour() << ":00)\n";
-        std::cout << "Same meeting in London:      " << meetingLondon.toString() << " (" << meetingLondon.hour() << ":00)\n";
-        std::cout << "Same meeting in Sydney:      " << meetingSydney.toString() << " (" << meetingSydney.hour() << ":00)\n";
+        std::cout << "Same meeting in London:      " << meetingLondon.toString() << " (" << meetingLondon.hour()
+                  << ":00)\n";
+        std::cout << "Same meeting in Sydney:      " << meetingSydney.toString() << " (" << meetingSydney.hour()
+                  << ":00)\n";
 
         std::cout << "\n";
     }

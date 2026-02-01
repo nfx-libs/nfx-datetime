@@ -204,7 +204,8 @@ namespace nfx::time
          * @param day Day component (1-31)
          * @param offset The timezone offset from UTC
          */
-        inline DateTimeOffset( std::int32_t year, std::int32_t month, std::int32_t day, const TimeSpan& offset ) noexcept;
+        inline DateTimeOffset(
+            std::int32_t year, std::int32_t month, std::int32_t day, const TimeSpan& offset ) noexcept;
 
         /**
          * @brief Construct from date and time components and offset
@@ -216,7 +217,13 @@ namespace nfx::time
          * @param second Second component (0-59)
          * @param offset The timezone offset from UTC
          */
-        inline DateTimeOffset( std::int32_t year, std::int32_t month, std::int32_t day, std::int32_t hour, std::int32_t minute, std::int32_t second,
+        inline DateTimeOffset(
+            std::int32_t year,
+            std::int32_t month,
+            std::int32_t day,
+            std::int32_t hour,
+            std::int32_t minute,
+            std::int32_t second,
             const TimeSpan& offset ) noexcept;
 
         /**
@@ -230,8 +237,15 @@ namespace nfx::time
          * @param millisecond Millisecond component (0-999)
          * @param offset The timezone offset from UTC
          */
-        inline DateTimeOffset( std::int32_t year, std::int32_t month, std::int32_t day, std::int32_t hour, std::int32_t minute, std::int32_t second,
-            std::int32_t millisecond, const TimeSpan& offset ) noexcept;
+        inline DateTimeOffset(
+            std::int32_t year,
+            std::int32_t month,
+            std::int32_t day,
+            std::int32_t hour,
+            std::int32_t minute,
+            std::int32_t second,
+            std::int32_t millisecond,
+            const TimeSpan& offset ) noexcept;
 
         /**
          * @brief Construct from date and time components with microseconds and offset
@@ -245,8 +259,16 @@ namespace nfx::time
          * @param microsecond Microsecond component (0-999)
          * @param offset The timezone offset from UTC
          */
-        inline DateTimeOffset( std::int32_t year, std::int32_t month, std::int32_t day, std::int32_t hour, std::int32_t minute, std::int32_t second,
-            std::int32_t millisecond, std::int32_t microsecond, const TimeSpan& offset ) noexcept;
+        inline DateTimeOffset(
+            std::int32_t year,
+            std::int32_t month,
+            std::int32_t day,
+            std::int32_t hour,
+            std::int32_t minute,
+            std::int32_t second,
+            std::int32_t millisecond,
+            std::int32_t microsecond,
+            const TimeSpan& offset ) noexcept;
 
         /**
          * @brief Parse from ISO 8601 string with timezone offset
@@ -707,14 +729,16 @@ namespace nfx::time
 
         /**
          * @brief Get minimum DateTimeOffset value
-         * @return DateTimeOffset representing the minimum representable date (January 1, 0001 00:00:00.0000000 with zero offset)
+         * @return DateTimeOffset representing the minimum representable date (January 1, 0001 00:00:00.0000000 with
+         * zero offset)
          * @note This function is marked [[nodiscard]] - the return value should not be ignored
          */
         [[nodiscard]] static DateTimeOffset min() noexcept;
 
         /**
          * @brief Get maximum DateTimeOffset value
-         * @return DateTimeOffset representing the maximum representable date (December 31, 9999 23:59:59.9999999 with zero offset)
+         * @return DateTimeOffset representing the maximum representable date (December 31, 9999 23:59:59.9999999 with
+         * zero offset)
          * @note This function is marked [[nodiscard]] - the return value should not be ignored
          */
         [[nodiscard]] static DateTimeOffset max() noexcept;

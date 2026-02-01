@@ -53,26 +53,26 @@ namespace nfx::time
          * @details This is platform-dependent; on systems with 64-bit nanosecond precision,
          *          this is approximately year 1678.
          */
-        static constexpr std::int64_t MIN_CHRONO_SAFE_TICKS =
-            std::max( constants::MIN_DATETIME_TICKS,
-                constants::UNIX_EPOCH_TICKS + ( std::numeric_limits<std::int64_t>::min() / 100 ) );
+        static constexpr std::int64_t MIN_CHRONO_SAFE_TICKS = std::max(
+            constants::MIN_DATETIME_TICKS,
+            constants::UNIX_EPOCH_TICKS + ( std::numeric_limits<std::int64_t>::min() / 100 ) );
 
         /**
          * @brief Maximum DateTime value that can safely round-trip through std::chrono::system_clock
          * @details This is platform-dependent; on systems with 64-bit nanosecond precision,
          *          this is approximately year 2262.
          */
-        static constexpr std::int64_t MAX_CHRONO_SAFE_TICKS =
-            std::min(
-                constants::MAX_DATETIME_TICKS,
-                constants::UNIX_EPOCH_TICKS + ( std::numeric_limits<std::int64_t>::max() / 100 ) );
+        static constexpr std::int64_t MAX_CHRONO_SAFE_TICKS = std::min(
+            constants::MAX_DATETIME_TICKS,
+            constants::UNIX_EPOCH_TICKS + ( std::numeric_limits<std::int64_t>::max() / 100 ) );
 
         //=====================================================================
         //  Internal helper methods
         //=====================================================================
 
         /** @brief Convert ticks to date components */
-        static constexpr void dateComponentsFromTicks( std::int64_t ticks, std::int32_t& year, std::int32_t& month, std::int32_t& day ) noexcept
+        static constexpr void dateComponentsFromTicks(
+            std::int64_t ticks, std::int32_t& year, std::int32_t& month, std::int32_t& day ) noexcept
         {
             // Extract date components using Gregorian 400-year cycle algorithm (O(1) complexity)
             std::int64_t totalDays{ ticks / constants::TICKS_PER_DAY };
@@ -83,7 +83,7 @@ namespace nfx::time
 
             // Extract 100-year periods (handle leap year edge case at 400-year boundary)
             std::int64_t num100Years{ totalDays / constants::DAYS_PER_100_YEARS };
-            if ( num100Years > 3 )
+            if( num100Years > 3 )
             {
                 num100Years = 3; // Year divisible by 400 is a leap year
             }
@@ -95,7 +95,7 @@ namespace nfx::time
 
             // Extract remaining years (handle leap year edge case at 4-year boundary)
             std::int64_t numYears{ totalDays / constants::DAYS_PER_YEAR };
-            if ( numYears > 3 )
+            if( numYears > 3 )
             {
                 numYears = 3; // 4th year in cycle is a leap year
             }
@@ -106,10 +106,10 @@ namespace nfx::time
 
             // Find the month by iterating through months (already O(1) - max 12 iterations)
             month = 1;
-            while ( month <= 12 )
+            while( month <= 12 )
             {
                 std::int32_t daysInCurrentMonth{ DateTime::daysInMonth( year, month ) };
-                if ( totalDays < daysInCurrentMonth )
+                if( totalDays < daysInCurrentMonth )
                 {
                     break;
                 }
@@ -123,7 +123,12 @@ namespace nfx::time
         }
 
         /** @brief Convert ticks to time components */
-        static constexpr void timeComponentsFromTicks( std::int64_t ticks, std::int32_t& hour, std::int32_t& minute, std::int32_t& second, std::int32_t& millisecond ) noexcept
+        static constexpr void timeComponentsFromTicks(
+            std::int64_t ticks,
+            std::int32_t& hour,
+            std::int32_t& minute,
+            std::int32_t& second,
+            std::int32_t& millisecond ) noexcept
         {
             std::int64_t timeTicks{ ticks % constants::TICKS_PER_DAY };
 
@@ -164,7 +169,7 @@ namespace nfx::time
             totalDays += y * constants::DAYS_PER_YEAR;
 
             // Add days for complete months in the given year
-            for ( std::int32_t m{ 1 }; m < month; ++m )
+            for( std::int32_t m{ 1 }; m < month; ++m )
             {
                 totalDays += DateTime::daysInMonth( year, m );
             }
@@ -176,7 +181,8 @@ namespace nfx::time
         }
 
         /** @brief Convert time components to ticks */
-        static constexpr std::int64_t timeToTicks( std::int32_t hour, std::int32_t minute, std::int32_t second, std::int32_t millisecond ) noexcept
+        static constexpr std::int64_t timeToTicks(
+            std::int32_t hour, std::int32_t minute, std::int32_t second, std::int32_t millisecond ) noexcept
         {
             return ( static_cast<std::int64_t>( hour ) * constants::TICKS_PER_HOUR ) +
                    ( static_cast<std::int64_t>( minute ) * constants::TICKS_PER_MINUTE ) +
@@ -187,15 +193,15 @@ namespace nfx::time
         /** @brief Validate date components */
         static constexpr bool isValidDate( std::int32_t year, std::int32_t month, std::int32_t day ) noexcept
         {
-            if ( year < constants::MIN_YEAR || year > constants::MAX_YEAR )
+            if( year < constants::MIN_YEAR || year > constants::MAX_YEAR )
             {
                 return false;
             }
-            if ( month < 1 || month > 12 )
+            if( month < 1 || month > 12 )
             {
                 return false;
             }
-            if ( day < 1 || day > DateTime::daysInMonth( year, month ) )
+            if( day < 1 || day > DateTime::daysInMonth( year, month ) )
             {
                 return false;
             }
@@ -204,12 +210,13 @@ namespace nfx::time
         }
 
         /** @brief Validate time components */
-        static constexpr bool isValidTime( std::int32_t hour, std::int32_t minute, std::int32_t second, std::int32_t millisecond ) noexcept
+        static constexpr bool isValidTime(
+            std::int32_t hour, std::int32_t minute, std::int32_t second, std::int32_t millisecond ) noexcept
         {
-            return hour >= 0 && hour <= constants::HOURS_PER_DAY - 1 &&
-                   minute >= 0 && minute <= constants::MINUTES_PER_HOUR - 1 &&
-                   second >= 0 && second <= constants::SECONDS_PER_MINUTE - 1 &&
-                   millisecond >= 0 && millisecond <= constants::MILLISECONDS_PER_SECOND - 1;
+            return hour >= 0 && hour <= constants::HOURS_PER_DAY - 1 && minute >= 0 &&
+                   minute <= constants::MINUTES_PER_HOUR - 1 && second >= 0 &&
+                   second <= constants::SECONDS_PER_MINUTE - 1 && millisecond >= 0 &&
+                   millisecond <= constants::MILLISECONDS_PER_SECOND - 1;
         }
     } // namespace internal
 
@@ -223,7 +230,7 @@ namespace nfx::time
 
     DateTime::DateTime( std::int32_t year, std::int32_t month, std::int32_t day ) noexcept
     {
-        if ( !internal::isValidDate( year, month, day ) )
+        if( !internal::isValidDate( year, month, day ) )
         {
             m_ticks = constants::MIN_DATETIME_TICKS;
             return;
@@ -231,10 +238,15 @@ namespace nfx::time
         m_ticks = internal::dateToTicks( year, month, day );
     }
 
-    DateTime::DateTime( std::int32_t year, std::int32_t month, std::int32_t day,
-        std::int32_t hour, std::int32_t minute, std::int32_t second ) noexcept
+    DateTime::DateTime(
+        std::int32_t year,
+        std::int32_t month,
+        std::int32_t day,
+        std::int32_t hour,
+        std::int32_t minute,
+        std::int32_t second ) noexcept
     {
-        if ( !internal::isValidDate( year, month, day ) || !internal::isValidTime( hour, minute, second, 0 ) )
+        if( !internal::isValidDate( year, month, day ) || !internal::isValidTime( hour, minute, second, 0 ) )
         {
             m_ticks = constants::MIN_DATETIME_TICKS;
             return;
@@ -242,16 +254,22 @@ namespace nfx::time
         m_ticks = internal::dateToTicks( year, month, day ) + internal::timeToTicks( hour, minute, second, 0 );
     }
 
-    DateTime::DateTime( std::int32_t year, std::int32_t month, std::int32_t day,
-        std::int32_t hour, std::int32_t minute, std::int32_t second,
+    DateTime::DateTime(
+        std::int32_t year,
+        std::int32_t month,
+        std::int32_t day,
+        std::int32_t hour,
+        std::int32_t minute,
+        std::int32_t second,
         std::int32_t millisecond ) noexcept
     {
-        if ( !internal::isValidDate( year, month, day ) || !internal::isValidTime( hour, minute, second, millisecond ) )
+        if( !internal::isValidDate( year, month, day ) || !internal::isValidTime( hour, minute, second, millisecond ) )
         {
             m_ticks = constants::MIN_DATETIME_TICKS;
             return;
         }
-        m_ticks = internal::dateToTicks( year, month, day ) + internal::timeToTicks( hour, minute, second, millisecond );
+        m_ticks =
+            internal::dateToTicks( year, month, day ) + internal::timeToTicks( hour, minute, second, millisecond );
     }
 
     //----------------------------------------------
@@ -343,7 +361,7 @@ namespace nfx::time
         internal::dateComponentsFromTicks( m_ticks, year, month, day );
 
         std::int32_t dayCount{ 0 };
-        for ( std::int32_t m{ 1 }; m < month; ++m )
+        for( std::int32_t m{ 1 }; m < month; ++m )
         {
             dayCount += daysInMonth( year, m );
         }
@@ -381,28 +399,31 @@ namespace nfx::time
 
         std::ostringstream oss;
 
-        switch ( format )
+        switch( format )
         {
             case Format::Iso8601:
             {
-                oss << std::setfill( '0' ) << std::setw( 4 ) << y << "-" << std::setw( 2 ) << mon << "-" << std::setw( 2 ) << d << "T" << std::setw( 2 ) << h << ":"
-                    << std::setw( 2 ) << min << ":" << std::setw( 2 ) << s << "Z";
+                oss << std::setfill( '0' ) << std::setw( 4 ) << y << "-" << std::setw( 2 ) << mon << "-"
+                    << std::setw( 2 ) << d << "T" << std::setw( 2 ) << h << ":" << std::setw( 2 ) << min << ":"
+                    << std::setw( 2 ) << s << "Z";
                 break;
             }
             case Format::Iso8601Precise:
             {
                 std::int32_t fractionalTicks{ static_cast<std::int32_t>( m_ticks % constants::TICKS_PER_SECOND ) };
-                oss << std::setfill( '0' ) << std::setw( 4 ) << y << "-" << std::setw( 2 ) << mon << "-" << std::setw( 2 ) << d << "T" << std::setw( 2 ) << h
-                    << ":" << std::setw( 2 ) << min << ":" << std::setw( 2 ) << s << "." << std::setw( 7 ) << fractionalTicks << "Z";
+                oss << std::setfill( '0' ) << std::setw( 4 ) << y << "-" << std::setw( 2 ) << mon << "-"
+                    << std::setw( 2 ) << d << "T" << std::setw( 2 ) << h << ":" << std::setw( 2 ) << min << ":"
+                    << std::setw( 2 ) << s << "." << std::setw( 7 ) << fractionalTicks << "Z";
                 break;
             }
             case Format::Iso8601PreciseTrimmed:
             {
                 std::int32_t fractionalTicks{ static_cast<std::int32_t>( m_ticks % constants::TICKS_PER_SECOND ) };
-                oss << std::setfill( '0' ) << std::setw( 4 ) << y << "-" << std::setw( 2 ) << mon << "-" << std::setw( 2 ) << d << "T" << std::setw( 2 ) << h
-                    << ":" << std::setw( 2 ) << min << ":" << std::setw( 2 ) << s << ".";
+                oss << std::setfill( '0' ) << std::setw( 4 ) << y << "-" << std::setw( 2 ) << mon << "-"
+                    << std::setw( 2 ) << d << "T" << std::setw( 2 ) << h << ":" << std::setw( 2 ) << min << ":"
+                    << std::setw( 2 ) << s << ".";
 
-                if ( fractionalTicks > 0 )
+                if( fractionalTicks > 0 )
                 {
                     // Format with trimmed trailing zeros
                     std::string fraction{ std::to_string( fractionalTicks ) };
@@ -410,7 +431,7 @@ namespace nfx::time
                     fraction = std::string( 7 - fraction.length(), '0' ) + fraction;
                     // Trim trailing zeros
                     auto lastNonZero = fraction.find_last_not_of( '0' );
-                    if ( lastNonZero != std::string::npos )
+                    if( lastNonZero != std::string::npos )
                     {
                         fraction = fraction.substr( 0, lastNonZero + 1 );
                     }
@@ -428,39 +449,46 @@ namespace nfx::time
             case Format::Iso8601Millis:
             {
                 std::int32_t fractionalTicks{ static_cast<std::int32_t>( m_ticks % constants::TICKS_PER_SECOND ) };
-                std::int32_t milliseconds{ static_cast<std::int32_t>( fractionalTicks / constants::TICKS_PER_MILLISECOND ) };
-                oss << std::setfill( '0' ) << std::setw( 4 ) << y << "-" << std::setw( 2 ) << mon << "-" << std::setw( 2 ) << d << "T" << std::setw( 2 ) << h
-                    << ":" << std::setw( 2 ) << min << ":" << std::setw( 2 ) << s << "." << std::setw( 3 ) << milliseconds << "Z";
+                std::int32_t milliseconds{ static_cast<std::int32_t>(
+                    fractionalTicks / constants::TICKS_PER_MILLISECOND ) };
+                oss << std::setfill( '0' ) << std::setw( 4 ) << y << "-" << std::setw( 2 ) << mon << "-"
+                    << std::setw( 2 ) << d << "T" << std::setw( 2 ) << h << ":" << std::setw( 2 ) << min << ":"
+                    << std::setw( 2 ) << s << "." << std::setw( 3 ) << milliseconds << "Z";
                 break;
             }
             case Format::Iso8601Micros:
             {
                 std::int32_t fractionalTicks{ static_cast<std::int32_t>( m_ticks % constants::TICKS_PER_SECOND ) };
-                std::int32_t microseconds{ static_cast<std::int32_t>( fractionalTicks / constants::TICKS_PER_MICROSECOND ) };
-                oss << std::setfill( '0' ) << std::setw( 4 ) << y << "-" << std::setw( 2 ) << mon << "-" << std::setw( 2 ) << d << "T" << std::setw( 2 ) << h
-                    << ":" << std::setw( 2 ) << min << ":" << std::setw( 2 ) << s << "." << std::setw( 6 ) << microseconds << "Z";
+                std::int32_t microseconds{ static_cast<std::int32_t>(
+                    fractionalTicks / constants::TICKS_PER_MICROSECOND ) };
+                oss << std::setfill( '0' ) << std::setw( 4 ) << y << "-" << std::setw( 2 ) << mon << "-"
+                    << std::setw( 2 ) << d << "T" << std::setw( 2 ) << h << ":" << std::setw( 2 ) << min << ":"
+                    << std::setw( 2 ) << s << "." << std::setw( 6 ) << microseconds << "Z";
                 break;
             }
             case Format::Iso8601Extended:
             {
-                oss << std::setfill( '0' ) << std::setw( 4 ) << y << "-" << std::setw( 2 ) << mon << "-" << std::setw( 2 ) << d << "T" << std::setw( 2 ) << h
-                    << ":" << std::setw( 2 ) << min << ":" << std::setw( 2 ) << s << "+00:00";
+                oss << std::setfill( '0' ) << std::setw( 4 ) << y << "-" << std::setw( 2 ) << mon << "-"
+                    << std::setw( 2 ) << d << "T" << std::setw( 2 ) << h << ":" << std::setw( 2 ) << min << ":"
+                    << std::setw( 2 ) << s << "+00:00";
                 break;
             }
             case Format::Iso8601Basic:
             {
-                oss << std::setfill( '0' ) << std::setw( 4 ) << y << std::setw( 2 ) << mon << std::setw( 2 ) << d << "T" << std::setw( 2 ) << h
-                    << std::setw( 2 ) << min << std::setw( 2 ) << s << "Z";
+                oss << std::setfill( '0' ) << std::setw( 4 ) << y << std::setw( 2 ) << mon << std::setw( 2 ) << d << "T"
+                    << std::setw( 2 ) << h << std::setw( 2 ) << min << std::setw( 2 ) << s << "Z";
                 break;
             }
             case Format::Iso8601Date:
             {
-                oss << std::setfill( '0' ) << std::setw( 4 ) << y << "-" << std::setw( 2 ) << mon << "-" << std::setw( 2 ) << d;
+                oss << std::setfill( '0' ) << std::setw( 4 ) << y << "-" << std::setw( 2 ) << mon << "-"
+                    << std::setw( 2 ) << d;
                 break;
             }
             case Format::Iso8601Time:
             {
-                oss << std::setfill( '0' ) << std::setw( 2 ) << h << ":" << std::setw( 2 ) << min << ":" << std::setw( 2 ) << s;
+                oss << std::setfill( '0' ) << std::setw( 2 ) << h << ":" << std::setw( 2 ) << min << ":"
+                    << std::setw( 2 ) << s;
                 break;
             }
             case Format::UnixSeconds:
@@ -519,13 +547,13 @@ namespace nfx::time
         // ISO 8601 parser using std::from_chars
         //  Supports: YYYY-MM-DD, YYYY-MM-DDTHH:mm:ss, YYYY-MM-DDTHH:mm:ssZ,
         //  YYYY-MM-DDTHH:mm:ss.f, YYYY-MM-DDTHH:mm:ss.fffffffZ, etc.
-        if ( iso8601String.empty() || iso8601String.length() < 10 )
+        if( iso8601String.empty() || iso8601String.length() < 10 )
         {
             return false;
         }
 
         // Remove trailing 'Z' if present
-        if ( iso8601String.back() == 'Z' )
+        if( iso8601String.back() == 'Z' )
         {
             iso8601String.remove_suffix( 1 );
         }
@@ -534,7 +562,7 @@ namespace nfx::time
         auto tzPos{ iso8601String.find_last_of( "+-" ) };
 
         // Ensure it's not in date part (after position 10 = "YYYY-MM-DD")
-        if ( tzPos != std::string_view::npos && tzPos > 10 )
+        if( tzPos != std::string_view::npos && tzPos > 10 )
         {
             iso8601String = iso8601String.substr( 0, tzPos );
         }
@@ -543,20 +571,20 @@ namespace nfx::time
         const char* end = data + iso8601String.size();
 
         // Parse year (YYYY)
-        if ( iso8601String.size() < 4 )
+        if( iso8601String.size() < 4 )
         {
             return false;
         }
 
         std::int32_t year{ 0 };
         auto [ptr1, ec1] = std::from_chars( data, data + 4, year );
-        if ( ec1 != std::errc{} || ptr1 != data + 4 )
+        if( ec1 != std::errc{} || ptr1 != data + 4 )
         {
             return false;
         }
 
         // Expect '-'
-        if ( ptr1 >= end || *ptr1 != '-' )
+        if( ptr1 >= end || *ptr1 != '-' )
         {
             return false;
         }
@@ -565,19 +593,19 @@ namespace nfx::time
         // Parse month (MM or M)
         std::int32_t month{ 0 };
         auto dashPos = iso8601String.find( '-', 5 ); // Find second dash after "YYYY-"
-        if ( dashPos == std::string_view::npos )
+        if( dashPos == std::string_view::npos )
         {
             return false;
         }
 
         auto [ptr2, ec2] = std::from_chars( ptr1, data + dashPos, month );
-        if ( ec2 != std::errc{} )
+        if( ec2 != std::errc{} )
         {
             return false;
         }
 
         // Expect '-'
-        if ( ptr2 >= end || *ptr2 != '-' )
+        if( ptr2 >= end || *ptr2 != '-' )
         {
             return false;
         }
@@ -586,13 +614,13 @@ namespace nfx::time
         // Parse day (DD or D)
         std::int32_t day{ 0 };
         const char* dayEnd = ptr2;
-        while ( dayEnd < end && *dayEnd >= '0' && *dayEnd <= '9' )
+        while( dayEnd < end && *dayEnd >= '0' && *dayEnd <= '9' )
         {
             ++dayEnd;
         }
 
         auto [ptr3, ec3] = std::from_chars( ptr2, dayEnd, day );
-        if ( ec3 != std::errc{} )
+        if( ec3 != std::errc{} )
         {
             return false;
         }
@@ -601,25 +629,25 @@ namespace nfx::time
         std::int32_t hour{ 0 }, minute{ 0 }, second{ 0 };
         std::int32_t fractionalTicks{ 0 };
 
-        if ( ptr3 < end && *ptr3 == 'T' )
+        if( ptr3 < end && *ptr3 == 'T' )
         {
             ++ptr3; // Skip 'T'
 
             // Parse hour (HH or H)
             const char* hourEnd = ptr3;
-            while ( hourEnd < end && *hourEnd >= '0' && *hourEnd <= '9' )
+            while( hourEnd < end && *hourEnd >= '0' && *hourEnd <= '9' )
             {
                 ++hourEnd;
             }
 
             auto [ptr4, ec4] = std::from_chars( ptr3, hourEnd, hour );
-            if ( ec4 != std::errc{} )
+            if( ec4 != std::errc{} )
             {
                 return false;
             }
 
             // Expect ':'
-            if ( ptr4 >= end || *ptr4 != ':' )
+            if( ptr4 >= end || *ptr4 != ':' )
             {
                 return false;
             }
@@ -627,19 +655,19 @@ namespace nfx::time
 
             // Parse minute (MM or M)
             const char* minEnd = ptr4;
-            while ( minEnd < end && *minEnd >= '0' && *minEnd <= '9' )
+            while( minEnd < end && *minEnd >= '0' && *minEnd <= '9' )
             {
                 ++minEnd;
             }
 
             auto [ptr5, ec5] = std::from_chars( ptr4, minEnd, minute );
-            if ( ec5 != std::errc{} )
+            if( ec5 != std::errc{} )
             {
                 return false;
             }
 
             // Expect ':'
-            if ( ptr5 >= end || *ptr5 != ':' )
+            if( ptr5 >= end || *ptr5 != ':' )
             {
                 return false;
             }
@@ -647,19 +675,19 @@ namespace nfx::time
 
             // Parse second (SS or S)
             const char* secEnd = ptr5;
-            while ( secEnd < end && *secEnd >= '0' && *secEnd <= '9' )
+            while( secEnd < end && *secEnd >= '0' && *secEnd <= '9' )
             {
                 ++secEnd;
             }
 
             auto [ptr6, ec6] = std::from_chars( ptr5, secEnd, second );
-            if ( ec6 != std::errc{} )
+            if( ec6 != std::errc{} )
             {
                 return false;
             }
 
             // Parse fractional seconds if present
-            if ( ptr6 < end && *ptr6 == '.' )
+            if( ptr6 < end && *ptr6 == '.' )
             {
                 ++ptr6; // Skip '.'
 
@@ -668,23 +696,23 @@ namespace nfx::time
                 const char* fracEnd = fracStart;
                 std::int32_t fractionDigits{ 0 };
 
-                while ( fracEnd < end && *fracEnd >= '0' && *fracEnd <= '9' && fractionDigits < 7 )
+                while( fracEnd < end && *fracEnd >= '0' && *fracEnd <= '9' && fractionDigits < 7 )
                 {
                     ++fracEnd;
                     ++fractionDigits;
                 }
 
-                if ( fractionDigits > 0 )
+                if( fractionDigits > 0 )
                 {
                     std::int32_t fractionValue{ 0 };
                     auto [ptrF, ecF] = std::from_chars( fracStart, fracEnd, fractionValue );
-                    if ( ecF != std::errc{} || ptrF != fracEnd )
+                    if( ecF != std::errc{} || ptrF != fracEnd )
                     {
                         return false;
                     }
 
                     // Pad to 7 digits (convert to 100ns ticks)
-                    while ( fractionDigits < 7 )
+                    while( fractionDigits < 7 )
                     {
                         fractionValue *= 10;
                         ++fractionDigits;
@@ -696,13 +724,14 @@ namespace nfx::time
         }
 
         // Validate components
-        if ( !internal::isValidDate( year, month, day ) || !internal::isValidTime( hour, minute, second, 0 ) )
+        if( !internal::isValidDate( year, month, day ) || !internal::isValidTime( hour, minute, second, 0 ) )
         {
             return false;
         }
 
         // Calculate ticks
-        std::int64_t ticks{ internal::dateToTicks( year, month, day ) + internal::timeToTicks( hour, minute, second, 0 ) + fractionalTicks };
+        std::int64_t ticks{ internal::dateToTicks( year, month, day ) +
+                            internal::timeToTicks( hour, minute, second, 0 ) + fractionalTicks };
 
         result = DateTime{ ticks };
 
@@ -712,7 +741,7 @@ namespace nfx::time
     std::optional<DateTime> DateTime::fromString( std::string_view iso8601String ) noexcept
     {
         DateTime result;
-        if ( fromString( iso8601String, result ) )
+        if( fromString( iso8601String, result ) )
         {
             return result;
         }
@@ -727,11 +756,11 @@ namespace nfx::time
     {
         // Clamp to chrono-safe range
         std::int64_t safeTicks{ m_ticks };
-        if ( safeTicks < internal::MIN_CHRONO_SAFE_TICKS )
+        if( safeTicks < internal::MIN_CHRONO_SAFE_TICKS )
         {
             safeTicks = internal::MIN_CHRONO_SAFE_TICKS;
         }
-        else if ( safeTicks > internal::MAX_CHRONO_SAFE_TICKS )
+        else if( safeTicks > internal::MAX_CHRONO_SAFE_TICKS )
         {
             safeTicks = internal::MAX_CHRONO_SAFE_TICKS;
         }
@@ -766,7 +795,7 @@ namespace nfx::time
     {
         std::string str;
         is >> str;
-        if ( !DateTime::fromString( str, dateTime ) )
+        if( !DateTime::fromString( str, dateTime ) )
         {
             is.setstate( std::ios::failbit );
         }

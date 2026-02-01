@@ -23,7 +23,7 @@
  */
 
 /**
- * @file TESTS_TimeSpan.cpp
+ * @file Tests_TimeSpan.cpp
  * @brief Unit tests for TimeSpan class
  * @details Tests high-precision time duration operations with ISO 8601 duration format support,
  *          arithmetic operations, and conversions between various time units
@@ -394,7 +394,8 @@ namespace nfx::time::test
 
         TimeSpan daysAndTime{ TimeSpan::fromDays( 2 ) + TimeSpan::fromHours( 3 ) + TimeSpan::fromMinutes( 30 ) };
         result = daysAndTime.toString();
-        EXPECT_TRUE( result.find( "P2DT3H30M" ) != std::string::npos || result.find( "PT51H30M" ) != std::string::npos );
+        EXPECT_TRUE(
+            result.find( "P2DT3H30M" ) != std::string::npos || result.find( "PT51H30M" ) != std::string::npos );
     }
 
     //----------------------------------------------
@@ -1048,7 +1049,8 @@ namespace nfx::time::test
 
         // Complex combination
         auto duration3 = 1_d + 2_h + 30_min + 45_s + 500_ms;
-        EXPECT_DOUBLE_EQ( duration3.days(), 1.0 + ( 2.0 / 24.0 ) + ( 30.0 / ( 24.0 * 60.0 ) ) + ( 45.5 / ( 24.0 * 3600.0 ) ) );
+        EXPECT_DOUBLE_EQ(
+            duration3.days(), 1.0 + ( 2.0 / 24.0 ) + ( 30.0 / ( 24.0 * 60.0 ) ) + ( 45.5 / ( 24.0 * 3600.0 ) ) );
 
         // Subtraction
         auto duration4 = 2_h - 30_min;
@@ -1236,7 +1238,8 @@ namespace nfx::time::test
     TEST( TimeSpanIntegration, ArithmeticChaining )
     {
         // Test complex arithmetic operations
-        TimeSpan result{ TimeSpan::fromHours( 5 ) + TimeSpan::fromMinutes( 30 ) - TimeSpan::fromSeconds( 45 ) + TimeSpan::fromMilliseconds( 500 ) };
+        TimeSpan result{ TimeSpan::fromHours( 5 ) + TimeSpan::fromMinutes( 30 ) - TimeSpan::fromSeconds( 45 ) +
+                         TimeSpan::fromMilliseconds( 500 ) };
 
         double expectedSeconds{ 5 * 3600 + 30 * 60 - 45 + 0.5 };
         EXPECT_NEAR( result.seconds(), expectedSeconds, 0.001 );

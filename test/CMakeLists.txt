@@ -21,7 +21,7 @@ set(NFX_DATETIME_DEPS_GOOGLETEST_VERSION "1.17.0")
 find_package(GTest ${NFX_DATETIME_DEPS_GOOGLETEST_VERSION} QUIET)
 if(NOT GTest_FOUND)
     set(_SAVED_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
-    set(BUILD_SHARED_LIBS           OFF  CACHE BOOL "Build shared libraries"   FORCE)
+    set(BUILD_SHARED_LIBS           OFF CACHE BOOL  "Build shared libraries"     FORCE)
 
     set(BUILD_GMOCK                 OFF CACHE BOOL "Build GMock"                 FORCE)
     set(INSTALL_GTEST               OFF CACHE BOOL "Install GoogleTest"          FORCE)
@@ -71,9 +71,9 @@ endif()
 set(test_sources)
 
 list(APPEND test_sources
-    TESTS_DateTime.cpp
-    TESTS_DateTimeOffset.cpp
-    TESTS_TimeSpan.cpp
+    Tests_DateTime.cpp
+    Tests_DateTimeOffset.cpp
+    Tests_TimeSpan.cpp
 )
 
 #----------------------------------------------
@@ -91,9 +91,9 @@ foreach(test_source ${test_sources})
         #----------------------------------------------
 
         target_link_libraries(${test_target_name}
-        PRIVATE
-            nfx-datetime::static
-            GTest::gtest_main
+            PRIVATE
+                nfx-datetime::static
+                GTest::gtest_main
         )
 
         #----------------------------------------------
@@ -107,9 +107,9 @@ foreach(test_source ${test_sources})
                 CXX_EXTENSIONS OFF
                 POSITION_INDEPENDENT_CODE ON
                 DEBUG_POSTFIX "-d"
-                RUNTIME_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/tests"
-                RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/tests"
-                RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/tests"
+                RUNTIME_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
+                RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
+                RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
         )
 
         #----------------------------------------------

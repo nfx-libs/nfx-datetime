@@ -23,7 +23,7 @@
  */
 
 /**
- * @file TESTS_DateTimeOffset.cpp
+ * @file Tests_DateTimeOffset.cpp
  * @brief Unit tests for DateTimeOffset class
  * @details Tests timezone-aware datetime operations including construction, comparison,
  *          arithmetic operations, ISO 8601 parsing/formatting with timezone offsets,
@@ -767,8 +767,10 @@ namespace nfx::time::test
         EXPECT_FALSE( DateTimeOffset::fromString( "2024-01-15T12:00:00-+01:00" ).has_value() ); // Double sign
 
         // Constructor should throw for invalid offsets
-        EXPECT_THROW( { [[maybe_unused]] auto _ = DateTimeOffset{ "2024-01-15T12:00:00+15:00" }; }, std::invalid_argument );
-        EXPECT_THROW( { [[maybe_unused]] auto _ = DateTimeOffset{ "2024-01-15T12:00:00+14:30" }; }, std::invalid_argument );
+        EXPECT_THROW(
+            { [[maybe_unused]] auto _ = DateTimeOffset{ "2024-01-15T12:00:00+15:00" }; }, std::invalid_argument );
+        EXPECT_THROW(
+            { [[maybe_unused]] auto _ = DateTimeOffset{ "2024-01-15T12:00:00+14:30" }; }, std::invalid_argument );
 
         // fromString with bool should return false
         DateTimeOffset result;

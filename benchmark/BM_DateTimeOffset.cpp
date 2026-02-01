@@ -45,7 +45,7 @@ namespace nfx::time::benchmark
     {
         auto offset{ TimeSpan::fromHours( 5.5 ) };
 
-        for ( auto _ : state )
+        for( auto _ : state )
         {
             auto dto{ DateTimeOffset{ 2024, 10, 23, 15, 30, 45, offset } };
             ::benchmark::DoNotOptimize( dto );
@@ -54,7 +54,7 @@ namespace nfx::time::benchmark
 
     static void BM_DateTimeOffset_Now( ::benchmark::State& state )
     {
-        for ( auto _ : state )
+        for( auto _ : state )
         {
             auto dto{ DateTimeOffset::now() };
             ::benchmark::DoNotOptimize( dto );
@@ -69,7 +69,7 @@ namespace nfx::time::benchmark
     {
         const std::string iso{ "2024-10-23T15:30:45+05:30" };
 
-        for ( auto _ : state )
+        for( auto _ : state )
         {
             auto dto{ DateTimeOffset{ iso } };
             ::benchmark::DoNotOptimize( dto );
@@ -80,7 +80,7 @@ namespace nfx::time::benchmark
     {
         const std::string iso{ "2024-10-23T15:30:45Z" };
 
-        for ( auto _ : state )
+        for( auto _ : state )
         {
             auto dto{ DateTimeOffset{ iso } };
             ::benchmark::DoNotOptimize( dto );
@@ -95,7 +95,7 @@ namespace nfx::time::benchmark
     {
         auto dto{ DateTimeOffset::now() };
 
-        for ( auto _ : state )
+        for( auto _ : state )
         {
             auto utc{ dto.toUniversalTime() };
             ::benchmark::DoNotOptimize( utc );
@@ -107,7 +107,7 @@ namespace nfx::time::benchmark
         auto dto{ DateTimeOffset::now() };
         auto newOffset{ TimeSpan::fromHours( -8 ) };
 
-        for ( auto _ : state )
+        for( auto _ : state )
         {
             auto result{ dto.toOffset( newOffset ) };
             ::benchmark::DoNotOptimize( result );
@@ -118,7 +118,7 @@ namespace nfx::time::benchmark
     {
         auto dto{ DateTimeOffset::now() };
 
-        for ( auto _ : state )
+        for( auto _ : state )
         {
             auto utcDt{ dto.utcDateTime() };
             ::benchmark::DoNotOptimize( utcDt );
@@ -133,7 +133,7 @@ namespace nfx::time::benchmark
     {
         auto dto{ DateTimeOffset::now() };
 
-        for ( auto _ : state )
+        for( auto _ : state )
         {
             auto str{ dto.toString() };
             ::benchmark::DoNotOptimize( str );
@@ -149,7 +149,7 @@ namespace nfx::time::benchmark
         auto dto{ DateTimeOffset::now() };
         auto ts{ TimeSpan::fromHours( 24 ) };
 
-        for ( auto _ : state )
+        for( auto _ : state )
         {
             auto result{ dto + ts };
             ::benchmark::DoNotOptimize( result );
@@ -161,7 +161,7 @@ namespace nfx::time::benchmark
         auto dto1{ DateTimeOffset::now() };
         auto dto2{ DateTimeOffset{ 2024, 1, 1, TimeSpan::fromHours( 0 ) } };
 
-        for ( auto _ : state )
+        for( auto _ : state )
         {
             auto result{ dto1 - dto2 };
             ::benchmark::DoNotOptimize( result );
@@ -177,7 +177,7 @@ namespace nfx::time::benchmark
         auto dto1{ DateTimeOffset{ 2024, 10, 23, 15, 0, 0, TimeSpan::fromHours( 5 ) } };
         auto dto2{ DateTimeOffset{ 2024, 10, 23, 10, 0, 0, TimeSpan::fromHours( 0 ) } };
 
-        for ( auto _ : state )
+        for( auto _ : state )
         {
             bool result{ dto1 == dto2 }; // Should be true - same UTC time
             ::benchmark::DoNotOptimize( result );

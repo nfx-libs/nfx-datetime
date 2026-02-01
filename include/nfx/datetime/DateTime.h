@@ -305,8 +305,13 @@ namespace nfx::time
          * @param minute Minute component (0-59)
          * @param second Second component (0-59)
          */
-        DateTime( std::int32_t year, std::int32_t month, std::int32_t day,
-            std::int32_t hour, std::int32_t minute, std::int32_t second ) noexcept;
+        DateTime(
+            std::int32_t year,
+            std::int32_t month,
+            std::int32_t day,
+            std::int32_t hour,
+            std::int32_t minute,
+            std::int32_t second ) noexcept;
 
         /**
          * @brief Construct from date and time components with milliseconds
@@ -318,8 +323,13 @@ namespace nfx::time
          * @param second Second component (0-59)
          * @param millisecond Millisecond component (0-999)
          */
-        DateTime( std::int32_t year, std::int32_t month, std::int32_t day,
-            std::int32_t hour, std::int32_t minute, std::int32_t second,
+        DateTime(
+            std::int32_t year,
+            std::int32_t month,
+            std::int32_t day,
+            std::int32_t hour,
+            std::int32_t minute,
+            std::int32_t second,
             std::int32_t millisecond ) noexcept;
 
         /**
@@ -573,7 +583,8 @@ namespace nfx::time
          * @return Number of days in the specified month (28-31)
          * @note This function is marked [[nodiscard]] - the return value should not be ignored
          */
-        [[nodiscard]] inline static constexpr std::int32_t daysInMonth( std::int32_t year, std::int32_t month ) noexcept;
+        [[nodiscard]] inline static constexpr std::int32_t daysInMonth(
+            std::int32_t year, std::int32_t month ) noexcept;
 
         //----------------------------------------------
         // Static factory methods

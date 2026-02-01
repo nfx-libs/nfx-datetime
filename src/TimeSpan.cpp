@@ -54,7 +54,7 @@ namespace nfx::time
 
         // Handle negative durations
         bool isNegative{ m_ticks < 0 };
-        if ( isNegative )
+        if( isNegative )
         {
             oss << "-";
         }
@@ -72,7 +72,7 @@ namespace nfx::time
         std::int32_t seconds{ remainingSeconds % constants::SECONDS_PER_MINUTE };
 
         // Output days if present
-        if ( days > 0 )
+        if( days > 0 )
         {
             oss << days << "D";
         }
@@ -82,32 +82,33 @@ namespace nfx::time
         bool hasTimeComponent{ hours > 0 || minutes > 0 || seconds > 0 || fractionalTicks > 0 };
 
         // Only output time component if present
-        if ( hasTimeComponent )
+        if( hasTimeComponent )
         {
             oss << "T";
 
-            if ( hours > 0 )
+            if( hours > 0 )
             {
                 oss << hours << "H";
             }
 
-            if ( minutes > 0 )
+            if( minutes > 0 )
             {
                 oss << minutes << "M";
             }
 
             // Include seconds with or without fractional part
-            if ( seconds > 0 || fractionalTicks > 0 )
+            if( seconds > 0 || fractionalTicks > 0 )
             {
-                if ( fractionalTicks > 0 )
+                if( fractionalTicks > 0 )
                 {
                     // Format fractional seconds directly to avoid allocations
                     char fracBuffer[8];
-                    std::snprintf( fracBuffer, sizeof( fracBuffer ), "%07lld", static_cast<long long>( fractionalTicks ) );
+                    std::snprintf(
+                        fracBuffer, sizeof( fracBuffer ), "%07lld", static_cast<long long>( fractionalTicks ) );
 
                     // Strip trailing zeros
                     std::size_t fracLen{ 7 };
-                    while ( fracLen > 1 && fracBuffer[fracLen - 1] == '0' )
+                    while( fracLen > 1 && fracBuffer[fracLen - 1] == '0' )
                     {
                         fracBuffer[--fracLen] = '\0';
                     }
@@ -120,7 +121,7 @@ namespace nfx::time
                 }
             }
         }
-        else if ( days == 0 )
+        else if( days == 0 )
         {
             // No days and no time components: output PT0S for zero duration
             oss << "T0S";
@@ -134,17 +135,18 @@ namespace nfx::time
 
     bool TimeSpan::fromString( std::string_view iso8601DurationString, TimeSpan& result ) noexcept
     {
-        if ( iso8601DurationString.empty() )
+        if( iso8601DurationString.empty() )
         {
             return false;
         }
 
         // Handle numeric seconds format (convenience)
-        if ( iso8601DurationString.find_first_not_of( "0123456789.-" ) == std::string_view::npos )
+        if( iso8601DurationString.find_first_not_of( "0123456789.-" ) == std::string_view::npos )
         {
             double seconds{};
-            auto [ptr, ec] = std::from_chars( iso8601DurationString.data(), iso8601DurationString.data() + iso8601DurationString.size(), seconds );
-            if ( ec == std::errc{} && ptr == iso8601DurationString.data() + iso8601DurationString.size() )
+            auto [ptr, ec] = std::from_chars(
+                iso8601DurationString.data(), iso8601DurationString.data() + iso8601DurationString.size(), seconds );
+            if( ec == std::errc{} && ptr == iso8601DurationString.data() + iso8601DurationString.size() )
             {
                 result = TimeSpan::fromSeconds( seconds );
                 return true;
@@ -155,13 +157,13 @@ namespace nfx::time
         // Check for negative sign
         bool isNegative{ false };
         std::string_view parseStr{ iso8601DurationString };
-        if ( !parseStr.empty() && parseStr[0] == '-' )
+        if( !parseStr.empty() && parseStr[0] == '-' )
         {
             isNegative = true;
             parseStr = parseStr.substr( 1 );
         }
 
-        if ( parseStr.length() > 1 && parseStr[0] == 'P' )
+        if( parseStr.length() > 1 && parseStr[0] == 'P' )
         {
             double days{ 0.0 };
             double totalSeconds{ 0.0 };
@@ -172,14 +174,14 @@ namespace nfx::time
 
             // Parse date part (before T, or entire string if no T)
             auto datePart{ tPos != std::string_view::npos ? parseStr.substr( 1, tPos - 1 ) : parseStr.substr( 1 ) };
-            if ( !datePart.empty() )
+            if( !datePart.empty() )
             {
                 auto dPos{ datePart.find( 'D' ) };
-                if ( dPos != std::string_view::npos )
+                if( dPos != std::string_view::npos )
                 {
                     auto dayStr{ datePart.substr( 0, dPos ) };
                     auto [ptr, ec] = std::from_chars( dayStr.data(), dayStr.data() + dayStr.size(), days );
-                    if ( ec == std::errc{} && ptr == dayStr.data() + dayStr.size() )
+                    if( ec == std::errc{} && ptr == dayStr.data() + dayStr.size() )
                     {
                         foundComponent = true;
                     }
@@ -191,13 +193,13 @@ namespace nfx::time
             }
 
             // Parse time part after T (if present)
-            if ( tPos != std::string_view::npos )
+            if( tPos != std::string_view::npos )
             {
                 auto timePart{ parseStr.substr( tPos + 1 ) };
                 auto originalTimePart{ timePart }; // Keep original for position tracking
 
                 // Must have at least one component after T (not just "PT")
-                if ( timePart.empty() )
+                if( timePart.empty() )
                 {
                     return false;
                 }
@@ -208,40 +210,40 @@ namespace nfx::time
                 auto sPos{ originalTimePart.find( 'S' ) };
 
                 // Detect duplicate components
-                if ( hPos != std::string_view::npos && originalTimePart.find( 'H', hPos + 1 ) != std::string_view::npos )
+                if( hPos != std::string_view::npos && originalTimePart.find( 'H', hPos + 1 ) != std::string_view::npos )
                 {
                     return false; // Duplicate hours
                 }
-                if ( mPos != std::string_view::npos && originalTimePart.find( 'M', mPos + 1 ) != std::string_view::npos )
+                if( mPos != std::string_view::npos && originalTimePart.find( 'M', mPos + 1 ) != std::string_view::npos )
                 {
                     return false; // Duplicate minutes
                 }
-                if ( sPos != std::string_view::npos && originalTimePart.find( 'S', sPos + 1 ) != std::string_view::npos )
+                if( sPos != std::string_view::npos && originalTimePart.find( 'S', sPos + 1 ) != std::string_view::npos )
                 {
                     return false; // Duplicate seconds
                 }
 
                 // Validate component order (H before M before S)
-                if ( hPos != std::string_view::npos && mPos != std::string_view::npos && hPos > mPos )
+                if( hPos != std::string_view::npos && mPos != std::string_view::npos && hPos > mPos )
                 {
                     return false; // Minutes before hours
                 }
-                if ( hPos != std::string_view::npos && sPos != std::string_view::npos && hPos > sPos )
+                if( hPos != std::string_view::npos && sPos != std::string_view::npos && hPos > sPos )
                 {
                     return false; // Seconds before hours
                 }
-                if ( mPos != std::string_view::npos && sPos != std::string_view::npos && mPos > sPos )
+                if( mPos != std::string_view::npos && sPos != std::string_view::npos && mPos > sPos )
                 {
                     return false; // Seconds before minutes
                 }
 
                 // Parse hours
-                if ( hPos != std::string_view::npos )
+                if( hPos != std::string_view::npos )
                 {
                     auto hourStr{ timePart.substr( 0, hPos ) };
                     double hours{};
                     auto [ptr, ec] = std::from_chars( hourStr.data(), hourStr.data() + hourStr.size(), hours );
-                    if ( ec == std::errc{} && ptr == hourStr.data() + hourStr.size() )
+                    if( ec == std::errc{} && ptr == hourStr.data() + hourStr.size() )
                     {
                         totalSeconds += hours * static_cast<double>( constants::SECONDS_PER_HOUR );
                         timePart = timePart.substr( hPos + 1 );
@@ -255,12 +257,12 @@ namespace nfx::time
 
                 // Parse minutes (recalculate position in current timePart)
                 mPos = timePart.find( 'M' );
-                if ( mPos != std::string::npos )
+                if( mPos != std::string::npos )
                 {
                     auto minuteStr{ timePart.substr( 0, mPos ) };
                     double minutes{};
                     auto [ptr, ec] = std::from_chars( minuteStr.data(), minuteStr.data() + minuteStr.size(), minutes );
-                    if ( ec == std::errc{} && ptr == minuteStr.data() + minuteStr.size() )
+                    if( ec == std::errc{} && ptr == minuteStr.data() + minuteStr.size() )
                     {
                         totalSeconds += minutes * static_cast<double>( constants::SECONDS_PER_MINUTE );
                         timePart = timePart.substr( mPos + 1 );
@@ -274,12 +276,12 @@ namespace nfx::time
 
                 // Parse seconds (recalculate position in current timePart)
                 sPos = timePart.find( 'S' );
-                if ( sPos != std::string::npos )
+                if( sPos != std::string::npos )
                 {
                     auto secondStr{ timePart.substr( 0, sPos ) };
                     double seconds{};
                     auto [ptr, ec] = std::from_chars( secondStr.data(), secondStr.data() + secondStr.size(), seconds );
-                    if ( ec == std::errc{} && ptr == secondStr.data() + secondStr.size() )
+                    if( ec == std::errc{} && ptr == secondStr.data() + secondStr.size() )
                     {
                         totalSeconds += seconds;
                         foundComponent = true;
@@ -292,7 +294,7 @@ namespace nfx::time
             }
 
             // Must have parsed at least one valid component (D, H, M, or S)
-            if ( !foundComponent )
+            if( !foundComponent )
             {
                 return false;
             }
@@ -301,7 +303,7 @@ namespace nfx::time
             totalSeconds += days * static_cast<double>( constants::SECONDS_PER_DAY );
 
             // Apply negative sign if present
-            if ( isNegative )
+            if( isNegative )
             {
                 totalSeconds = -totalSeconds;
             }
@@ -317,7 +319,7 @@ namespace nfx::time
     std::optional<TimeSpan> TimeSpan::fromString( std::string_view iso8601DurationString ) noexcept
     {
         TimeSpan result;
-        if ( fromString( iso8601DurationString, result ) )
+        if( fromString( iso8601DurationString, result ) )
         {
             return result;
         }
@@ -339,8 +341,8 @@ namespace nfx::time
         // and fromString validates reasonable ranges. Direct tick construction could
         // theoretically create values near max, but m_ticks * 100 would still fit in
         // the nanoseconds representation used by system_clock::duration.
-        static_assert( std::numeric_limits<std::int64_t>::max() / 100 > 0,
-            "TimeSpan tick to nanosecond conversion assumption" );
+        static_assert(
+            std::numeric_limits<std::int64_t>::max() / 100 > 0, "TimeSpan tick to nanosecond conversion assumption" );
 
         return std::chrono::duration_cast<std::chrono::system_clock::duration>(
             std::chrono::nanoseconds{ m_ticks * 100 } );
@@ -366,7 +368,7 @@ namespace nfx::time
     {
         std::string str;
         is >> str;
-        if ( !TimeSpan::fromString( str, timeSpan ) )
+        if( !TimeSpan::fromString( str, timeSpan ) )
         {
             is.setstate( std::ios::failbit );
         }

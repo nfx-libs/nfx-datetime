@@ -34,23 +34,25 @@ foreach(sample_source ${sample_sources})
         # Target linking
         #----------------------------------------------
 
-        target_link_libraries(${sample_target_name} PRIVATE
-            nfx-datetime::static
+        target_link_libraries(${sample_target_name}
+            PRIVATE
+                nfx-datetime::static
         )
 
         #----------------------------------------------
         # Properties
         #----------------------------------------------
 
-        set_target_properties(${sample_target_name} PROPERTIES
-            CXX_STANDARD 20
-            CXX_STANDARD_REQUIRED ON
-            CXX_EXTENSIONS OFF
-            POSITION_INDEPENDENT_CODE ON
-            DEBUG_POSTFIX "-d"
-            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/samples"
-            RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/samples"
-            RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/samples"
+        set_target_properties(${sample_target_name}
+            PROPERTIES
+                CXX_STANDARD 20
+                CXX_STANDARD_REQUIRED ON
+                CXX_EXTENSIONS OFF
+                POSITION_INDEPENDENT_CODE ON
+                DEBUG_POSTFIX "-d"
+                RUNTIME_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
+                RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
+                RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
         )
     endif()
 endforeach()

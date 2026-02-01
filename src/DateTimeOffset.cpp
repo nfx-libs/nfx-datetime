@@ -58,10 +58,8 @@ namespace nfx::time
             const auto offsetTicks{ offset.ticks() };
 
             // ±14 hours = ±840 minutes = ±50,400 seconds = ±504,000,000,000 ticks
-            constexpr std::int64_t MAX_OFFSET_TICKS{
-                static_cast<std::int64_t>( constants::HOURS_PER_DAY ) *
-                constants::SECONDS_PER_HOUR *
-                constants::TICKS_PER_SECOND };
+            constexpr std::int64_t MAX_OFFSET_TICKS{ static_cast<std::int64_t>( constants::HOURS_PER_DAY ) *
+                                                     constants::SECONDS_PER_HOUR * constants::TICKS_PER_SECOND };
 
             return offsetTicks >= -MAX_OFFSET_TICKS && offsetTicks <= MAX_OFFSET_TICKS;
         }
@@ -76,9 +74,8 @@ namespace nfx::time
             const auto absMinutes{ std::abs( offsetMinutes ) };
             const auto offsetHours{ absMinutes / constants::MINUTES_PER_HOUR };
             const auto offsetMins{ absMinutes % constants::MINUTES_PER_HOUR };
-            oss << ( offsetMinutes >= 0 ? '+' : '-' )
-                << std::setw( 2 ) << offsetHours << ':'
-                << std::setw( 2 ) << offsetMins;
+            oss << ( offsetMinutes >= 0 ? '+' : '-' ) << std::setw( 2 ) << offsetHours << ':' << std::setw( 2 )
+                << offsetMins;
         }
 
         /** @brief Format ISO 8601 basic (compact) format with offset */
@@ -88,20 +85,15 @@ namespace nfx::time
             oss << std::setfill( '0' );
 
             // Compact format without separators
-            oss << std::setw( 4 ) << dto.year()
-                << std::setw( 2 ) << dto.month()
-                << std::setw( 2 ) << dto.day() << 'T'
-                << std::setw( 2 ) << dto.hour()
-                << std::setw( 2 ) << dto.minute()
-                << std::setw( 2 ) << dto.second();
+            oss << std::setw( 4 ) << dto.year() << std::setw( 2 ) << dto.month() << std::setw( 2 ) << dto.day() << 'T'
+                << std::setw( 2 ) << dto.hour() << std::setw( 2 ) << dto.minute() << std::setw( 2 ) << dto.second();
 
             // Offset in compact format (±HHMM)
             const auto absMinutes{ std::abs( dto.totalOffsetMinutes() ) };
             const auto offsetHours{ absMinutes / constants::MINUTES_PER_HOUR };
             const auto offsetMins{ absMinutes % constants::MINUTES_PER_HOUR };
-            oss << ( dto.totalOffsetMinutes() >= 0 ? '+' : '-' )
-                << std::setw( 2 ) << offsetHours
-                << std::setw( 2 ) << offsetMins;
+            oss << ( dto.totalOffsetMinutes() >= 0 ? '+' : '-' ) << std::setw( 2 ) << offsetHours << std::setw( 2 )
+                << offsetMins;
 
             return oss.str();
         }
@@ -113,27 +105,25 @@ namespace nfx::time
             oss << std::setfill( '0' );
 
             // Date part
-            oss << std::setw( 4 ) << dto.year() << '-'
-                << std::setw( 2 ) << dto.month() << '-'
-                << std::setw( 2 ) << dto.day() << 'T';
+            oss << std::setw( 4 ) << dto.year() << '-' << std::setw( 2 ) << dto.month() << '-' << std::setw( 2 )
+                << dto.day() << 'T';
 
             // Time part
-            oss << std::setw( 2 ) << dto.hour() << ':'
-                << std::setw( 2 ) << dto.minute() << ':'
-                << std::setw( 2 ) << dto.second();
+            oss << std::setw( 2 ) << dto.hour() << ':' << std::setw( 2 ) << dto.minute() << ':' << std::setw( 2 )
+                << dto.second();
 
             // Add fractional seconds for extended format
-            if ( format == DateTime::Format::Iso8601Precise )
+            if( format == DateTime::Format::Iso8601Precise )
             {
                 const std::int64_t fractionalTicks = dto.dateTime().ticks() % constants::TICKS_PER_SECOND;
                 oss << '.' << std::setw( 7 ) << fractionalTicks;
             }
-            else if ( format == DateTime::Format::Iso8601PreciseTrimmed )
+            else if( format == DateTime::Format::Iso8601PreciseTrimmed )
             {
                 const std::int64_t fractionalTicks = dto.dateTime().ticks() % constants::TICKS_PER_SECOND;
                 oss << '.';
 
-                if ( fractionalTicks > 0 )
+                if( fractionalTicks > 0 )
                 {
                     // Format with trimmed trailing zeros
                     std::string fraction{ std::to_string( fractionalTicks ) };
@@ -141,7 +131,7 @@ namespace nfx::time
                     fraction = std::string( 7 - fraction.length(), '0' ) + fraction;
                     // Trim trailing zeros
                     auto lastNonZero = fraction.find_last_not_of( '0' );
-                    if ( lastNonZero != std::string::npos )
+                    if( lastNonZero != std::string::npos )
                     {
                         fraction = fraction.substr( 0, lastNonZero + 1 );
                     }
@@ -153,16 +143,18 @@ namespace nfx::time
                     oss << '0';
                 }
             }
-            else if ( format == DateTime::Format::Iso8601Millis )
+            else if( format == DateTime::Format::Iso8601Millis )
             {
                 const std::int64_t fractionalTicks = dto.dateTime().ticks() % constants::TICKS_PER_SECOND;
-                const std::int32_t milliseconds = static_cast<std::int32_t>( fractionalTicks / constants::TICKS_PER_MILLISECOND );
+                const std::int32_t milliseconds =
+                    static_cast<std::int32_t>( fractionalTicks / constants::TICKS_PER_MILLISECOND );
                 oss << '.' << std::setw( 3 ) << milliseconds;
             }
-            else if ( format == DateTime::Format::Iso8601Micros )
+            else if( format == DateTime::Format::Iso8601Micros )
             {
                 const std::int64_t fractionalTicks = dto.dateTime().ticks() % constants::TICKS_PER_SECOND;
-                const std::int32_t microseconds = static_cast<std::int32_t>( fractionalTicks / constants::TICKS_PER_MICROSECOND );
+                const std::int32_t microseconds =
+                    static_cast<std::int32_t>( fractionalTicks / constants::TICKS_PER_MICROSECOND );
                 oss << '.' << std::setw( 6 ) << microseconds;
             }
 
@@ -175,9 +167,7 @@ namespace nfx::time
         static std::string formatDateOnly( const DateTimeOffset& dto )
         {
             std::ostringstream oss;
-            oss << std::setfill( '0' )
-                << std::setw( 4 ) << dto.year() << '-'
-                << std::setw( 2 ) << dto.month() << '-'
+            oss << std::setfill( '0' ) << std::setw( 4 ) << dto.year() << '-' << std::setw( 2 ) << dto.month() << '-'
                 << std::setw( 2 ) << dto.day();
             return oss.str();
         }
@@ -186,9 +176,7 @@ namespace nfx::time
         static std::string formatTimeOnly( const DateTimeOffset& dto )
         {
             std::ostringstream oss;
-            oss << std::setfill( '0' )
-                << std::setw( 2 ) << dto.hour() << ':'
-                << std::setw( 2 ) << dto.minute() << ':'
+            oss << std::setfill( '0' ) << std::setw( 2 ) << dto.hour() << ':' << std::setw( 2 ) << dto.minute() << ':'
                 << std::setw( 2 ) << dto.second();
 
             appendOffset( oss, dto.totalOffsetMinutes() );
@@ -260,7 +248,7 @@ namespace nfx::time
         const auto utcTicksValue{ utcTicks() };
 
         // Guard against underflow for dates before FILETIME epoch (Jan 1, 1601)
-        if ( utcTicksValue < constants::MICROSOFT_FILETIME_EPOCH_TICKS )
+        if( utcTicksValue < constants::MICROSOFT_FILETIME_EPOCH_TICKS )
         {
             return 0; // Return 0 for dates before FILETIME epoch
         }
@@ -302,12 +290,12 @@ namespace nfx::time
 
         // Add months with proper year overflow handling
         month += months;
-        while ( month > 12 )
+        while( month > 12 )
         {
             month -= 12;
             year++;
         }
-        while ( month < 1 )
+        while( month < 1 )
         {
             month += 12;
             year--;
@@ -339,7 +327,7 @@ namespace nfx::time
 
     std::string DateTimeOffset::toString( DateTime::Format format ) const
     {
-        switch ( format )
+        switch( format )
         {
             case DateTime::Format::Iso8601:
             case DateTime::Format::Iso8601Precise:
@@ -453,27 +441,27 @@ namespace nfx::time
 
         // Find timezone indicator - search from right to avoid matching negative years
         std::size_t offsetPos{ std::string_view::npos };
-        for ( std::size_t i{ iso8601String.length() }; i > 10; --i )
+        for( std::size_t i{ iso8601String.length() }; i > 10; --i )
         {
             // Skip date part (YYYY-MM-DD = 10 chars)
             const char ch{ iso8601String[i - 1] };
-            if ( ch == 'Z' || ch == '+' || ch == '-' )
+            if( ch == 'Z' || ch == '+' || ch == '-' )
             {
                 offsetPos = i - 1;
                 break;
             }
         }
 
-        if ( offsetPos != std::string_view::npos )
+        if( offsetPos != std::string_view::npos )
         {
             // Validate no double signs (e.g., "+-", "-+", "++", "--")
             const char prevChar{ iso8601String[offsetPos - 1] };
-            if ( prevChar == '+' || prevChar == '-' )
+            if( prevChar == '+' || prevChar == '-' )
             {
                 return false; // Reject double sign patterns
             }
 
-            if ( iso8601String[offsetPos] == 'Z' )
+            if( iso8601String[offsetPos] == 'Z' )
             {
                 // UTC indicator
                 offset = TimeSpan{ 0 };
@@ -486,7 +474,7 @@ namespace nfx::time
                 dateTimeStr = iso8601String.substr( 0, offsetPos );
 
                 // Minimum: +H or -H (at least 2 chars: sign + digit)
-                if ( offsetStr.length() < 2 )
+                if( offsetStr.length() < 2 )
                 {
                     return false;
                 }
@@ -498,10 +486,10 @@ namespace nfx::time
                 std::int32_t minutes{ 0 };
 
                 const auto colonPos{ numericPart.find( ':' ) };
-                if ( colonPos != std::string_view::npos )
+                if( colonPos != std::string_view::npos )
                 {
                     // Format: +HH:MM or +H:MM
-                    if ( colonPos == 0 || colonPos >= numericPart.length() - 1 )
+                    if( colonPos == 0 || colonPos >= numericPart.length() - 1 )
                     {
                         return false;
                     }
@@ -510,33 +498,33 @@ namespace nfx::time
                     const std::string_view minutesStr{ numericPart.substr( colonPos + 1 ) };
 
                     auto [ptrH, ecH] = std::from_chars( hoursStr.data(), hoursStr.data() + hoursStr.size(), hours );
-                    auto [ptrM, ecM] = std::from_chars( minutesStr.data(), minutesStr.data() + minutesStr.size(), minutes );
+                    auto [ptrM, ecM] =
+                        std::from_chars( minutesStr.data(), minutesStr.data() + minutesStr.size(), minutes );
 
-                    if ( ecH != std::errc{} || ecM != std::errc{} ||
-                         ptrH != hoursStr.data() + hoursStr.size() ||
-                         ptrM != minutesStr.data() + minutesStr.size() )
+                    if( ecH != std::errc{} || ecM != std::errc{} || ptrH != hoursStr.data() + hoursStr.size() ||
+                        ptrM != minutesStr.data() + minutesStr.size() )
                     {
                         return false; // Invalid numeric format
                     }
                 }
-                else if ( numericPart.length() == 4 )
+                else if( numericPart.length() == 4 )
                 {
                     // Format: +HHMM
                     auto [ptrH, ecH] = std::from_chars( numericPart.data(), numericPart.data() + 2, hours );
                     auto [ptrM, ecM] = std::from_chars( numericPart.data() + 2, numericPart.data() + 4, minutes );
 
-                    if ( ecH != std::errc{} || ecM != std::errc{} ||
-                         ptrH != numericPart.data() + 2 ||
-                         ptrM != numericPart.data() + 4 )
+                    if( ecH != std::errc{} || ecM != std::errc{} || ptrH != numericPart.data() + 2 ||
+                        ptrM != numericPart.data() + 4 )
                     {
                         return false; // Invalid numeric format
                     }
                 }
-                else if ( numericPart.length() == 2 || numericPart.length() == 1 )
+                else if( numericPart.length() == 2 || numericPart.length() == 1 )
                 {
                     // Format: +HH or +H
-                    auto [ptr, ec] = std::from_chars( numericPart.data(), numericPart.data() + numericPart.length(), hours );
-                    if ( ec != std::errc{} || ptr != numericPart.data() + numericPart.length() )
+                    auto [ptr, ec] =
+                        std::from_chars( numericPart.data(), numericPart.data() + numericPart.length(), hours );
+                    if( ec != std::errc{} || ptr != numericPart.data() + numericPart.length() )
                     {
                         return false; // Invalid numeric format
                     }
@@ -550,12 +538,12 @@ namespace nfx::time
                 // Validate offset components - ISO 8601 allows ±14:00 maximum
                 // Hours must be 0-14, minutes 0-59
                 // Special case: if hours == 14, minutes must be 0 (max is exactly ±14:00)
-                if ( hours < 0 || hours > 14 || minutes < 0 || minutes > 59 )
+                if( hours < 0 || hours > 14 || minutes < 0 || minutes > 59 )
                 {
                     return false; // Out of range
                 }
 
-                if ( hours == 14 && minutes > 0 )
+                if( hours == 14 && minutes > 0 )
                 {
                     return false; // Maximum offset is exactly ±14:00, not ±14:01+
                 }
@@ -566,7 +554,7 @@ namespace nfx::time
         }
 
         // Parse the datetime part
-        if ( DateTime::fromString( dateTimeStr, dateTime ) )
+        if( DateTime::fromString( dateTimeStr, dateTime ) )
         {
             result = DateTimeOffset{ dateTime, offset };
             return true;
@@ -578,7 +566,7 @@ namespace nfx::time
     std::optional<DateTimeOffset> DateTimeOffset::fromString( std::string_view iso8601String ) noexcept
     {
         DateTimeOffset result;
-        if ( fromString( iso8601String, result ) )
+        if( fromString( iso8601String, result ) )
         {
             return result;
         }
@@ -616,7 +604,7 @@ namespace nfx::time
         std::string str;
         is >> str;
 
-        if ( !DateTimeOffset::fromString( str, dateTimeOffset ) )
+        if( !DateTimeOffset::fromString( str, dateTimeOffset ) )
         {
             is.setstate( std::ios::failbit );
         }

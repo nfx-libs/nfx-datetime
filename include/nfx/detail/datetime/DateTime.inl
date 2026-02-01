@@ -64,11 +64,11 @@ namespace nfx::time
         m_ticks = constants::UNIX_EPOCH_TICKS + ticks.count();
 
         // Clamp to valid range
-        if ( m_ticks < constants::MIN_DATETIME_TICKS )
+        if( m_ticks < constants::MIN_DATETIME_TICKS )
         {
             m_ticks = constants::MIN_DATETIME_TICKS;
         }
-        else if ( m_ticks > constants::MAX_DATETIME_TICKS )
+        else if( m_ticks > constants::MAX_DATETIME_TICKS )
         {
             m_ticks = constants::MAX_DATETIME_TICKS;
         }
@@ -77,7 +77,7 @@ namespace nfx::time
     inline DateTime::DateTime( std::string_view iso8601String )
     {
         DateTime result;
-        if ( !fromString( iso8601String, result ) )
+        if( !fromString( iso8601String, result ) )
         {
             throw std::invalid_argument{ "Invalid ISO 8601 DateTime string" };
         }
@@ -100,11 +100,11 @@ namespace nfx::time
 
     inline constexpr std::strong_ordering DateTime::operator<=>( const DateTime& other ) const noexcept
     {
-        if ( m_ticks < other.m_ticks )
+        if( m_ticks < other.m_ticks )
         {
             return std::strong_ordering::less;
         }
-        if ( m_ticks > other.m_ticks )
+        if( m_ticks > other.m_ticks )
         {
             return std::strong_ordering::greater;
         }
@@ -184,17 +184,17 @@ namespace nfx::time
 
     inline constexpr std::int32_t DateTime::daysInMonth( std::int32_t year, std::int32_t month ) noexcept
     {
-        if ( month < 1 || month > 12 )
+        if( month < 1 || month > 12 )
         {
             return 0;
         }
 
-        if ( month == 2 && isLeapYear( year ) )
+        if( month == 2 && isLeapYear( year ) )
         {
             return 29;
         }
 
-        switch ( month )
+        switch( month )
         {
             case 1:
             {

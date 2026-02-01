@@ -19,7 +19,7 @@ endif()
 # --- Ensure at least one library type is built ---
 if(NOT NFX_DATETIME_BUILD_STATIC AND NOT NFX_DATETIME_BUILD_SHARED)
     message(WARNING "Neither NFX_DATETIME_BUILD_STATIC nor NFX_DATETIME_BUILD_SHARED is enabled.")
-    
+
     if(DEFINED CACHE{NFX_DATETIME_BUILD_STATIC} AND DEFINED CACHE{NFX_DATETIME_BUILD_SHARED})
         message(STATUS "Both library types were explicitly disabled.")
         message(STATUS "Applying fallback: Enabling static library build")
@@ -76,9 +76,9 @@ endif()
 # Directory configuration
 #----------------------------------------------
 
-set(NFX_DATETIME_DIR          "${PROJECT_SOURCE_DIR}"        CACHE PATH  "Root directory"   )
-set(NFX_DATETIME_INCLUDE_DIR  "${NFX_DATETIME_DIR}/include"  CACHE PATH  "Include directory")
-set(NFX_DATETIME_SOURCE_DIR   "${NFX_DATETIME_DIR}/src"      CACHE PATH  "Source directory" )
+set(NFX_DATETIME_DIR         "${PROJECT_SOURCE_DIR}"       CACHE PATH  "Root directory"   )
+set(NFX_DATETIME_INCLUDE_DIR "${NFX_DATETIME_DIR}/include" CACHE PATH  "Include directory")
+set(NFX_DATETIME_SOURCE_DIR  "${NFX_DATETIME_DIR}/src"     CACHE PATH  "Source directory" )
 
 #----------------------------------------------
 # Output directory configuration

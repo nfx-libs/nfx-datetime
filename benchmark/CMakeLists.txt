@@ -75,24 +75,26 @@ foreach(benchmark_source ${benchmark_sources})
         # Target linking
         #----------------------------------------------
 
-        target_link_libraries(${benchmark_target_name} PRIVATE
-            nfx-datetime::static
-            benchmark::benchmark
+        target_link_libraries(${benchmark_target_name}
+            PRIVATE
+                nfx-datetime::static
+                benchmark::benchmark
         )
 
         #----------------------------------------------
         # Properties
         #----------------------------------------------
 
-        set_target_properties(${benchmark_target_name} PROPERTIES
-            CXX_STANDARD 20
-            CXX_STANDARD_REQUIRED ON
-            CXX_EXTENSIONS OFF
-            POSITION_INDEPENDENT_CODE ON
-            DEBUG_POSTFIX "-d"
-            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/benchmarks"
-            RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/benchmarks"
-            RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/benchmarks"
+        set_target_properties(${benchmark_target_name}
+            PROPERTIES
+                CXX_STANDARD 20
+                CXX_STANDARD_REQUIRED ON
+                CXX_EXTENSIONS OFF
+                POSITION_INDEPENDENT_CODE ON
+                DEBUG_POSTFIX "-d"
+                RUNTIME_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
+                RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
+                RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
         )
     endif()
 endforeach()

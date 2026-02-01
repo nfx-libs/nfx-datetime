@@ -59,7 +59,7 @@ namespace nfx::time
     inline TimeSpan::TimeSpan( std::string_view iso8601String )
     {
         TimeSpan result;
-        if ( !fromString( iso8601String, result ) )
+        if( !fromString( iso8601String, result ) )
         {
             throw std::invalid_argument{ "Invalid ISO 8601 duration string format" };
         }
@@ -72,11 +72,11 @@ namespace nfx::time
 
     inline constexpr std::strong_ordering TimeSpan::operator<=>( const TimeSpan& other ) const noexcept
     {
-        if ( m_ticks < other.m_ticks )
+        if( m_ticks < other.m_ticks )
         {
             return std::strong_ordering::less;
         }
-        if ( m_ticks > other.m_ticks )
+        if( m_ticks > other.m_ticks )
         {
             return std::strong_ordering::greater;
         }

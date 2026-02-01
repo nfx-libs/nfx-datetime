@@ -7,7 +7,6 @@
 #----------------------------------------------
 
 if(NOT NFX_DATETIME_INSTALL_PROJECT)
-    message(STATUS "Installation disabled, skipping...")
     return()
 endif()
 
@@ -48,7 +47,7 @@ if(install_targets)
             COMPONENT Runtime
         INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     )
-    
+
     # Install PDB files for debug builds on Windows
     if(MSVC AND NFX_DATETIME_BUILD_SHARED AND TARGET ${PROJECT_NAME})
         install(
@@ -141,7 +140,7 @@ if(NFX_DATETIME_BUILD_DOCUMENTATION)
         OPTIONAL
         COMPONENT Documentation
     )
-    
+
     if(WIN32)
         # Install Windows .cmd batch file
         install(
