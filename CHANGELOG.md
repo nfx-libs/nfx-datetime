@@ -8,6 +8,9 @@
 
 ### Changed
 
+- `TimeSpan::toString()` now uses `nfx::StringBuilder` instead of `std::ostringstream`
+- `DateTimeOffset::toString()` now uses `nfx::StringBuilder` instead of `std::ostringstream`
+- `DateTime::toString()` now uses `nfx::StringBuilder` instead of `std::ostringstream`
 - Updated Google Benchmark dependency from 1.9.4 to 1.9.5
 
 ### Deprecated
@@ -39,9 +42,6 @@
 ### Changed
 
 - **BREAKING**: DateTime::Format enum values renamed (`Iso8601WithOffset` → `Iso8601Extended`, `Iso8601Compact` → `Iso8601Basic`) to align with ISO 8601 terminology
-
-
-
 
 ## [0.2.0] - 2026-01-05
 

@@ -392,59 +392,132 @@ namespace nfx::time
     // String formatting
     //----------------------------------------------
 
+    namespace
+    {
+        /** @brief Append two-digit zero-padded integer */
+        inline void appendTwoDigits( nfx::string::StringBuilder& sb, std::int32_t value ) noexcept
+        {
+            sb.append( static_cast<char>( '0' + ( value / 10 ) ) );
+            sb.append( static_cast<char>( '0' + ( value % 10 ) ) );
+        }
+
+        /** @brief Append four-digit zero-padded integer */
+        inline void appendFourDigits( nfx::string::StringBuilder& sb, std::int32_t value ) noexcept
+        {
+            sb.append( static_cast<char>( '0' + ( value / 1000 ) ) );
+            sb.append( static_cast<char>( '0' + ( ( value / 100 ) % 10 ) ) );
+            sb.append( static_cast<char>( '0' + ( ( value / 10 ) % 10 ) ) );
+            sb.append( static_cast<char>( '0' + ( value % 10 ) ) );
+        }
+    } // namespace
+
     std::string DateTime::toString( Format format ) const
     {
         std::int32_t y, mon, d, h, min, s, ms;
         internal::dateComponentsFromTicks( m_ticks, y, mon, d );
         internal::timeComponentsFromTicks( m_ticks, h, min, s, ms );
 
-        std::ostringstream oss;
+        nfx::string::StringBuilder sb;
 
         switch( format )
         {
             case Format::Iso8601:
             {
-                oss << std::setfill( '0' ) << std::setw( 4 ) << y << "-" << std::setw( 2 ) << mon << "-"
-                    << std::setw( 2 ) << d << "T" << std::setw( 2 ) << h << ":" << std::setw( 2 ) << min << ":"
-                    << std::setw( 2 ) << s << "Z";
+                // YYYY-MM-DDTHH:mm:ssZ
+                appendFourDigits( sb, y );
+                sb.append( '-' );
+                appendTwoDigits( sb, mon );
+                sb.append( '-' );
+                appendTwoDigits( sb, d );
+                sb.append( 'T' );
+                appendTwoDigits( sb, h );
+                sb.append( ':' );
+                appendTwoDigits( sb, min );
+                sb.append( ':' );
+                appendTwoDigits( sb, s );
+                sb.append( 'Z' );
                 break;
             }
             case Format::Iso8601Precise:
             {
                 std::int32_t fractionalTicks{ static_cast<std::int32_t>( m_ticks % constants::TICKS_PER_SECOND ) };
-                oss << std::setfill( '0' ) << std::setw( 4 ) << y << "-" << std::setw( 2 ) << mon << "-"
-                    << std::setw( 2 ) << d << "T" << std::setw( 2 ) << h << ":" << std::setw( 2 ) << min << ":"
-                    << std::setw( 2 ) << s << "." << std::setw( 7 ) << fractionalTicks << "Z";
+
+                // YYYY-MM-DDTHH:mm:ss
+                appendFourDigits( sb, y );
+                sb.append( '-' );
+                appendTwoDigits( sb, mon );
+                sb.append( '-' );
+                appendTwoDigits( sb, d );
+                sb.append( 'T' );
+                appendTwoDigits( sb, h );
+                sb.append( ':' );
+                appendTwoDigits( sb, min );
+                sb.append( ':' );
+                appendTwoDigits( sb, s );
+
+                // .1234567Z
+                char fracBuffer[8];
+                fracBuffer[0] = '.';
+                auto [ptr, ec] = std::to_chars( fracBuffer + 1, fracBuffer + 8, fractionalTicks );
+                const auto fracLen = ptr - fracBuffer;
+                const auto paddingNeeded = 8 - fracLen;
+
+                if( paddingNeeded > 0 )
+                {
+                    std::memmove( fracBuffer + 1 + paddingNeeded, fracBuffer + 1, fracLen - 1 );
+                    std::memset( fracBuffer + 1, '0', paddingNeeded );
+                }
+
+                sb.append( std::string_view{ fracBuffer, 8 } );
+                sb.append( 'Z' );
                 break;
             }
             case Format::Iso8601PreciseTrimmed:
             {
                 std::int32_t fractionalTicks{ static_cast<std::int32_t>( m_ticks % constants::TICKS_PER_SECOND ) };
-                oss << std::setfill( '0' ) << std::setw( 4 ) << y << "-" << std::setw( 2 ) << mon << "-"
-                    << std::setw( 2 ) << d << "T" << std::setw( 2 ) << h << ":" << std::setw( 2 ) << min << ":"
-                    << std::setw( 2 ) << s << ".";
+
+                // YYYY-MM-DDTHH:mm:ss
+                appendFourDigits( sb, y );
+                sb.append( '-' );
+                appendTwoDigits( sb, mon );
+                sb.append( '-' );
+                appendTwoDigits( sb, d );
+                sb.append( 'T' );
+                appendTwoDigits( sb, h );
+                sb.append( ':' );
+                appendTwoDigits( sb, min );
+                sb.append( ':' );
+                appendTwoDigits( sb, s );
 
                 if( fractionalTicks > 0 )
                 {
-                    // Format with trimmed trailing zeros
-                    std::string fraction{ std::to_string( fractionalTicks ) };
-                    // Pad to 7 digits if needed
-                    fraction = std::string( 7 - fraction.length(), '0' ) + fraction;
-                    // Trim trailing zeros
-                    auto lastNonZero = fraction.find_last_not_of( '0' );
-                    if( lastNonZero != std::string::npos )
+                    char fracBuffer[8];
+                    fracBuffer[0] = '.';
+                    auto [ptr, ec] = std::to_chars( fracBuffer + 1, fracBuffer + 8, fractionalTicks );
+                    auto fracLen = ptr - fracBuffer;
+                    const auto paddingNeeded = 8 - fracLen;
+
+                    if( paddingNeeded > 0 )
                     {
-                        fraction = fraction.substr( 0, lastNonZero + 1 );
+                        std::memmove( fracBuffer + 1 + paddingNeeded, fracBuffer + 1, fracLen - 1 );
+                        std::memset( fracBuffer + 1, '0', paddingNeeded );
+                        fracLen = 8;
                     }
-                    oss << fraction;
+
+                    // Trim trailing zeros
+                    while( fracLen > 2 && fracBuffer[fracLen - 1] == '0' )
+                    {
+                        --fracLen;
+                    }
+
+                    sb.append( std::string_view{ fracBuffer, static_cast<std::size_t>( fracLen ) } );
                 }
                 else
                 {
-                    // If all zeros, output single zero
-                    oss << "0";
+                    sb.append( ".0" );
                 }
 
-                oss << "Z";
+                sb.append( 'Z' );
                 break;
             }
             case Format::Iso8601Millis:
@@ -452,9 +525,35 @@ namespace nfx::time
                 std::int32_t fractionalTicks{ static_cast<std::int32_t>( m_ticks % constants::TICKS_PER_SECOND ) };
                 std::int32_t milliseconds{ static_cast<std::int32_t>(
                     fractionalTicks / constants::TICKS_PER_MILLISECOND ) };
-                oss << std::setfill( '0' ) << std::setw( 4 ) << y << "-" << std::setw( 2 ) << mon << "-"
-                    << std::setw( 2 ) << d << "T" << std::setw( 2 ) << h << ":" << std::setw( 2 ) << min << ":"
-                    << std::setw( 2 ) << s << "." << std::setw( 3 ) << milliseconds << "Z";
+
+                // YYYY-MM-DDTHH:mm:ss
+                appendFourDigits( sb, y );
+                sb.append( '-' );
+                appendTwoDigits( sb, mon );
+                sb.append( '-' );
+                appendTwoDigits( sb, d );
+                sb.append( 'T' );
+                appendTwoDigits( sb, h );
+                sb.append( ':' );
+                appendTwoDigits( sb, min );
+                sb.append( ':' );
+                appendTwoDigits( sb, s );
+
+                // .123Z
+                char fracBuffer[4];
+                fracBuffer[0] = '.';
+                auto [ptr, ec] = std::to_chars( fracBuffer + 1, fracBuffer + 4, milliseconds );
+                const auto fracLen = ptr - fracBuffer;
+                const auto paddingNeeded = 4 - fracLen;
+
+                if( paddingNeeded > 0 )
+                {
+                    std::memmove( fracBuffer + 1 + paddingNeeded, fracBuffer + 1, fracLen - 1 );
+                    std::memset( fracBuffer + 1, '0', paddingNeeded );
+                }
+
+                sb.append( std::string_view{ fracBuffer, 4 } );
+                sb.append( 'Z' );
                 break;
             }
             case Format::Iso8601Micros:
@@ -462,54 +561,110 @@ namespace nfx::time
                 std::int32_t fractionalTicks{ static_cast<std::int32_t>( m_ticks % constants::TICKS_PER_SECOND ) };
                 std::int32_t microseconds{ static_cast<std::int32_t>(
                     fractionalTicks / constants::TICKS_PER_MICROSECOND ) };
-                oss << std::setfill( '0' ) << std::setw( 4 ) << y << "-" << std::setw( 2 ) << mon << "-"
-                    << std::setw( 2 ) << d << "T" << std::setw( 2 ) << h << ":" << std::setw( 2 ) << min << ":"
-                    << std::setw( 2 ) << s << "." << std::setw( 6 ) << microseconds << "Z";
+
+                // YYYY-MM-DDTHH:mm:ss
+                appendFourDigits( sb, y );
+                sb.append( '-' );
+                appendTwoDigits( sb, mon );
+                sb.append( '-' );
+                appendTwoDigits( sb, d );
+                sb.append( 'T' );
+                appendTwoDigits( sb, h );
+                sb.append( ':' );
+                appendTwoDigits( sb, min );
+                sb.append( ':' );
+                appendTwoDigits( sb, s );
+
+                // .123456Z
+                char fracBuffer[7];
+                fracBuffer[0] = '.';
+                auto [ptr, ec] = std::to_chars( fracBuffer + 1, fracBuffer + 7, microseconds );
+                const auto fracLen = ptr - fracBuffer;
+                const auto paddingNeeded = 7 - fracLen;
+
+                if( paddingNeeded > 0 )
+                {
+                    std::memmove( fracBuffer + 1 + paddingNeeded, fracBuffer + 1, fracLen - 1 );
+                    std::memset( fracBuffer + 1, '0', paddingNeeded );
+                }
+
+                sb.append( std::string_view{ fracBuffer, 7 } );
+                sb.append( 'Z' );
                 break;
             }
             case Format::Iso8601Extended:
             {
-                oss << std::setfill( '0' ) << std::setw( 4 ) << y << "-" << std::setw( 2 ) << mon << "-"
-                    << std::setw( 2 ) << d << "T" << std::setw( 2 ) << h << ":" << std::setw( 2 ) << min << ":"
-                    << std::setw( 2 ) << s << "+00:00";
+                // YYYY-MM-DDTHH:mm:ss+00:00
+                appendFourDigits( sb, y );
+                sb.append( '-' );
+                appendTwoDigits( sb, mon );
+                sb.append( '-' );
+                appendTwoDigits( sb, d );
+                sb.append( 'T' );
+                appendTwoDigits( sb, h );
+                sb.append( ':' );
+                appendTwoDigits( sb, min );
+                sb.append( ':' );
+                appendTwoDigits( sb, s );
+                sb.append( "+00:00" );
                 break;
             }
             case Format::Iso8601Basic:
             {
-                oss << std::setfill( '0' ) << std::setw( 4 ) << y << std::setw( 2 ) << mon << std::setw( 2 ) << d << "T"
-                    << std::setw( 2 ) << h << std::setw( 2 ) << min << std::setw( 2 ) << s << "Z";
+                // YYYYMMDDTHHMMSSZ
+                appendFourDigits( sb, y );
+                appendTwoDigits( sb, mon );
+                appendTwoDigits( sb, d );
+                sb.append( 'T' );
+                appendTwoDigits( sb, h );
+                appendTwoDigits( sb, min );
+                appendTwoDigits( sb, s );
+                sb.append( 'Z' );
                 break;
             }
             case Format::Iso8601Date:
             {
-                oss << std::setfill( '0' ) << std::setw( 4 ) << y << "-" << std::setw( 2 ) << mon << "-"
-                    << std::setw( 2 ) << d;
+                // YYYY-MM-DD
+                appendFourDigits( sb, y );
+                sb.append( '-' );
+                appendTwoDigits( sb, mon );
+                sb.append( '-' );
+                appendTwoDigits( sb, d );
                 break;
             }
             case Format::Iso8601Time:
             {
-                oss << std::setfill( '0' ) << std::setw( 2 ) << h << ":" << std::setw( 2 ) << min << ":"
-                    << std::setw( 2 ) << s;
+                // HH:mm:ss
+                appendTwoDigits( sb, h );
+                sb.append( ':' );
+                appendTwoDigits( sb, min );
+                sb.append( ':' );
+                appendTwoDigits( sb, s );
                 break;
             }
             case Format::UnixSeconds:
             {
-                oss << toEpochSeconds();
+                char buffer[32];
+                const auto epochSecs = toEpochSeconds();
+                auto [ptr, ec] = std::to_chars( buffer, buffer + 32, epochSecs );
+                sb.append( std::string_view{ buffer, static_cast<std::size_t>( ptr - buffer ) } );
                 break;
             }
             case Format::UnixMilliseconds:
             {
-                oss << toEpochMilliseconds();
+                char buffer[32];
+                const auto epochMs = toEpochMilliseconds();
+                auto [ptr, ec] = std::to_chars( buffer, buffer + 32, epochMs );
+                sb.append( std::string_view{ buffer, static_cast<std::size_t>( ptr - buffer ) } );
                 break;
             }
             default:
             {
-                oss << toString( Format::Iso8601 );
-                break;
+                return toString( Format::Iso8601 );
             }
         }
 
-        return oss.str();
+        return sb.toString();
     }
 
     //----------------------------------------------

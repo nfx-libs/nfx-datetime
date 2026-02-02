@@ -49,16 +49,16 @@ namespace nfx::time
 
     std::string TimeSpan::toString() const
     {
-        std::ostringstream oss;
+        nfx::string::StringBuilder sb( 64 );
 
         // Handle negative durations
         bool isNegative{ m_ticks < 0 };
         if( isNegative )
         {
-            oss << "-";
+            sb.append( '-' );
         }
 
-        oss << "P";
+        sb.append( 'P' );
 
         std::int64_t absTicks{ std::abs( m_ticks ) };
         std::int64_t totalSeconds{ absTicks / constants::TICKS_PER_SECOND };
@@ -73,7 +73,7 @@ namespace nfx::time
         // Output days if present
         if( days > 0 )
         {
-            oss << days << "D";
+            sb.append( days ).append( 'D' );
         }
 
         // Check if we have any time components
@@ -83,16 +83,16 @@ namespace nfx::time
         // Only output time component if present
         if( hasTimeComponent )
         {
-            oss << "T";
+            sb.append( 'T' );
 
             if( hours > 0 )
             {
-                oss << hours << "H";
+                sb.append( hours ).append( 'H' );
             }
 
             if( minutes > 0 )
             {
-                oss << minutes << "M";
+                sb.append( minutes ).append( 'M' );
             }
 
             // Include seconds with or without fractional part
@@ -109,23 +109,23 @@ namespace nfx::time
                     std::size_t fracLen{ 7 };
                     while( fracLen > 1 && fracBuffer[fracLen - 1] == '0' )
                     {
-                        fracBuffer[--fracLen] = '\0';
+                        --fracLen;
                     }
 
-                    oss << seconds << "." << fracBuffer << "S";
+                    sb.append( seconds ).append( '.' ).append( std::string_view{ fracBuffer, fracLen } ).append( 'S' );
                 }
                 else
                 {
-                    oss << seconds << "S";
+                    sb.append( seconds ).append( 'S' );
                 }
             }
         }
         else if( days == 0 )
         {
             // No days and no time components: output PT0S for zero duration
-            oss << "T0S";
+            sb.append( "T0S" );
         }
-        return oss.str();
+        return sb.toString();
     }
 
     //----------------------------------------------

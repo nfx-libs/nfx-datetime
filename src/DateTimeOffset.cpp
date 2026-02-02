@@ -66,82 +66,141 @@ namespace nfx::time
         }
 
         //----------------------------------------------
-        // String formatting
+        // String formatting helpers
         //----------------------------------------------
 
-        /** @brief Append timezone offset to output stream */
-        static void appendOffset( std::ostringstream& oss, std::int32_t offsetMinutes )
+        /** @brief Append two-digit zero-padded integer */
+        static inline void appendTwoDigits( nfx::string::StringBuilder& sb, std::int32_t value ) noexcept
+        {
+            const auto quotient{ value / 10 };
+            const auto remainder{ value % 10 };
+            sb.append( static_cast<char>( '0' + quotient ) );
+            sb.append( static_cast<char>( '0' + remainder ) );
+        }
+
+        /** @brief Append four-digit zero-padded integer */
+        static inline void appendFourDigits( nfx::string::StringBuilder& sb, std::int32_t value ) noexcept
+        {
+            sb.append( static_cast<char>( '0' + ( value / 1000 ) ) );
+            sb.append( static_cast<char>( '0' + ( ( value / 100 ) % 10 ) ) );
+            sb.append( static_cast<char>( '0' + ( ( value / 10 ) % 10 ) ) );
+            sb.append( static_cast<char>( '0' + ( value % 10 ) ) );
+        }
+
+        /** @brief Append timezone offset to StringBuilder */
+        static void appendOffset( nfx::string::StringBuilder& sb, std::int32_t offsetMinutes ) noexcept
         {
             const auto absMinutes{ std::abs( offsetMinutes ) };
             const auto offsetHours{ absMinutes / constants::MINUTES_PER_HOUR };
             const auto offsetMins{ absMinutes % constants::MINUTES_PER_HOUR };
-            oss << ( offsetMinutes >= 0 ? '+' : '-' ) << std::setw( 2 ) << offsetHours << ':' << std::setw( 2 )
-                << offsetMins;
+
+            sb.append( offsetMinutes >= 0 ? '+' : '-' );
+            appendTwoDigits( sb, offsetHours );
+            sb.append( ':' );
+            appendTwoDigits( sb, offsetMins );
         }
 
         /** @brief Format ISO 8601 basic (compact) format with offset */
         static std::string formatIso8601Basic( const DateTimeOffset& dto )
         {
-            std::ostringstream oss;
-            oss << std::setfill( '0' );
+            nfx::string::StringBuilder sb;
 
-            // Compact format without separators
-            oss << std::setw( 4 ) << dto.year() << std::setw( 2 ) << dto.month() << std::setw( 2 ) << dto.day() << 'T'
-                << std::setw( 2 ) << dto.hour() << std::setw( 2 ) << dto.minute() << std::setw( 2 ) << dto.second();
+            // Compact format without separators: YYYYMMDDTHHMMSS±HHMM
+            appendFourDigits( sb, dto.year() );
+            appendTwoDigits( sb, dto.month() );
+            appendTwoDigits( sb, dto.day() );
+            sb.append( 'T' );
+            appendTwoDigits( sb, dto.hour() );
+            appendTwoDigits( sb, dto.minute() );
+            appendTwoDigits( sb, dto.second() );
 
             // Offset in compact format (±HHMM)
-            const auto absMinutes{ std::abs( dto.totalOffsetMinutes() ) };
+            const auto offsetMinutes{ dto.totalOffsetMinutes() };
+            const auto absMinutes{ std::abs( offsetMinutes ) };
             const auto offsetHours{ absMinutes / constants::MINUTES_PER_HOUR };
             const auto offsetMins{ absMinutes % constants::MINUTES_PER_HOUR };
-            oss << ( dto.totalOffsetMinutes() >= 0 ? '+' : '-' ) << std::setw( 2 ) << offsetHours << std::setw( 2 )
-                << offsetMins;
 
-            return oss.str();
+            sb.append( offsetMinutes >= 0 ? '+' : '-' );
+            appendTwoDigits( sb, offsetHours );
+            appendTwoDigits( sb, offsetMins );
+
+            return sb.toString();
         }
 
         /** @brief Format ISO 8601 datetime with offset */
         static std::string formatIso8601( const DateTimeOffset& dto, DateTime::Format format )
         {
-            std::ostringstream oss;
-            oss << std::setfill( '0' );
+            nfx::string::StringBuilder sb;
 
-            // Date part
-            oss << std::setw( 4 ) << dto.year() << '-' << std::setw( 2 ) << dto.month() << '-' << std::setw( 2 )
-                << dto.day() << 'T';
+            // Date part: YYYY-MM-DD
+            appendFourDigits( sb, dto.year() );
+            sb.append( '-' );
+            appendTwoDigits( sb, dto.month() );
+            sb.append( '-' );
+            appendTwoDigits( sb, dto.day() );
+            sb.append( 'T' );
 
-            // Time part
-            oss << std::setw( 2 ) << dto.hour() << ':' << std::setw( 2 ) << dto.minute() << ':' << std::setw( 2 )
-                << dto.second();
+            // Time part: HH:mm:ss
+            appendTwoDigits( sb, dto.hour() );
+            sb.append( ':' );
+            appendTwoDigits( sb, dto.minute() );
+            sb.append( ':' );
+            appendTwoDigits( sb, dto.second() );
 
-            // Add fractional seconds for extended format
+            // Add fractional seconds for extended formats
             if( format == DateTime::Format::Iso8601Precise )
             {
                 const std::int64_t fractionalTicks = dto.dateTime().ticks() % constants::TICKS_PER_SECOND;
-                oss << '.' << std::setw( 7 ) << fractionalTicks;
+                char fracBuffer[8];
+                fracBuffer[0] = '.';
+
+                // Format 7-digit fractional part with zero padding
+                auto [ptr, ec] = std::to_chars( fracBuffer + 1, fracBuffer + 8, fractionalTicks );
+                const auto fracLen = ptr - fracBuffer;
+                const auto paddingNeeded = 8 - fracLen;
+
+                // Shift digits right and add leading zeros if needed
+                if( paddingNeeded > 0 )
+                {
+                    std::memmove( fracBuffer + 1 + paddingNeeded, fracBuffer + 1, fracLen - 1 );
+                    std::memset( fracBuffer + 1, '0', paddingNeeded );
+                }
+
+                sb.append( std::string_view{ fracBuffer, 8 } );
             }
             else if( format == DateTime::Format::Iso8601PreciseTrimmed )
             {
                 const std::int64_t fractionalTicks = dto.dateTime().ticks() % constants::TICKS_PER_SECOND;
-                oss << '.';
 
                 if( fractionalTicks > 0 )
                 {
-                    // Format with trimmed trailing zeros
-                    std::string fraction{ std::to_string( fractionalTicks ) };
-                    // Pad to 7 digits if needed
-                    fraction = std::string( 7 - fraction.length(), '0' ) + fraction;
-                    // Trim trailing zeros
-                    auto lastNonZero = fraction.find_last_not_of( '0' );
-                    if( lastNonZero != std::string::npos )
+                    char fracBuffer[8];
+                    fracBuffer[0] = '.';
+
+                    // Format 7-digit fractional part with zero padding
+                    auto [ptr, ec] = std::to_chars( fracBuffer + 1, fracBuffer + 8, fractionalTicks );
+                    auto fracLen = ptr - fracBuffer;
+                    const auto paddingNeeded = 8 - fracLen;
+
+                    // Shift digits right and add leading zeros if needed
+                    if( paddingNeeded > 0 )
                     {
-                        fraction = fraction.substr( 0, lastNonZero + 1 );
+                        std::memmove( fracBuffer + 1 + paddingNeeded, fracBuffer + 1, fracLen - 1 );
+                        std::memset( fracBuffer + 1, '0', paddingNeeded );
+                        fracLen = 8;
                     }
-                    oss << fraction;
+
+                    // Trim trailing zeros
+                    while( fracLen > 2 && fracBuffer[fracLen - 1] == '0' )
+                    {
+                        --fracLen;
+                    }
+
+                    sb.append( std::string_view{ fracBuffer, static_cast<std::size_t>( fracLen ) } );
                 }
                 else
                 {
-                    // If all zeros, output single zero
-                    oss << '0';
+                    sb.append( ".0" );
                 }
             }
             else if( format == DateTime::Format::Iso8601Millis )
@@ -149,39 +208,80 @@ namespace nfx::time
                 const std::int64_t fractionalTicks = dto.dateTime().ticks() % constants::TICKS_PER_SECOND;
                 const std::int32_t milliseconds =
                     static_cast<std::int32_t>( fractionalTicks / constants::TICKS_PER_MILLISECOND );
-                oss << '.' << std::setw( 3 ) << milliseconds;
+
+                char fracBuffer[4];
+                fracBuffer[0] = '.';
+
+                // Format 3-digit milliseconds with zero padding
+                auto [ptr, ec] = std::to_chars( fracBuffer + 1, fracBuffer + 4, milliseconds );
+                const auto fracLen = ptr - fracBuffer;
+                const auto paddingNeeded = 4 - fracLen;
+
+                // Shift digits right and add leading zeros if needed
+                if( paddingNeeded > 0 )
+                {
+                    std::memmove( fracBuffer + 1 + paddingNeeded, fracBuffer + 1, fracLen - 1 );
+                    std::memset( fracBuffer + 1, '0', paddingNeeded );
+                }
+
+                sb.append( std::string_view{ fracBuffer, 4 } );
             }
             else if( format == DateTime::Format::Iso8601Micros )
             {
                 const std::int64_t fractionalTicks = dto.dateTime().ticks() % constants::TICKS_PER_SECOND;
                 const std::int32_t microseconds =
                     static_cast<std::int32_t>( fractionalTicks / constants::TICKS_PER_MICROSECOND );
-                oss << '.' << std::setw( 6 ) << microseconds;
+
+                char fracBuffer[7];
+                fracBuffer[0] = '.';
+
+                // Format 6-digit microseconds with zero padding
+                auto [ptr, ec] = std::to_chars( fracBuffer + 1, fracBuffer + 7, microseconds );
+                const auto fracLen = ptr - fracBuffer;
+                const auto paddingNeeded = 7 - fracLen;
+
+                // Shift digits right and add leading zeros if needed
+                if( paddingNeeded > 0 )
+                {
+                    std::memmove( fracBuffer + 1 + paddingNeeded, fracBuffer + 1, fracLen - 1 );
+                    std::memset( fracBuffer + 1, '0', paddingNeeded );
+                }
+
+                sb.append( std::string_view{ fracBuffer, 7 } );
             }
 
             // Offset part
-            appendOffset( oss, dto.totalOffsetMinutes() );
-            return oss.str();
+            appendOffset( sb, dto.totalOffsetMinutes() );
+            return sb.toString();
         }
 
         /** @brief Format date only */
         static std::string formatDateOnly( const DateTimeOffset& dto )
         {
-            std::ostringstream oss;
-            oss << std::setfill( '0' ) << std::setw( 4 ) << dto.year() << '-' << std::setw( 2 ) << dto.month() << '-'
-                << std::setw( 2 ) << dto.day();
-            return oss.str();
+            nfx::string::StringBuilder sb;
+
+            appendFourDigits( sb, dto.year() );
+            sb.append( '-' );
+            appendTwoDigits( sb, dto.month() );
+            sb.append( '-' );
+            appendTwoDigits( sb, dto.day() );
+
+            return sb.toString();
         }
 
         /** @brief Format time only with offset */
         static std::string formatTimeOnly( const DateTimeOffset& dto )
         {
-            std::ostringstream oss;
-            oss << std::setfill( '0' ) << std::setw( 2 ) << dto.hour() << ':' << std::setw( 2 ) << dto.minute() << ':'
-                << std::setw( 2 ) << dto.second();
+            nfx::string::StringBuilder sb;
 
-            appendOffset( oss, dto.totalOffsetMinutes() );
-            return oss.str();
+            appendTwoDigits( sb, dto.hour() );
+            sb.append( ':' );
+            appendTwoDigits( sb, dto.minute() );
+            sb.append( ':' );
+            appendTwoDigits( sb, dto.second() );
+
+            appendOffset( sb, dto.totalOffsetMinutes() );
+            return sb.toString();
         }
     } // namespace internal
 
