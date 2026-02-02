@@ -4,7 +4,7 @@
 
 ### Added
 
-- NIL
+- nfx-stringbuilder dependency (v0.5.0) for high-performance string building
 
 ### Changed
 

@@ -517,6 +517,10 @@ This project is licensed under the MIT License.
 
 ## Dependencies
 
+### Runtime Dependencies
+
+- **[nfx-stringbuilder](https://github.com/nfx-libs/nfx-stringbuilder)**: High-performance string builder (MIT License)
+
 ### Development Dependencies
 
 - **[GoogleTest](https://github.com/google/googletest)**: Testing framework (BSD 3-Clause License) - Development only
@@ -526,4 +530,4 @@ All dependencies are automatically fetched via CMake FetchContent when building 
 
 ---
 
-_Updated on January 11, 2026_
+_Updated on February 03, 2026_

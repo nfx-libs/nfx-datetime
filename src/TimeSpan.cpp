@@ -30,13 +30,12 @@
  *          functionality for time intervals with 100-nanosecond precision.
  */
 
-#include <charconv>
-#include <iomanip>
-#include <sstream>
-#include <string>
-#include <vector>
-
 #include "nfx/datetime/TimeSpan.h"
+
+#include <nfx/string/StringBuilder.h>
+
+#include <charconv>
+#include <string>
 
 namespace nfx::time
 {
