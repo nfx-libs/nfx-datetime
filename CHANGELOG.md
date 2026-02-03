@@ -20,6 +20,7 @@
 
 ### Fixed
 
+- Refactored `DateTime::toString()` to reduce code duplication by extracting helper functions for common formatting patterns
 - Fixed warnings for unused local variables in `DateTime::toString()` and `DateTimeOffset` formatting functions
 
 ### Security

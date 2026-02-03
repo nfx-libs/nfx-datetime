@@ -596,6 +596,168 @@ namespace nfx::time
             sb.append( static_cast<char>( '0' + ( ( value / 10 ) % 10 ) ) );
             sb.append( static_cast<char>( '0' + ( value % 10 ) ) );
         }
+
+        /** @brief Append ISO 8601 date part: YYYY-MM-DD */
+        inline void appendIso8601Date(
+            nfx::string::StringBuilder& sb, std::int32_t year, std::int32_t month, std::int32_t day ) noexcept
+        {
+            appendFourDigits( sb, year );
+            sb.append( '-' );
+            appendTwoDigits( sb, month );
+            sb.append( '-' );
+            appendTwoDigits( sb, day );
+        }
+
+        /** @brief Append ISO 8601 time part: HH:mm:ss */
+        inline void appendIso8601Time(
+            nfx::string::StringBuilder& sb, std::int32_t hour, std::int32_t minute, std::int32_t second ) noexcept
+        {
+            appendTwoDigits( sb, hour );
+            sb.append( ':' );
+            appendTwoDigits( sb, minute );
+            sb.append( ':' );
+            appendTwoDigits( sb, second );
+        }
+
+        /** @brief Append ISO 8601 datetime part: YYYY-MM-DDTHH:mm:ss */
+        inline void appendIso8601DateTime( nfx::string::StringBuilder& sb,
+                                           std::int32_t year,
+                                           std::int32_t month,
+                                           std::int32_t day,
+                                           std::int32_t hour,
+                                           std::int32_t minute,
+                                           std::int32_t second ) noexcept
+        {
+            appendIso8601Date( sb, year, month, day );
+            sb.append( 'T' );
+            appendIso8601Time( sb, hour, minute, second );
+        }
+
+        /** @brief Append zero-padded fractional seconds with specific precision */
+        inline void appendFractionalSeconds( nfx::string::StringBuilder& sb,
+                                             std::int32_t fractionalValue,
+                                             std::size_t bufferSize ) noexcept
+        {
+            char fracBuffer[8]; // Max size for 7 digits + decimal point
+            fracBuffer[0] = '.';
+
+            const auto ptr = std::to_chars( fracBuffer + 1, fracBuffer + bufferSize, fractionalValue ).ptr;
+            const auto fracLen = ptr - fracBuffer;
+            const auto paddingNeeded = bufferSize - fracLen;
+
+            // Shift digits right and add leading zeros if needed
+            if( paddingNeeded > 0 )
+            {
+                std::memmove( fracBuffer + 1 + paddingNeeded, fracBuffer + 1, fracLen - 1 );
+                std::memset( fracBuffer + 1, '0', paddingNeeded );
+            }
+
+            sb.append( std::string_view{ fracBuffer, bufferSize } );
+        }
+
+        /** @brief Append fractional seconds with trimmed trailing zeros */
+        inline void appendFractionalSecondsTrimmed( nfx::string::StringBuilder& sb, std::int32_t fractionalTicks ) noexcept
+        {
+            if( fractionalTicks > 0 )
+            {
+                char fracBuffer[8];
+                fracBuffer[0] = '.';
+                const auto ptr = std::to_chars( fracBuffer + 1, fracBuffer + 8, fractionalTicks ).ptr;
+                auto fracLen = ptr - fracBuffer;
+                const auto paddingNeeded = 8 - fracLen;
+
+                if( paddingNeeded > 0 )
+                {
+                    std::memmove( fracBuffer + 1 + paddingNeeded, fracBuffer + 1, fracLen - 1 );
+                    std::memset( fracBuffer + 1, '0', paddingNeeded );
+                    fracLen = 8;
+                }
+
+                // Trim trailing zeros
+                while( fracLen > 2 && fracBuffer[fracLen - 1] == '0' )
+                {
+                    --fracLen;
+                }
+
+                sb.append( std::string_view{ fracBuffer, static_cast<std::size_t>( fracLen ) } );
+            }
+            else
+            {
+                sb.append( ".0" );
+            }
+        }
+
+        /** @brief Format ISO 8601 with UTC indicator: YYYY-MM-DDTHH:mm:ssZ */
+        inline void formatIso8601(
+            nfx::string::StringBuilder& sb, std::int32_t y, std::int32_t mon, std::int32_t d, std::int32_t h, std::int32_t min, std::int32_t s ) noexcept
+        {
+            appendIso8601DateTime( sb, y, mon, d, h, min, s );
+            sb.append( 'Z' );
+        }
+
+        /** @brief Format ISO 8601 with precise fractional seconds: YYYY-MM-DDTHH:mm:ss.1234567Z */
+        inline void formatIso8601Precise(
+            nfx::string::StringBuilder& sb, std::int32_t y, std::int32_t mon, std::int32_t d, std::int32_t h, std::int32_t min, std::int32_t s, std::int64_t ticks ) noexcept
+        {
+            const std::int32_t fractionalTicks{ static_cast<std::int32_t>( ticks % constants::TICKS_PER_SECOND ) };
+            appendIso8601DateTime( sb, y, mon, d, h, min, s );
+            appendFractionalSeconds( sb, fractionalTicks, 8 );
+            sb.append( 'Z' );
+        }
+
+        /** @brief Format ISO 8601 with trimmed fractional seconds: YYYY-MM-DDTHH:mm:ss.f+Z */
+        inline void formatIso8601PreciseTrimmed(
+            nfx::string::StringBuilder& sb, std::int32_t y, std::int32_t mon, std::int32_t d, std::int32_t h, std::int32_t min, std::int32_t s, std::int64_t ticks ) noexcept
+        {
+            const std::int32_t fractionalTicks{ static_cast<std::int32_t>( ticks % constants::TICKS_PER_SECOND ) };
+            appendIso8601DateTime( sb, y, mon, d, h, min, s );
+            appendFractionalSecondsTrimmed( sb, fractionalTicks );
+            sb.append( 'Z' );
+        }
+
+        /** @brief Format ISO 8601 with milliseconds: YYYY-MM-DDTHH:mm:ss.123Z */
+        inline void formatIso8601Millis(
+            nfx::string::StringBuilder& sb, std::int32_t y, std::int32_t mon, std::int32_t d, std::int32_t h, std::int32_t min, std::int32_t s, std::int64_t ticks ) noexcept
+        {
+            const std::int32_t fractionalTicks{ static_cast<std::int32_t>( ticks % constants::TICKS_PER_SECOND ) };
+            const std::int32_t milliseconds{ static_cast<std::int32_t>( fractionalTicks / constants::TICKS_PER_MILLISECOND ) };
+            appendIso8601DateTime( sb, y, mon, d, h, min, s );
+            appendFractionalSeconds( sb, milliseconds, 4 );
+            sb.append( 'Z' );
+        }
+
+        /** @brief Format ISO 8601 with microseconds: YYYY-MM-DDTHH:mm:ss.123456Z */
+        inline void formatIso8601Micros(
+            nfx::string::StringBuilder& sb, std::int32_t y, std::int32_t mon, std::int32_t d, std::int32_t h, std::int32_t min, std::int32_t s, std::int64_t ticks ) noexcept
+        {
+            const std::int32_t fractionalTicks{ static_cast<std::int32_t>( ticks % constants::TICKS_PER_SECOND ) };
+            const std::int32_t microseconds{ static_cast<std::int32_t>( fractionalTicks / constants::TICKS_PER_MICROSECOND ) };
+            appendIso8601DateTime( sb, y, mon, d, h, min, s );
+            appendFractionalSeconds( sb, microseconds, 7 );
+            sb.append( 'Z' );
+        }
+
+        /** @brief Format ISO 8601 extended with UTC offset: YYYY-MM-DDTHH:mm:ss+00:00 */
+        inline void formatIso8601Extended(
+            nfx::string::StringBuilder& sb, std::int32_t y, std::int32_t mon, std::int32_t d, std::int32_t h, std::int32_t min, std::int32_t s ) noexcept
+        {
+            appendIso8601DateTime( sb, y, mon, d, h, min, s );
+            sb.append( "+00:00" );
+        }
+
+        /** @brief Format ISO 8601 basic (compact): YYYYMMDDTHHMMSSZ */
+        inline void formatIso8601Basic(
+            nfx::string::StringBuilder& sb, std::int32_t y, std::int32_t mon, std::int32_t d, std::int32_t h, std::int32_t min, std::int32_t s ) noexcept
+        {
+            appendFourDigits( sb, y );
+            appendTwoDigits( sb, mon );
+            appendTwoDigits( sb, d );
+            sb.append( 'T' );
+            appendTwoDigits( sb, h );
+            appendTwoDigits( sb, min );
+            appendTwoDigits( sb, s );
+            sb.append( 'Z' );
+        }
     } // namespace
 
     std::string DateTime::toString( Format format ) const
@@ -609,226 +771,41 @@ namespace nfx::time
         switch( format )
         {
             case Format::Iso8601:
-            {
-                // YYYY-MM-DDTHH:mm:ssZ
-                appendFourDigits( sb, y );
-                sb.append( '-' );
-                appendTwoDigits( sb, mon );
-                sb.append( '-' );
-                appendTwoDigits( sb, d );
-                sb.append( 'T' );
-                appendTwoDigits( sb, h );
-                sb.append( ':' );
-                appendTwoDigits( sb, min );
-                sb.append( ':' );
-                appendTwoDigits( sb, s );
-                sb.append( 'Z' );
+                formatIso8601( sb, y, mon, d, h, min, s );
                 break;
-            }
+
             case Format::Iso8601Precise:
-            {
-                std::int32_t fractionalTicks{ static_cast<std::int32_t>( m_ticks % constants::TICKS_PER_SECOND ) };
-
-                // YYYY-MM-DDTHH:mm:ss
-                appendFourDigits( sb, y );
-                sb.append( '-' );
-                appendTwoDigits( sb, mon );
-                sb.append( '-' );
-                appendTwoDigits( sb, d );
-                sb.append( 'T' );
-                appendTwoDigits( sb, h );
-                sb.append( ':' );
-                appendTwoDigits( sb, min );
-                sb.append( ':' );
-                appendTwoDigits( sb, s );
-
-                // .1234567Z
-                char fracBuffer[8];
-                fracBuffer[0] = '.';
-                const auto ptr = std::to_chars( fracBuffer + 1, fracBuffer + 8, fractionalTicks ).ptr;
-                const auto fracLen = ptr - fracBuffer;
-                const auto paddingNeeded = 8 - fracLen;
-
-                if( paddingNeeded > 0 )
-                {
-                    std::memmove( fracBuffer + 1 + paddingNeeded, fracBuffer + 1, fracLen - 1 );
-                    std::memset( fracBuffer + 1, '0', paddingNeeded );
-                }
-
-                sb.append( std::string_view{ fracBuffer, 8 } );
-                sb.append( 'Z' );
+                formatIso8601Precise( sb, y, mon, d, h, min, s, m_ticks );
                 break;
-            }
+
             case Format::Iso8601PreciseTrimmed:
-            {
-                std::int32_t fractionalTicks{ static_cast<std::int32_t>( m_ticks % constants::TICKS_PER_SECOND ) };
-
-                // YYYY-MM-DDTHH:mm:ss
-                appendFourDigits( sb, y );
-                sb.append( '-' );
-                appendTwoDigits( sb, mon );
-                sb.append( '-' );
-                appendTwoDigits( sb, d );
-                sb.append( 'T' );
-                appendTwoDigits( sb, h );
-                sb.append( ':' );
-                appendTwoDigits( sb, min );
-                sb.append( ':' );
-                appendTwoDigits( sb, s );
-
-                if( fractionalTicks > 0 )
-                {
-                    char fracBuffer[8];
-                    fracBuffer[0] = '.';
-                    const auto ptr = std::to_chars( fracBuffer + 1, fracBuffer + 8, fractionalTicks ).ptr;
-                    auto fracLen = ptr - fracBuffer;
-                    const auto paddingNeeded = 8 - fracLen;
-
-                    if( paddingNeeded > 0 )
-                    {
-                        std::memmove( fracBuffer + 1 + paddingNeeded, fracBuffer + 1, fracLen - 1 );
-                        std::memset( fracBuffer + 1, '0', paddingNeeded );
-                        fracLen = 8;
-                    }
-
-                    // Trim trailing zeros
-                    while( fracLen > 2 && fracBuffer[fracLen - 1] == '0' )
-                    {
-                        --fracLen;
-                    }
-
-                    sb.append( std::string_view{ fracBuffer, static_cast<std::size_t>( fracLen ) } );
-                }
-                else
-                {
-                    sb.append( ".0" );
-                }
-
-                sb.append( 'Z' );
+                formatIso8601PreciseTrimmed( sb, y, mon, d, h, min, s, m_ticks );
                 break;
-            }
+
             case Format::Iso8601Millis:
-            {
-                std::int32_t fractionalTicks{ static_cast<std::int32_t>( m_ticks % constants::TICKS_PER_SECOND ) };
-                std::int32_t milliseconds{ static_cast<std::int32_t>(
-                    fractionalTicks / constants::TICKS_PER_MILLISECOND ) };
-
-                // YYYY-MM-DDTHH:mm:ss
-                appendFourDigits( sb, y );
-                sb.append( '-' );
-                appendTwoDigits( sb, mon );
-                sb.append( '-' );
-                appendTwoDigits( sb, d );
-                sb.append( 'T' );
-                appendTwoDigits( sb, h );
-                sb.append( ':' );
-                appendTwoDigits( sb, min );
-                sb.append( ':' );
-                appendTwoDigits( sb, s );
-
-                // .123Z
-                char fracBuffer[4];
-                fracBuffer[0] = '.';
-                const auto ptr = std::to_chars( fracBuffer + 1, fracBuffer + 4, milliseconds ).ptr;
-                const auto fracLen = ptr - fracBuffer;
-                const auto paddingNeeded = 4 - fracLen;
-
-                if( paddingNeeded > 0 )
-                {
-                    std::memmove( fracBuffer + 1 + paddingNeeded, fracBuffer + 1, fracLen - 1 );
-                    std::memset( fracBuffer + 1, '0', paddingNeeded );
-                }
-
-                sb.append( std::string_view{ fracBuffer, 4 } );
-                sb.append( 'Z' );
+                formatIso8601Millis( sb, y, mon, d, h, min, s, m_ticks );
                 break;
-            }
+
             case Format::Iso8601Micros:
-            {
-                std::int32_t fractionalTicks{ static_cast<std::int32_t>( m_ticks % constants::TICKS_PER_SECOND ) };
-                std::int32_t microseconds{ static_cast<std::int32_t>(
-                    fractionalTicks / constants::TICKS_PER_MICROSECOND ) };
-
-                // YYYY-MM-DDTHH:mm:ss
-                appendFourDigits( sb, y );
-                sb.append( '-' );
-                appendTwoDigits( sb, mon );
-                sb.append( '-' );
-                appendTwoDigits( sb, d );
-                sb.append( 'T' );
-                appendTwoDigits( sb, h );
-                sb.append( ':' );
-                appendTwoDigits( sb, min );
-                sb.append( ':' );
-                appendTwoDigits( sb, s );
-
-                // .123456Z
-                char fracBuffer[7];
-                fracBuffer[0] = '.';
-                const auto ptr = std::to_chars( fracBuffer + 1, fracBuffer + 7, microseconds ).ptr;
-                const auto fracLen = ptr - fracBuffer;
-                const auto paddingNeeded = 7 - fracLen;
-
-                if( paddingNeeded > 0 )
-                {
-                    std::memmove( fracBuffer + 1 + paddingNeeded, fracBuffer + 1, fracLen - 1 );
-                    std::memset( fracBuffer + 1, '0', paddingNeeded );
-                }
-
-                sb.append( std::string_view{ fracBuffer, 7 } );
-                sb.append( 'Z' );
+                formatIso8601Micros( sb, y, mon, d, h, min, s, m_ticks );
                 break;
-            }
+
             case Format::Iso8601Extended:
-            {
-                // YYYY-MM-DDTHH:mm:ss+00:00
-                appendFourDigits( sb, y );
-                sb.append( '-' );
-                appendTwoDigits( sb, mon );
-                sb.append( '-' );
-                appendTwoDigits( sb, d );
-                sb.append( 'T' );
-                appendTwoDigits( sb, h );
-                sb.append( ':' );
-                appendTwoDigits( sb, min );
-                sb.append( ':' );
-                appendTwoDigits( sb, s );
-                sb.append( "+00:00" );
+                formatIso8601Extended( sb, y, mon, d, h, min, s );
                 break;
-            }
+
             case Format::Iso8601Basic:
-            {
-                // YYYYMMDDTHHMMSSZ
-                appendFourDigits( sb, y );
-                appendTwoDigits( sb, mon );
-                appendTwoDigits( sb, d );
-                sb.append( 'T' );
-                appendTwoDigits( sb, h );
-                appendTwoDigits( sb, min );
-                appendTwoDigits( sb, s );
-                sb.append( 'Z' );
+                formatIso8601Basic( sb, y, mon, d, h, min, s );
                 break;
-            }
+
             case Format::Iso8601Date:
-            {
-                // YYYY-MM-DD
-                appendFourDigits( sb, y );
-                sb.append( '-' );
-                appendTwoDigits( sb, mon );
-                sb.append( '-' );
-                appendTwoDigits( sb, d );
+                appendIso8601Date( sb, y, mon, d );
                 break;
-            }
+
             case Format::Iso8601Time:
-            {
-                // HH:mm:ss
-                appendTwoDigits( sb, h );
-                sb.append( ':' );
-                appendTwoDigits( sb, min );
-                sb.append( ':' );
-                appendTwoDigits( sb, s );
+                appendIso8601Time( sb, h, min, s );
                 break;
-            }
+
             case Format::UnixSeconds:
             {
                 char buffer[32];
@@ -837,6 +814,7 @@ namespace nfx::time
                 sb.append( std::string_view{ buffer, static_cast<std::size_t>( ptr - buffer ) } );
                 break;
             }
+
             case Format::UnixMilliseconds:
             {
                 char buffer[32];
@@ -845,10 +823,9 @@ namespace nfx::time
                 sb.append( std::string_view{ buffer, static_cast<std::size_t>( ptr - buffer ) } );
                 break;
             }
+
             default:
-            {
                 return toString( Format::Iso8601 );
-            }
         }
 
         return sb.toString();
