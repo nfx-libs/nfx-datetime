@@ -20,12 +20,18 @@
 
 ### Fixed
 
-- Refactored `DateTime::toString()` to reduce code duplication by extracting helper functions for common formatting patterns
-- Fixed warnings for unused local variables in `DateTime::toString()` and `DateTimeOffset` formatting functions
+- NIL
 
 ### Security
 
 - NIL
+
+## [0.4.1] - 2026-02-03
+
+### Fixed
+
+- Refactored `DateTime::toString()` to reduce code duplication by extracting helper functions for common formatting patterns
+- Fixed warnings for unused local variables in `DateTime::toString()` and `DateTimeOffset` formatting functions
 
 ## [0.4.0] - 2026-02-03
 
