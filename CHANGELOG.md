@@ -4,15 +4,11 @@
 
 ### Added
 
-- nfx-stringbuilder dependency (v0.5.0) for high-performance string building
-- Fast-path parsing optimizations for common ISO 8601 formats
+- NIL
 
 ### Changed
 
-- `TimeSpan::toString()` now uses `nfx::StringBuilder` instead of `std::ostringstream`
-- `DateTimeOffset::toString()` now uses `nfx::StringBuilder` instead of `std::ostringstream`
-- `DateTime::toString()` now uses `nfx::StringBuilder` instead of `std::ostringstream`
-- Updated Google Benchmark dependency from 1.9.4 to 1.9.5
+- NIL
 
 ### Deprecated
 
@@ -29,6 +25,20 @@
 ### Security
 
 - NIL
+
+## [0.4.0] - 2026-02-03
+
+### Added
+
+- nfx-stringbuilder dependency (v0.5.0) for high-performance string building
+- Fast-path parsing optimizations for common ISO 8601 formats
+
+### Changed
+
+- `TimeSpan::toString()` now uses `nfx::StringBuilder` instead of `std::ostringstream`
+- `DateTimeOffset::toString()` now uses `nfx::StringBuilder` instead of `std::ostringstream`
+- `DateTime::toString()` now uses `nfx::StringBuilder` instead of `std::ostringstream`
+- Updated Google Benchmark dependency from 1.9.4 to 1.9.5
 
 ## [0.3.0] - 2026-01-11
 

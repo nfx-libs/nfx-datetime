@@ -9,7 +9,7 @@
 cmake_minimum_required(VERSION 3.20)
 
 project(nfx-datetime
-    VERSION 0.3.0
+    VERSION 0.4.0
     DESCRIPTION "Cross-platform C++ DateTime library with 100-nanosecond precision and ISO 8601 support"
     HOMEPAGE_URL "https://github.com/nfx-libs/nfx-datetime"
     LANGUAGES CXX
