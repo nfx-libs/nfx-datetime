@@ -40,6 +40,187 @@
 namespace nfx::time
 {
     //=====================================================================
+    // Fast parsing helpers
+    //=====================================================================
+
+    namespace
+    {
+        /** @brief Check if character is a digit */
+        [[nodiscard]] constexpr bool isDigit( char c ) noexcept
+        {
+            return c >= '0' && c <= '9';
+        }
+
+        /** @brief Parse integer from string view using fast digit parsing */
+        [[nodiscard]] bool fastParseInt( std::string_view str, double& value ) noexcept
+        {
+            if( str.empty() )
+            {
+                return false;
+            }
+
+            value = 0;
+            for( char c : str )
+            {
+                if( !isDigit( c ) )
+                {
+                    return false;
+                }
+                value = value * 10 + ( c - '0' );
+            }
+            return true;
+        }
+
+        /** @brief Parse fractional seconds (e.g., "45.5S" -> 45.5) */
+        [[nodiscard]] bool fastParseDecimal( std::string_view str, double& value ) noexcept
+        {
+            if( str.empty() )
+            {
+                return false;
+            }
+
+            auto dotPos = str.find( '.' );
+            if( dotPos == std::string_view::npos )
+            {
+                // No decimal point - parse as integer
+                return fastParseInt( str, value );
+            }
+
+            // Parse integer part
+            double intPart = 0;
+            if( dotPos > 0 && !fastParseInt( str.substr( 0, dotPos ), intPart ) )
+            {
+                return false;
+            }
+
+            // Parse fractional part
+            double fracPart = 0;
+            if( dotPos + 1 < str.length() )
+            {
+                auto fracStr = str.substr( dotPos + 1 );
+                if( !fastParseInt( fracStr, fracPart ) )
+                {
+                    return false;
+                }
+
+                // Convert to fraction (e.g., "5" from "45.5" -> 0.5)
+                double divisor = 1;
+                for( std::size_t i = 0; i < fracStr.length(); ++i )
+                {
+                    divisor *= 10;
+                }
+                fracPart /= divisor;
+            }
+
+            value = intPart + fracPart;
+            return true;
+        }
+
+        /**
+         * @brief Fast-path parser for common ISO 8601 duration formats
+         * @details Handles optimized parsing for:
+         *          - PT1H, PT2H30M, PT45S (simple integer components)
+         *          - PT1H30M45S (all components)
+         *          - PT45.5S (fractional seconds)
+         * @return true if parsed successfully via fast path, false if fallback needed
+         */
+        [[nodiscard]] bool tryParseFastPathDuration( std::string_view str, TimeSpan& result ) noexcept
+        {
+            if( str.length() < 3 ) // Minimum: "PT1H"
+            {
+                return false;
+            }
+
+            // Handle negative durations
+            bool isNegative = false;
+            if( str[0] == '-' )
+            {
+                isNegative = true;
+                str.remove_prefix( 1 );
+                if( str.length() < 3 )
+                {
+                    return false;
+                }
+            }
+
+            // Must start with 'P'
+            if( str[0] != 'P' )
+            {
+                return false;
+            }
+
+            // Check for time part indicator 'T'
+            if( str.length() < 3 || str[1] != 'T' )
+            {
+                return false; // Fallback for date components (P1D) or complex formats
+            }
+
+            // Parse time components: PT[n]H[n]M[n]S
+            str.remove_prefix( 2 ); // Skip "PT"
+
+            double totalSeconds = 0;
+            bool foundComponent = false;
+
+            // Parse hours (if present)
+            auto hPos = str.find( 'H' );
+            if( hPos != std::string_view::npos )
+            {
+                double hours = 0;
+                if( !fastParseDecimal( str.substr( 0, hPos ), hours ) )
+                {
+                    return false;
+                }
+                totalSeconds += hours * constants::SECONDS_PER_HOUR;
+                str.remove_prefix( hPos + 1 );
+                foundComponent = true;
+            }
+
+            // Parse minutes (if present)
+            auto mPos = str.find( 'M' );
+            if( mPos != std::string_view::npos )
+            {
+                double minutes = 0;
+                if( !fastParseDecimal( str.substr( 0, mPos ), minutes ) )
+                {
+                    return false;
+                }
+                totalSeconds += minutes * constants::SECONDS_PER_MINUTE;
+                str.remove_prefix( mPos + 1 );
+                foundComponent = true;
+            }
+
+            // Parse seconds (if present)
+            auto sPos = str.find( 'S' );
+            if( sPos != std::string_view::npos )
+            {
+                double seconds = 0;
+                if( !fastParseDecimal( str.substr( 0, sPos ), seconds ) )
+                {
+                    return false;
+                }
+                totalSeconds += seconds;
+                str.remove_prefix( sPos + 1 );
+                foundComponent = true;
+            }
+
+            // Must have at least one component and consumed entire string
+            if( !foundComponent || !str.empty() )
+            {
+                return false;
+            }
+
+            // Apply negative sign
+            if( isNegative )
+            {
+                totalSeconds = -totalSeconds;
+            }
+
+            result = TimeSpan::fromSeconds( totalSeconds );
+            return true;
+        }
+    } // namespace
+
+    //=====================================================================
     // TimeSpan class
     //=====================================================================
 
@@ -137,6 +318,12 @@ namespace nfx::time
         if( iso8601DurationString.empty() )
         {
             return false;
+        }
+
+        // Try fast-path for common ISO 8601 duration formats (PT1H30M, PT45S, etc.)
+        if( tryParseFastPathDuration( iso8601DurationString, result ) )
+        {
+            return true;
         }
 
         // Handle numeric seconds format (convenience)

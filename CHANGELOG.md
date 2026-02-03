@@ -5,6 +5,7 @@
 ### Added
 
 - nfx-stringbuilder dependency (v0.5.0) for high-performance string building
+- Fast-path parsing optimizations for common ISO 8601 formats
 
 ### Changed
 

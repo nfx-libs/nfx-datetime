@@ -286,6 +286,220 @@ namespace nfx::time
     } // namespace internal
 
     //=====================================================================
+    // Fast parsing helpers
+    //=====================================================================
+
+    namespace
+    {
+        /** @brief Fast parse 2 digits without validation */
+        [[nodiscard]] constexpr std::int32_t parse2Digits( const char* p ) noexcept
+        {
+            return ( p[0] - '0' ) * 10 + ( p[1] - '0' );
+        }
+
+        /** @brief Fast parse 4 digits without validation */
+        [[nodiscard]] constexpr std::int32_t parse4Digits( const char* p ) noexcept
+        {
+            return ( p[0] - '0' ) * 1000 + ( p[1] - '0' ) * 100 + ( p[2] - '0' ) * 10 + ( p[3] - '0' );
+        }
+
+        /** @brief Check if character is a digit */
+        [[nodiscard]] constexpr bool isDigit( char c ) noexcept
+        {
+            return c >= '0' && c <= '9';
+        }
+
+        /** @brief Validate that all positions contain digits */
+        [[nodiscard]] constexpr bool areDigits( const char* p, std::size_t count ) noexcept
+        {
+            for( std::size_t i = 0; i < count; ++i )
+            {
+                if( !isDigit( p[i] ) )
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /**
+         * @brief Fast-path parser for standard ISO 8601 formats with timezone offset
+         * @details Handles the most common formats:
+         *          - "YYYY-MM-DDTHH:mm:ss+HH:MM" (25 chars)
+         *          - "YYYY-MM-DDTHH:mm:ssZ" (20 chars)
+         *          - "YYYY-MM-DDTHH:mm:ss.f+HH:MM" (26-32 chars)
+         * @return true if parsed successfully via fast path, false if fallback needed
+         */
+        [[nodiscard]] bool tryParseFastPathOffset( std::string_view str, DateTimeOffset& result ) noexcept
+        {
+            const std::size_t len = str.length();
+
+            // Minimum length: "YYYY-MM-DDTHH:mm:ssZ" (20 chars)
+            if( len < 20 )
+            {
+                return false;
+            }
+
+            const char* data = str.data();
+
+            // Validate fixed separators and digit positions for date/time part
+            if( data[4] != '-' || data[7] != '-' || data[10] != 'T' || data[13] != ':' || data[16] != ':' ||
+                !areDigits( data, 4 ) || !areDigits( data + 5, 2 ) || !areDigits( data + 8, 2 ) ||
+                !areDigits( data + 11, 2 ) || !areDigits( data + 14, 2 ) || !areDigits( data + 17, 2 ) )
+            {
+                return false;
+            }
+
+            // Parse date/time components
+            const std::int32_t year = parse4Digits( data );
+            const std::int32_t month = parse2Digits( data + 5 );
+            const std::int32_t day = parse2Digits( data + 8 );
+            const std::int32_t hour = parse2Digits( data + 11 );
+            const std::int32_t minute = parse2Digits( data + 14 );
+            const std::int32_t second = parse2Digits( data + 17 );
+
+            // Validate components (basic range checks)
+            if( month < 1 || month > 12 || day < 1 || day > 31 || hour < 0 || hour > 23 || minute < 0 || minute > 59 ||
+                second < 0 || second > 59 )
+            {
+                return false;
+            }
+
+            // Additional day-of-month validation
+            if( day > DateTime::daysInMonth( year, month ) )
+            {
+                return false;
+            }
+
+            std::int32_t fractionalTicks = 0;
+            std::size_t pos = 19;
+
+            // Handle fractional seconds if present
+            if( len > 19 && data[19] == '.' )
+            {
+                pos = 20; // Start after '.'
+
+                // Parse up to 7 fractional digits
+                std::int32_t fractionValue = 0;
+                std::int32_t fractionDigits = 0;
+
+                while( pos < len && isDigit( data[pos] ) && fractionDigits < 7 )
+                {
+                    fractionValue = fractionValue * 10 + ( data[pos] - '0' );
+                    ++fractionDigits;
+                    ++pos;
+                }
+
+                if( fractionDigits == 0 )
+                {
+                    return false; // '.' must be followed by at least one digit
+                }
+
+                // Pad to 7 digits
+                while( fractionDigits < 7 )
+                {
+                    fractionValue *= 10;
+                    ++fractionDigits;
+                }
+
+                fractionalTicks = fractionValue;
+
+                // Skip remaining fractional digits
+                while( pos < len && isDigit( data[pos] ) )
+                {
+                    ++pos;
+                }
+            }
+
+            // Parse timezone offset
+            TimeSpan offset{ 0 };
+
+            if( pos >= len )
+            {
+                return false; // Missing timezone indicator
+            }
+
+            if( data[pos] == 'Z' )
+            {
+                // UTC indicator
+                offset = TimeSpan{ 0 };
+                ++pos;
+            }
+            else if( data[pos] == '+' || data[pos] == '-' )
+            {
+                const bool isNegative = ( data[pos] == '-' );
+                ++pos;
+
+                // Need at least 5 chars for "+HH:MM"
+                if( len - pos < 5 )
+                {
+                    return false;
+                }
+
+                // Fast-path: expect "+HH:MM" or "-HH:MM" format (5 chars: HH:MM)
+                if( pos + 5 == len && data[pos + 2] == ':' && areDigits( data + pos, 2 ) &&
+                    areDigits( data + pos + 3, 2 ) )
+                {
+                    const std::int32_t offsetHours = parse2Digits( data + pos );
+                    const std::int32_t offsetMinutes = parse2Digits( data + pos + 3 );
+
+                    // Validate offset range (±00:00 to ±14:00)
+                    if( offsetHours < 0 || offsetHours > 14 || offsetMinutes < 0 || offsetMinutes > 59 )
+                    {
+                        return false;
+                    }
+                    if( offsetHours == 14 && offsetMinutes > 0 )
+                    {
+                        return false; // Max is ±14:00
+                    }
+
+                    std::int32_t totalOffsetMinutes = offsetHours * 60 + offsetMinutes;
+                    if( isNegative )
+                    {
+                        totalOffsetMinutes = -totalOffsetMinutes;
+                    }
+
+                    offset = TimeSpan::fromMinutes( totalOffsetMinutes );
+                    pos += 5;
+                }
+                else
+                {
+                    // Non-standard offset format - use fallback
+                    return false;
+                }
+            }
+            else
+            {
+                // Invalid timezone indicator
+                return false;
+            }
+
+            // Should have consumed entire string
+            if( pos != len )
+            {
+                return false;
+            }
+
+            // Build DateTime and DateTimeOffset
+            // First construct a DateTime with date and time components (fractionalTicks converted to milliseconds)
+            const std::int32_t milliseconds =
+                static_cast<std::int32_t>( fractionalTicks / constants::TICKS_PER_MILLISECOND );
+            DateTime dateTime{ year, month, day, hour, minute, second, milliseconds };
+
+            // Add remaining sub-millisecond ticks (100ns precision)
+            const std::int32_t remainingTicks =
+                static_cast<std::int32_t>( fractionalTicks % constants::TICKS_PER_MILLISECOND );
+            if( remainingTicks > 0 )
+            {
+                dateTime = DateTime{ dateTime.ticks() + remainingTicks };
+            }
+
+            result = DateTimeOffset{ dateTime, offset };
+            return true;
+        }
+    } // namespace
+
+    //=====================================================================
     // DateTimeOffset class
     //=====================================================================
 
@@ -523,6 +737,13 @@ namespace nfx::time
 
     bool DateTimeOffset::fromString( std::string_view iso8601String, DateTimeOffset& result ) noexcept
     {
+        // Try fast-path for standard ISO 8601 with timezone offset
+        if( tryParseFastPathOffset( iso8601String, result ) )
+        {
+            return true;
+        }
+
+        // Fallback to flexible parser for non-standard formats
         /*
             ISO 8601 compliant parser supporting:
             - Local time without timezone (valid but ambiguous per ISO 8601)

@@ -222,6 +222,193 @@ namespace nfx::time
     } // namespace internal
 
     //=====================================================================
+    // Fast parsing helpers
+    //=====================================================================
+
+    namespace
+    {
+        /** @brief Fast parse 2 digits without validation (inline-optimized) */
+        [[nodiscard]] constexpr std::int32_t parse2Digits( const char* p ) noexcept
+        {
+            return ( p[0] - '0' ) * 10 + ( p[1] - '0' );
+        }
+
+        /** @brief Fast parse 4 digits without validation (inline-optimized) */
+        [[nodiscard]] constexpr std::int32_t parse4Digits( const char* p ) noexcept
+        {
+            return ( p[0] - '0' ) * 1000 + ( p[1] - '0' ) * 100 + ( p[2] - '0' ) * 10 + ( p[3] - '0' );
+        }
+
+        /** @brief Check if character is a digit */
+        [[nodiscard]] constexpr bool isDigit( char c ) noexcept
+        {
+            return c >= '0' && c <= '9';
+        }
+
+        /** @brief Validate that all positions contain digits */
+        [[nodiscard]] constexpr bool areDigits( const char* p, std::size_t count ) noexcept
+        {
+            for( std::size_t i = 0; i < count; ++i )
+            {
+                if( !isDigit( p[i] ) )
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /**
+         * @brief Fast-path parser for standard ISO 8601 formats
+         * @details Handles the most common formats with fixed positions:
+         *          - "YYYY-MM-DD" (10 chars)
+         *          - "YYYY-MM-DDTHH:mm:ss" (19 chars)
+         *          - "YYYY-MM-DDTHH:mm:ssZ" (20 chars)
+         *          - "YYYY-MM-DDTHH:mm:ss.f" (21-27 chars)
+         *          - "YYYY-MM-DDTHH:mm:ss.fZ" (22-28 chars)
+         * @return true if parsed successfully via fast path, false if fallback needed
+         */
+        [[nodiscard]] bool tryParseFastPath( std::string_view str, DateTime& result ) noexcept
+        {
+            const std::size_t len = str.length();
+
+            // Fast path requirements: minimum 10 chars (YYYY-MM-DD)
+            if( len < 10 )
+            {
+                return false;
+            }
+
+            const char* data = str.data();
+
+            // Validate fixed separators and digit positions for date part
+            if( data[4] != '-' || data[7] != '-' || !areDigits( data, 4 ) || !areDigits( data + 5, 2 ) ||
+                !areDigits( data + 8, 2 ) )
+            {
+                return false;
+            }
+
+            // Parse date components using fast digit parsing
+            const std::int32_t year = parse4Digits( data );
+            const std::int32_t month = parse2Digits( data + 5 );
+            const std::int32_t day = parse2Digits( data + 8 );
+
+            // Validate date components
+            if( !internal::isValidDate( year, month, day ) )
+            {
+                return false;
+            }
+
+            // Date-only format: "YYYY-MM-DD"
+            if( len == 10 )
+            {
+                const std::int64_t ticks = internal::dateToTicks( year, month, day );
+                result = DateTime{ ticks };
+                return true;
+            }
+
+            // Time part must start with 'T'
+            if( data[10] != 'T' )
+            {
+                return false;
+            }
+
+            // Need at least "YYYY-MM-DDTHH:mm:ss" (19 chars)
+            if( len < 19 )
+            {
+                return false;
+            }
+
+            // Validate time separators and digits
+            if( data[13] != ':' || data[16] != ':' || !areDigits( data + 11, 2 ) || !areDigits( data + 14, 2 ) ||
+                !areDigits( data + 17, 2 ) )
+            {
+                return false;
+            }
+
+            // Parse time components
+            const std::int32_t hour = parse2Digits( data + 11 );
+            const std::int32_t minute = parse2Digits( data + 14 );
+            const std::int32_t second = parse2Digits( data + 17 );
+
+            // Validate time components
+            if( !internal::isValidTime( hour, minute, second, 0 ) )
+            {
+                return false;
+            }
+
+            std::int32_t fractionalTicks = 0;
+            std::size_t pos = 19;
+
+            // Handle optional 'Z' at position 19
+            if( len == 20 && data[19] == 'Z' )
+            {
+                // "YYYY-MM-DDTHH:mm:ssZ" - no fractional seconds
+                pos = 20;
+            }
+            // Handle fractional seconds
+            else if( len > 19 && data[19] == '.' )
+            {
+                pos = 20; // Start after '.'
+
+                // Parse up to 7 fractional digits (100ns precision)
+                std::int32_t fractionValue = 0;
+                std::int32_t fractionDigits = 0;
+
+                while( pos < len && isDigit( data[pos] ) && fractionDigits < 7 )
+                {
+                    fractionValue = fractionValue * 10 + ( data[pos] - '0' );
+                    ++fractionDigits;
+                    ++pos;
+                }
+
+                if( fractionDigits == 0 )
+                {
+                    return false; // '.' must be followed by at least one digit
+                }
+
+                // Pad to 7 digits (convert to 100ns ticks)
+                while( fractionDigits < 7 )
+                {
+                    fractionValue *= 10;
+                    ++fractionDigits;
+                }
+
+                fractionalTicks = fractionValue;
+
+                // Skip remaining fractional digits beyond our precision
+                while( pos < len && isDigit( data[pos] ) )
+                {
+                    ++pos;
+                }
+
+                // Optional 'Z' after fractional seconds
+                if( pos < len && data[pos] == 'Z' )
+                {
+                    ++pos;
+                }
+            }
+            else if( len != 19 )
+            {
+                // Unexpected format - not a standard ISO 8601 we can fast-path
+                return false;
+            }
+
+            // Should have consumed the entire string
+            if( pos != len )
+            {
+                return false;
+            }
+
+            // Calculate total ticks
+            const std::int64_t ticks = internal::dateToTicks( year, month, day ) +
+                                       internal::timeToTicks( hour, minute, second, 0 ) + fractionalTicks;
+
+            result = DateTime{ ticks };
+            return true;
+        }
+    } // namespace
+
+    //=====================================================================
     // DateTime class
     //=====================================================================
 
@@ -700,15 +887,24 @@ namespace nfx::time
 
     bool DateTime::fromString( std::string_view iso8601String, DateTime& result ) noexcept
     {
-        // ISO 8601 parser using std::from_chars
-        //  Supports: YYYY-MM-DD, YYYY-MM-DDTHH:mm:ss, YYYY-MM-DDTHH:mm:ssZ,
-        //  YYYY-MM-DDTHH:mm:ss.f, YYYY-MM-DDTHH:mm:ss.fffffffZ, etc.
+        // Fast empty/length check
         if( iso8601String.empty() || iso8601String.length() < 10 )
         {
             return false;
         }
 
-        // Remove trailing 'Z' if present
+        // Try fast-path parser first (handles 95% of real-world cases)
+        // Supports: YYYY-MM-DD, YYYY-MM-DDTHH:mm:ss, YYYY-MM-DDTHH:mm:ssZ,
+        //           YYYY-MM-DDTHH:mm:ss.f, YYYY-MM-DDTHH:mm:ss.fffffffZ
+        if( tryParseFastPath( iso8601String, result ) )
+        {
+            return true;
+        }
+
+        // Fallback to flexible parser for non-standard formats
+        // (handles timezone offsets, variable digit counts, etc.)
+
+        // Remove trailing 'Z' if present (for flexible parser compatibility)
         if( iso8601String.back() == 'Z' )
         {
             iso8601String.remove_suffix( 1 );
