@@ -375,7 +375,7 @@ namespace nfx::time
             std::size_t pos = 19;
 
             // Handle fractional seconds if present
-            if( len > 19 && data[19] == '.' )
+            if( data[19] == '.' )
             {
                 pos = 20; // Start after '.'
 
