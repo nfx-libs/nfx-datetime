@@ -20,7 +20,7 @@
 
 ### Fixed
 
-- NIL
+- Fixed warnings for unused local variables in `DateTime::toString()` and `DateTimeOffset` formatting functions
 
 ### Security
 

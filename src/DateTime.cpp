@@ -645,7 +645,7 @@ namespace nfx::time
                 // .1234567Z
                 char fracBuffer[8];
                 fracBuffer[0] = '.';
-                auto [ptr, ec] = std::to_chars( fracBuffer + 1, fracBuffer + 8, fractionalTicks );
+                const auto ptr = std::to_chars( fracBuffer + 1, fracBuffer + 8, fractionalTicks ).ptr;
                 const auto fracLen = ptr - fracBuffer;
                 const auto paddingNeeded = 8 - fracLen;
 
@@ -680,7 +680,7 @@ namespace nfx::time
                 {
                     char fracBuffer[8];
                     fracBuffer[0] = '.';
-                    auto [ptr, ec] = std::to_chars( fracBuffer + 1, fracBuffer + 8, fractionalTicks );
+                    const auto ptr = std::to_chars( fracBuffer + 1, fracBuffer + 8, fractionalTicks ).ptr;
                     auto fracLen = ptr - fracBuffer;
                     const auto paddingNeeded = 8 - fracLen;
 
@@ -729,7 +729,7 @@ namespace nfx::time
                 // .123Z
                 char fracBuffer[4];
                 fracBuffer[0] = '.';
-                auto [ptr, ec] = std::to_chars( fracBuffer + 1, fracBuffer + 4, milliseconds );
+                const auto ptr = std::to_chars( fracBuffer + 1, fracBuffer + 4, milliseconds ).ptr;
                 const auto fracLen = ptr - fracBuffer;
                 const auto paddingNeeded = 4 - fracLen;
 
@@ -765,7 +765,7 @@ namespace nfx::time
                 // .123456Z
                 char fracBuffer[7];
                 fracBuffer[0] = '.';
-                auto [ptr, ec] = std::to_chars( fracBuffer + 1, fracBuffer + 7, microseconds );
+                const auto ptr = std::to_chars( fracBuffer + 1, fracBuffer + 7, microseconds ).ptr;
                 const auto fracLen = ptr - fracBuffer;
                 const auto paddingNeeded = 7 - fracLen;
 
@@ -833,7 +833,7 @@ namespace nfx::time
             {
                 char buffer[32];
                 const auto epochSecs = toEpochSeconds();
-                auto [ptr, ec] = std::to_chars( buffer, buffer + 32, epochSecs );
+                const auto ptr = std::to_chars( buffer, buffer + 32, epochSecs ).ptr;
                 sb.append( std::string_view{ buffer, static_cast<std::size_t>( ptr - buffer ) } );
                 break;
             }
@@ -841,7 +841,7 @@ namespace nfx::time
             {
                 char buffer[32];
                 const auto epochMs = toEpochMilliseconds();
-                auto [ptr, ec] = std::to_chars( buffer, buffer + 32, epochMs );
+                const auto ptr = std::to_chars( buffer, buffer + 32, epochMs ).ptr;
                 sb.append( std::string_view{ buffer, static_cast<std::size_t>( ptr - buffer ) } );
                 break;
             }

@@ -155,7 +155,7 @@ namespace nfx::time
                 fracBuffer[0] = '.';
 
                 // Format 7-digit fractional part with zero padding
-                auto [ptr, ec] = std::to_chars( fracBuffer + 1, fracBuffer + 8, fractionalTicks );
+                const auto ptr = std::to_chars( fracBuffer + 1, fracBuffer + 8, fractionalTicks ).ptr;
                 const auto fracLen = ptr - fracBuffer;
                 const auto paddingNeeded = 8 - fracLen;
 
@@ -178,7 +178,7 @@ namespace nfx::time
                     fracBuffer[0] = '.';
 
                     // Format 7-digit fractional part with zero padding
-                    auto [ptr, ec] = std::to_chars( fracBuffer + 1, fracBuffer + 8, fractionalTicks );
+                    const auto ptr = std::to_chars( fracBuffer + 1, fracBuffer + 8, fractionalTicks ).ptr;
                     auto fracLen = ptr - fracBuffer;
                     const auto paddingNeeded = 8 - fracLen;
 
@@ -213,7 +213,7 @@ namespace nfx::time
                 fracBuffer[0] = '.';
 
                 // Format 3-digit milliseconds with zero padding
-                auto [ptr, ec] = std::to_chars( fracBuffer + 1, fracBuffer + 4, milliseconds );
+                const auto ptr = std::to_chars( fracBuffer + 1, fracBuffer + 4, milliseconds ).ptr;
                 const auto fracLen = ptr - fracBuffer;
                 const auto paddingNeeded = 4 - fracLen;
 
@@ -236,7 +236,7 @@ namespace nfx::time
                 fracBuffer[0] = '.';
 
                 // Format 6-digit microseconds with zero padding
-                auto [ptr, ec] = std::to_chars( fracBuffer + 1, fracBuffer + 7, microseconds );
+                const auto ptr = std::to_chars( fracBuffer + 1, fracBuffer + 7, microseconds ).ptr;
                 const auto fracLen = ptr - fracBuffer;
                 const auto paddingNeeded = 7 - fracLen;
 
