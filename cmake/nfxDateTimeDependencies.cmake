@@ -18,7 +18,7 @@ set(CMAKE_FIND_QUIETLY      ON     )
 # Dependency versions
 #----------------------------------------------
 
-set(NFX_DATETIME_DEPS_NFX_STRINGBUILDER_VERSION "0.5.0")
+set(NFX_DATETIME_DEPS_NFX_STRINGBUILDER_VERSION "0.6.0")
 
 #----------------------------------------------
 # FetchContent dependencies
