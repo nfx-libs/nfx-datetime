@@ -69,6 +69,13 @@ function(configure_target target_name)
             SOVERSION ${PROJECT_VERSION_MAJOR}
             POSITION_INDEPENDENT_CODE ON
     )
+
+    # --- Compiler warnings ---
+    target_compile_options(${target_name}
+        PRIVATE
+            $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
+            $<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>:-Wall -Wextra -Werror>
+    )
 endfunction()
 
 # --- Apply configuration to both targets ---
