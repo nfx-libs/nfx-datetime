@@ -108,7 +108,8 @@ namespace nfx::time::internal
             // Fast path: check if cache is valid (lock-free)
             if( m_cachedHour.load( std::memory_order_acquire ) == currentHourKey )
             {
-                return TimeSpan::fromSeconds( m_offsetSeconds.load( std::memory_order_acquire ) );
+                return TimeSpan::fromSeconds(
+                    static_cast<double>( m_offsetSeconds.load( std::memory_order_acquire ) ) );
             }
 
             // Slow path: recompute offset
@@ -118,7 +119,7 @@ namespace nfx::time::internal
             m_offsetSeconds.store( newOffset, std::memory_order_release );
             m_cachedHour.store( currentHourKey, std::memory_order_release );
 
-            return TimeSpan::fromSeconds( newOffset );
+            return TimeSpan::fromSeconds( static_cast<double>( newOffset ) );
         }
 
     private:
