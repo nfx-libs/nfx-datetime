@@ -1019,7 +1019,7 @@ namespace nfx::time::test
         // Integer nanoseconds
         auto ns1 = 100_ns;
         EXPECT_DOUBLE_EQ( ns1.nanoseconds(), 100.0 );
-        EXPECT_DOUBLE_EQ( ns1.ticks(), 1 ); // 100 ns = 1 tick
+        EXPECT_DOUBLE_EQ( static_cast<double>( ns1.ticks() ), 1 ); // 100 ns = 1 tick
 
         auto ns2 = 1000_ns;
         EXPECT_DOUBLE_EQ( ns2.microseconds(), 1.0 );
