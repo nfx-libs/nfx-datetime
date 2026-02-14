@@ -26,6 +26,23 @@
 
 - NIL
 
+## [0.5.0] - 2026-02-14
+
+### Added
+
+- Strict compiler warning options (`/W4 /WX` for MSVC, `-Wall -Wextra -Werror` for GCC/Clang)
+
+### Changed
+
+- Bumped `nfx-stringbuilder` dependency from 0.6.0 to 0.6.2
+- Updated static library output name to remove version suffix
+
+### Fixed
+
+- Fixed implicit conversion warnings by adding explicit casts from `int64_t` to `double` in timezone offset calculations
+- Fixed potential undefined behavior in date calculations by clamping month value to valid range (1-12)
+- Fixed implicit conversion in test assertions by casting `ticks()` to `double` for accurate comparisons
+
 ## [0.4.2] - 2026-02-11
 
 - bump nfx-stringbuilder from 0.5.0 to 0.6.0
