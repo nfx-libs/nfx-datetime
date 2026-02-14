@@ -170,7 +170,9 @@ namespace nfx::time
             totalDays += y * constants::DAYS_PER_YEAR;
 
             // Add days for complete months in the given year
-            for( std::int32_t m{ 1 }; m < month; ++m )
+            // Clamp month to valid range to prevent undefined behavior in loop
+            const std::int32_t validMonth = ( month < 1 ) ? 1 : ( month > 12 ) ? 12 : month;
+            for( std::int32_t m{ 1 }; m < validMonth; ++m )
             {
                 totalDays += DateTime::daysInMonth( year, m );
             }
@@ -620,13 +622,14 @@ namespace nfx::time
         }
 
         /** @brief Append ISO 8601 datetime part: YYYY-MM-DDTHH:mm:ss */
-        inline void appendIso8601DateTime( nfx::string::StringBuilder& sb,
-                                           std::int32_t year,
-                                           std::int32_t month,
-                                           std::int32_t day,
-                                           std::int32_t hour,
-                                           std::int32_t minute,
-                                           std::int32_t second ) noexcept
+        inline void appendIso8601DateTime(
+            nfx::string::StringBuilder& sb,
+            std::int32_t year,
+            std::int32_t month,
+            std::int32_t day,
+            std::int32_t hour,
+            std::int32_t minute,
+            std::int32_t second ) noexcept
         {
             appendIso8601Date( sb, year, month, day );
             sb.append( 'T' );
@@ -634,9 +637,8 @@ namespace nfx::time
         }
 
         /** @brief Append zero-padded fractional seconds with specific precision */
-        inline void appendFractionalSeconds( nfx::string::StringBuilder& sb,
-                                             std::int32_t fractionalValue,
-                                             std::size_t bufferSize ) noexcept
+        inline void appendFractionalSeconds(
+            nfx::string::StringBuilder& sb, std::int32_t fractionalValue, std::size_t bufferSize ) noexcept
         {
             char fracBuffer[8]; // Max size for 7 digits + decimal point
             fracBuffer[0] = '.';
@@ -656,7 +658,8 @@ namespace nfx::time
         }
 
         /** @brief Append fractional seconds with trimmed trailing zeros */
-        inline void appendFractionalSecondsTrimmed( nfx::string::StringBuilder& sb, std::int32_t fractionalTicks ) noexcept
+        inline void appendFractionalSecondsTrimmed(
+            nfx::string::StringBuilder& sb, std::int32_t fractionalTicks ) noexcept
         {
             if( fractionalTicks > 0 )
             {
@@ -689,7 +692,13 @@ namespace nfx::time
 
         /** @brief Format ISO 8601 with UTC indicator: YYYY-MM-DDTHH:mm:ssZ */
         inline void formatIso8601(
-            nfx::string::StringBuilder& sb, std::int32_t y, std::int32_t mon, std::int32_t d, std::int32_t h, std::int32_t min, std::int32_t s ) noexcept
+            nfx::string::StringBuilder& sb,
+            std::int32_t y,
+            std::int32_t mon,
+            std::int32_t d,
+            std::int32_t h,
+            std::int32_t min,
+            std::int32_t s ) noexcept
         {
             appendIso8601DateTime( sb, y, mon, d, h, min, s );
             sb.append( 'Z' );
@@ -697,7 +706,14 @@ namespace nfx::time
 
         /** @brief Format ISO 8601 with precise fractional seconds: YYYY-MM-DDTHH:mm:ss.1234567Z */
         inline void formatIso8601Precise(
-            nfx::string::StringBuilder& sb, std::int32_t y, std::int32_t mon, std::int32_t d, std::int32_t h, std::int32_t min, std::int32_t s, std::int64_t ticks ) noexcept
+            nfx::string::StringBuilder& sb,
+            std::int32_t y,
+            std::int32_t mon,
+            std::int32_t d,
+            std::int32_t h,
+            std::int32_t min,
+            std::int32_t s,
+            std::int64_t ticks ) noexcept
         {
             const std::int32_t fractionalTicks{ static_cast<std::int32_t>( ticks % constants::TICKS_PER_SECOND ) };
             appendIso8601DateTime( sb, y, mon, d, h, min, s );
@@ -707,7 +723,14 @@ namespace nfx::time
 
         /** @brief Format ISO 8601 with trimmed fractional seconds: YYYY-MM-DDTHH:mm:ss.f+Z */
         inline void formatIso8601PreciseTrimmed(
-            nfx::string::StringBuilder& sb, std::int32_t y, std::int32_t mon, std::int32_t d, std::int32_t h, std::int32_t min, std::int32_t s, std::int64_t ticks ) noexcept
+            nfx::string::StringBuilder& sb,
+            std::int32_t y,
+            std::int32_t mon,
+            std::int32_t d,
+            std::int32_t h,
+            std::int32_t min,
+            std::int32_t s,
+            std::int64_t ticks ) noexcept
         {
             const std::int32_t fractionalTicks{ static_cast<std::int32_t>( ticks % constants::TICKS_PER_SECOND ) };
             appendIso8601DateTime( sb, y, mon, d, h, min, s );
@@ -717,10 +740,18 @@ namespace nfx::time
 
         /** @brief Format ISO 8601 with milliseconds: YYYY-MM-DDTHH:mm:ss.123Z */
         inline void formatIso8601Millis(
-            nfx::string::StringBuilder& sb, std::int32_t y, std::int32_t mon, std::int32_t d, std::int32_t h, std::int32_t min, std::int32_t s, std::int64_t ticks ) noexcept
+            nfx::string::StringBuilder& sb,
+            std::int32_t y,
+            std::int32_t mon,
+            std::int32_t d,
+            std::int32_t h,
+            std::int32_t min,
+            std::int32_t s,
+            std::int64_t ticks ) noexcept
         {
             const std::int32_t fractionalTicks{ static_cast<std::int32_t>( ticks % constants::TICKS_PER_SECOND ) };
-            const std::int32_t milliseconds{ static_cast<std::int32_t>( fractionalTicks / constants::TICKS_PER_MILLISECOND ) };
+            const std::int32_t milliseconds{ static_cast<std::int32_t>(
+                fractionalTicks / constants::TICKS_PER_MILLISECOND ) };
             appendIso8601DateTime( sb, y, mon, d, h, min, s );
             appendFractionalSeconds( sb, milliseconds, 4 );
             sb.append( 'Z' );
@@ -728,10 +759,18 @@ namespace nfx::time
 
         /** @brief Format ISO 8601 with microseconds: YYYY-MM-DDTHH:mm:ss.123456Z */
         inline void formatIso8601Micros(
-            nfx::string::StringBuilder& sb, std::int32_t y, std::int32_t mon, std::int32_t d, std::int32_t h, std::int32_t min, std::int32_t s, std::int64_t ticks ) noexcept
+            nfx::string::StringBuilder& sb,
+            std::int32_t y,
+            std::int32_t mon,
+            std::int32_t d,
+            std::int32_t h,
+            std::int32_t min,
+            std::int32_t s,
+            std::int64_t ticks ) noexcept
         {
             const std::int32_t fractionalTicks{ static_cast<std::int32_t>( ticks % constants::TICKS_PER_SECOND ) };
-            const std::int32_t microseconds{ static_cast<std::int32_t>( fractionalTicks / constants::TICKS_PER_MICROSECOND ) };
+            const std::int32_t microseconds{ static_cast<std::int32_t>(
+                fractionalTicks / constants::TICKS_PER_MICROSECOND ) };
             appendIso8601DateTime( sb, y, mon, d, h, min, s );
             appendFractionalSeconds( sb, microseconds, 7 );
             sb.append( 'Z' );
@@ -739,7 +778,13 @@ namespace nfx::time
 
         /** @brief Format ISO 8601 extended with UTC offset: YYYY-MM-DDTHH:mm:ss+00:00 */
         inline void formatIso8601Extended(
-            nfx::string::StringBuilder& sb, std::int32_t y, std::int32_t mon, std::int32_t d, std::int32_t h, std::int32_t min, std::int32_t s ) noexcept
+            nfx::string::StringBuilder& sb,
+            std::int32_t y,
+            std::int32_t mon,
+            std::int32_t d,
+            std::int32_t h,
+            std::int32_t min,
+            std::int32_t s ) noexcept
         {
             appendIso8601DateTime( sb, y, mon, d, h, min, s );
             sb.append( "+00:00" );
@@ -747,7 +792,13 @@ namespace nfx::time
 
         /** @brief Format ISO 8601 basic (compact): YYYYMMDDTHHMMSSZ */
         inline void formatIso8601Basic(
-            nfx::string::StringBuilder& sb, std::int32_t y, std::int32_t mon, std::int32_t d, std::int32_t h, std::int32_t min, std::int32_t s ) noexcept
+            nfx::string::StringBuilder& sb,
+            std::int32_t y,
+            std::int32_t mon,
+            std::int32_t d,
+            std::int32_t h,
+            std::int32_t min,
+            std::int32_t s ) noexcept
         {
             appendFourDigits( sb, y );
             appendTwoDigits( sb, mon );
