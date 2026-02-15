@@ -26,6 +26,22 @@
 
 - NIL
 
+## [0.6.0] - 2026-02-15
+
+### Added
+
+- `NFX_DATETIME_ENABLE_SIMD` build option to enable/disable native CPU optimizations (enabled by default)
+- SIMD optimization support (AVX2 for MSVC, `-march=native` for GCC/Clang) for Release builds
+- WebAssembly/Emscripten compilation support with automatic fallback to portable implementations
+- Emscripten-specific optimizations (microsecond-based chrono conversion, `std::strtod` parsing)
+
+### Changed
+
+- Bumped `nfx-stringbuilder` dependency from 0.6.2 to 0.7.0
+- Simplified release workflow (removed complex packaging steps)
+- SIMD settings now propagate to nfx-stringbuilder dependency
+- Use `std::strtod` instead of `std::from_chars` for floating-point parsing under Emscripten
+
 ## [0.5.0] - 2026-02-14
 
 ### Added
