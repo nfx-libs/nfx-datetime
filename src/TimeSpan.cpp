@@ -330,9 +330,16 @@ namespace nfx::time
         if( iso8601DurationString.find_first_not_of( "0123456789.-" ) == std::string_view::npos )
         {
             double seconds{};
+#ifdef __EMSCRIPTEN__
+            // Emscripten doesn't support std::from_chars for floating point
+            char* end;
+            seconds = std::strtod( iso8601DurationString.data(), &end );
+            if( end == iso8601DurationString.data() + iso8601DurationString.size() )
+#else
             auto [ptr, ec] = std::from_chars(
                 iso8601DurationString.data(), iso8601DurationString.data() + iso8601DurationString.size(), seconds );
             if( ec == std::errc{} && ptr == iso8601DurationString.data() + iso8601DurationString.size() )
+#endif
             {
                 result = TimeSpan::fromSeconds( seconds );
                 return true;
@@ -366,8 +373,14 @@ namespace nfx::time
                 if( dPos != std::string_view::npos )
                 {
                     auto dayStr{ datePart.substr( 0, dPos ) };
+#ifdef __EMSCRIPTEN__
+                    char* end;
+                    days = std::strtod( dayStr.data(), &end );
+                    if( end == dayStr.data() + dayStr.size() )
+#else
                     auto [ptr, ec] = std::from_chars( dayStr.data(), dayStr.data() + dayStr.size(), days );
                     if( ec == std::errc{} && ptr == dayStr.data() + dayStr.size() )
+#endif
                     {
                         foundComponent = true;
                     }
@@ -428,8 +441,14 @@ namespace nfx::time
                 {
                     auto hourStr{ timePart.substr( 0, hPos ) };
                     double hours{};
+#ifdef __EMSCRIPTEN__
+                    char* end;
+                    hours = std::strtod( hourStr.data(), &end );
+                    if( end == hourStr.data() + hourStr.size() )
+#else
                     auto [ptr, ec] = std::from_chars( hourStr.data(), hourStr.data() + hourStr.size(), hours );
                     if( ec == std::errc{} && ptr == hourStr.data() + hourStr.size() )
+#endif
                     {
                         totalSeconds += hours * static_cast<double>( constants::SECONDS_PER_HOUR );
                         timePart = timePart.substr( hPos + 1 );
@@ -447,8 +466,14 @@ namespace nfx::time
                 {
                     auto minuteStr{ timePart.substr( 0, mPos ) };
                     double minutes{};
+#ifdef __EMSCRIPTEN__
+                    char* end;
+                    minutes = std::strtod( minuteStr.data(), &end );
+                    if( end == minuteStr.data() + minuteStr.size() )
+#else
                     auto [ptr, ec] = std::from_chars( minuteStr.data(), minuteStr.data() + minuteStr.size(), minutes );
                     if( ec == std::errc{} && ptr == minuteStr.data() + minuteStr.size() )
+#endif
                     {
                         totalSeconds += minutes * static_cast<double>( constants::SECONDS_PER_MINUTE );
                         timePart = timePart.substr( mPos + 1 );
@@ -466,8 +491,14 @@ namespace nfx::time
                 {
                     auto secondStr{ timePart.substr( 0, sPos ) };
                     double seconds{};
+#ifdef __EMSCRIPTEN__
+                    char* end;
+                    seconds = std::strtod( secondStr.data(), &end );
+                    if( end == secondStr.data() + secondStr.size() )
+#else
                     auto [ptr, ec] = std::from_chars( secondStr.data(), secondStr.data() + secondStr.size(), seconds );
                     if( ec == std::errc{} && ptr == secondStr.data() + secondStr.size() )
+#endif
                     {
                         totalSeconds += seconds;
                         foundComponent = true;

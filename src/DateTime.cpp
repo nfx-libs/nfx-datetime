@@ -1152,7 +1152,13 @@ namespace nfx::time
         using ticks_duration = std::chrono::duration<std::int64_t, std::ratio<1, 10000000>>;
         auto duration{ ticks_duration{ ticksSinceEpoch } };
 
+#ifdef __EMSCRIPTEN__
+        // Emscripten system_clock uses microseconds, convert from 100ns ticks
+        auto micros = std::chrono::duration_cast<std::chrono::microseconds>( duration );
+        return std::chrono::system_clock::time_point{ micros };
+#else
         return std::chrono::system_clock::time_point{ duration };
+#endif
     }
 
     DateTime DateTime::fromChrono( const std::chrono::system_clock::time_point& timePoint ) noexcept

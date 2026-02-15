@@ -55,11 +55,6 @@ endif()
 
 set(NFX_DATETIME_LICENSE_FILE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
 
-
-
-
-
-
 #----------------------------------------------
 # Directory configuration
 #----------------------------------------------
