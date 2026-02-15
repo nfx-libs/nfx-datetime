@@ -2,7 +2,7 @@
 
 <!-- Project Info -->
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://github.com/nfx-libs/nfx-datetime/blob/main/LICENSE.txt) [![GitHub release (latest by date)](https://img.shields.io/github/v/release/nfx-libs/nfx-datetime?style=flat-square)](https://github.com/nfx-libs/nfx-datetime/releases) [![GitHub tag (latest by date)](https://img.shields.io/github/tag/nfx-libs/nfx-datetime?style=flat-square)](https://github.com/nfx-libs/nfx-datetime/tags)<br/>
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://github.com/nfx-libs/nfx-datetime/blob/main/LICENSE) [![GitHub release (latest by date)](https://img.shields.io/github/v/release/nfx-libs/nfx-datetime?style=flat-square)](https://github.com/nfx-libs/nfx-datetime/releases) [![GitHub tag (latest by date)](https://img.shields.io/github/tag/nfx-libs/nfx-datetime?style=flat-square)](https://github.com/nfx-libs/nfx-datetime/tags)<br/>
 
 ![C++20](https://img.shields.io/badge/C%2B%2B-20-blue?style=flat-square) ![CMake](https://img.shields.io/badge/CMake-3.20%2B-green.svg?style=flat-square) ![Cross Platform](https://img.shields.io/badge/Platform-Linux_Windows-lightgrey?style=flat-square)
 

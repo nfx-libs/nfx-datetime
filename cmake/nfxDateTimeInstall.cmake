@@ -11,6 +11,12 @@ if(NOT NFX_DATETIME_INSTALL_PROJECT)
 endif()
 
 #----------------------------------------------
+# Installation paths configuration
+#----------------------------------------------
+
+include(GNUInstallDirs)
+
+#----------------------------------------------
 # Install headers
 #----------------------------------------------
 
@@ -114,18 +120,15 @@ install(
 #----------------------------------------------
 
 install(
-    FILES "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.txt"
+    FILES "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE"
     DESTINATION "${CMAKE_INSTALL_DOCDIR}/licenses"
-    RENAME "LICENSE-${PROJECT_NAME}.txt"
 )
 
 file(GLOB LICENSE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/licenses/LICENSE-*")
 foreach(LICENSE_FILE ${LICENSE_FILES})
-    get_filename_component(LICENSE_NAME ${LICENSE_FILE} NAME)
     install(
         FILES ${LICENSE_FILE}
         DESTINATION "${CMAKE_INSTALL_DOCDIR}/licenses"
-        RENAME "${LICENSE_NAME}.txt"
     )
 endforeach()
 

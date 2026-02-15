@@ -21,7 +21,7 @@ BEGIN
             VALUE "FileDescription",  "nfx DateTime C++ library - Cross-platform DateTime with 100-nanosecond precision and ISO 8601 support\0"
             VALUE "FileVersion",      "@PROJECT_VERSION@\0"
             VALUE "InternalName",     "nfx-datetime\0"
-            VALUE "LegalCopyright",   "Copyright (C) 2025 nfx. Licensed under MIT License.\0"
+            VALUE "LegalCopyright",   "Copyright (C) 2025-2026 nfx. Licensed under MIT License.\0"
             VALUE "OriginalFilename", "nfx-datetime.dll\0"
             VALUE "ProductName",      "nfx DateTime Library\0"
             VALUE "ProductVersion",   "@PROJECT_VERSION@\0"
