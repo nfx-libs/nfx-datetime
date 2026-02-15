@@ -18,7 +18,7 @@ set(CMAKE_FIND_QUIETLY      ON     )
 # Dependency versions
 #----------------------------------------------
 
-set(NFX_DATETIME_DEPS_NFX_STRINGBUILDER_VERSION "0.6.2")
+set(NFX_DATETIME_DEPS_NFX_STRINGBUILDER_VERSION "0.7.0")
 
 #----------------------------------------------
 # FetchContent dependencies
@@ -36,6 +36,7 @@ set(FETCHCONTENT_QUIET OFF)
 # --- nfx-stringbuilder ---
 find_package(nfx-stringbuilder QUIET)
 if(NOT nfx-stringbuilder_FOUND)
+    set(NFX_STRINGBUILDER_ENABLE_SIMD         ${NFX_DATETIME_ENABLE_SIMD} CACHE BOOL "")
     set(NFX_STRINGBUILDER_BUILD_STATIC        ON  CACHE BOOL "Build static library"        FORCE)
     set(NFX_STRINGBUILDER_BUILD_SHARED        OFF CACHE BOOL "Build shared library"        FORCE)
     set(NFX_STRINGBUILDER_BUILD_TESTS         OFF CACHE BOOL "Build tests"                 FORCE)
@@ -44,10 +45,6 @@ if(NOT nfx-stringbuilder_FOUND)
     set(NFX_STRINGBUILDER_BUILD_DOCUMENTATION OFF CACHE BOOL "Build Doxygen documentation" FORCE)
     set(NFX_STRINGBUILDER_INSTALL_PROJECT     OFF CACHE BOOL "Install project"             FORCE)
     set(NFX_STRINGBUILDER_PACKAGE_SOURCE      OFF CACHE BOOL "Enable source package"       FORCE)
-    set(NFX_STRINGBUILDER_PACKAGE_ARCHIVE     OFF CACHE BOOL "Enable archive package"      FORCE)
-    set(NFX_STRINGBUILDER_PACKAGE_DEB         OFF CACHE BOOL "Enable DEB package"          FORCE)
-    set(NFX_STRINGBUILDER_PACKAGE_RPM         OFF CACHE BOOL "Enable RPM package"          FORCE)
-    set(NFX_STRINGBUILDER_PACKAGE_WIX         OFF CACHE BOOL "Enable WIX package"          FORCE)
 
     FetchContent_Declare(
         nfx-stringbuilder

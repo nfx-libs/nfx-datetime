@@ -44,6 +44,9 @@ option(NFX_DATETIME_BUILD_SAMPLES       "Build samples"                      OFF
 option(NFX_DATETIME_BUILD_BENCHMARKS    "Build benchmarks"                   OFF)
 option(NFX_DATETIME_BUILD_DOCUMENTATION "Build Doxygen documentation"        OFF)
 
+# --- Performance options ---
+option(NFX_DATETIME_ENABLE_SIMD         "Enable native CPU optimizations"    ON )
+
 # --- Installation and packaging ---
 option(NFX_DATETIME_INSTALL_PROJECT     "Install project"                    OFF)
 option(NFX_DATETIME_PACKAGE_SOURCE      "Enable source package generation"   OFF)
